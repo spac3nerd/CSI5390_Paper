@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Multiplayer WebGL Game</title>
+        <!-- Load assets -->
+        <script type="text/javascript" src="./src/game.js"></script>
+        <script type="text/javascript" src="./src/tank.js"></script>
+        <script type="text/javascript" src="./src/bullet.js"></script>
+        <script type="text/javascript" src="./lib/three.js"></script>
+        <script type="text/javascript" src="./lib/socketio.js"></script>
+        <!-- I only need jquery to simplify the async server requests -->
+        <script type="text/javascript" src="./lib/jquery.js"></script>
+        <link rel="stylesheet" type="text/css" href="./css/styles.css">
+    </head>
+    <body OnLoad=init()>
+
+    <div class="column">
+        <div tabindex="1" id="window1" class="baseGameContainer"></div>
+
+        <div class="row dataContainer">
+            <div class="topPadding"></div>
+            <div class="column">
+                <div>Current Players: </div>
+                <div id="activePlayers"></div>
+            </div>
+            <div class="column">
+                <label for="playerName">Enter Player Name:</label>
+                <input id="playerName"/>
+            </div>
+            <div class="column">
+                <input type="button" value="Join Game" onclick="joinGame()"/>
+            </div>
+        </div>
+    </div>
+    </body>
+
+    <script type="text/javascript">
+        var gameInstance;
+        var canvas = document.getElementById("window1");
+        var activePlayerField = document.getElementById("activePlayers");
+        var playerName = document.getElementById("playerName");
+
+        //define the endpoints of the server
+        var playerCountEndPoint = "session/getActivePlayers";
+        var requestSessionEndPoint = "session/createNewSession";
+        var socketPort = 8081;
+        var socketURL = ""; //will be set upon connection
+        var socket = undefined;
+        var token = undefined;
+
+
+        var init = function() {
+            //get the current player count every 3 seconds
+            function fetchPlayers() {
+                sendRequest("GET", playerCountEndPoint, {}, function(response) {
+                    if (response.success) {
+                        console.log(response.data.count);
+                        activePlayerField.innerText = response.data.count;
+                    }
+                });
+            }
+            setInterval( function() {
+                fetchPlayers();
+            }, 3000);
+            fetchPlayers();
+        };
+
+
+        function joinGame() {
+            if (playerName.value === "") {
+                alert("Please Enter a Player Name");
+                return;
+            }
+
+            //ask server for a player entry
+            sendRequest("POST", requestSessionEndPoint, {
+                playerName: playerName.value
+            }, function(response) {
+                if (response.success) {
+                    token = response.data.token;
+
+                    if (document.baseURI[document.URL.length - 1] === "/") {
+                        //socketURL = document.baseURI.slice(0, document.URL.length - 1) + ":" + socketPort;
+                        let tokens = document.baseURI.split(":");
+                        socketURL = tokens[0] + ":" + tokens[1] + ":" + socketPort;
+                    }
+                    else {
+                        socketURL = document.baseURI + ":" + socketPort;
+                    }
+                    debugger;
+                    console.log(socketURL);
+                    socket = io(socketURL);
+                    gameInstance = new game(canvas, socket, token, playerName.value);
+                    gameInstance.init();
+
+
+                }
+                else {
+                    alert(response.message);
+                }
+            });
+
+        }
+
+        //used to send HTTP requests to the server which hosts this page
+        function sendRequest(type, route, packet, callback) {
+            var url = document.URL;
+            $.ajax({
+                url: url + route,
+                type: type,
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(packet)
+            }).done(function(data, text, request) {
+                if (callback) {
+                    callback(data);
+                }
+            });
+        }
+
+    </script>
+
+</html>

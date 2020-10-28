@@ -1,0 +1,63 @@
+.column {
+    display: flex;
+    flex-direction: row;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    width: 800px;
+    height: 800px;
+}
+.instanceContainer {
+    width: 400px;
+    height: 400px;
+}
+
+.topPadding {
+    height: 150px;
+}
+
+.dataContainer {
+    padding-left: 50px;
+    max-width: 600px;
+}
+
+.testCase {
+    display: flex;
+    flex-direction: row;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border: 1px solid;
+}
+
+.pass {
+    font-size: 20px;
+    color: Green;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.fail {
+    font-size: 20px;
+    color: Red;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.individualButton {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.title {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.runAllContainer {
+    padding-bottom: 20px;
+    text-align: center;
+}

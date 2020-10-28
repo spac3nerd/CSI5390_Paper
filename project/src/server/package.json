@@ -1,0 +1,14 @@
+{
+  "name": "CSI5380Proj",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "startServer": "node ./init.js"
+  },
+  "dependencies": {
+    "socket.io": "2.2.0",
+    "three": "~0.103.0",
+    "express": "~4.16.4",
+    "bcrypt": "~3.0.6"
+  }
+}

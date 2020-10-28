@@ -1,0 +1,22 @@
+.column {
+    display: flex;
+    flex-direction: row;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+}
+
+.baseGameContainer {
+    width: 600px;
+    height: 600px;
+}
+
+.topPadding {
+    height: 150px;
+}
+
+.dataContainer {
+    padding-left: 50px;
+}
