@@ -27,12 +27,11 @@ sfbadila@oakland.edu, ccampbell5@oakland.edu, rmwilk@oakland.edu}
  Distributed interactive multi-body simulations are an increasingly prevalent breed of software and demand unique strategies with respect to testing. 
  Classically non-networked multiplayer video gaming takes place on a single machine hosting a single local environment within which all players directly 
  control actors in a simulation. Modern networked gaming often requires that a singular environment be remotely hosted with all player-controlled actors and 
- their interactions be distributed to connected client applications.[b] With all these simulations, it is paramount that the individual units in the simulations 
+ their interactions be distributed to connected client applications. With all these simulations, it is paramount that the individual units in the simulations 
  as well as all the moving parts in the server are rigorously tested. The research gathered for this paper will outline the testing methodologies that we find 
  to be the most significant. Combining strong unit and integration testing inside the server, each simulation needs to be tested for usability, compatibility, and 
  reliability. Likewise, since the integrity of the simulation is paramount, susceptibility to malicious or incorrect information fed into the system  must be mitigated, 
  and as such, we will explore mechanisms by which test the system.
-
 
 \end{abstract}
 
@@ -50,7 +49,7 @@ information for the player with the end-goal of providing all players with consi
 
 Unit testing can be achieved through traditional means of subjecting applicable functions to predetermined inputs and comparing their results to expected results. 
 Functional testing presents a less straight-forward solution. In the basic case, there are two clients and one server, three separate processes that are interacting 
-with one another. These interactions can potentially generate a very wide range of outputs and [c][d][e][f][g][h]behaviors of which only a very small subset would be 
+with one another. These interactions can potentially generate a very wide range of outputs and behaviors of which only a very small subset would be 
 considered correct. Not only do the specific actions and reactions between these processes determine program correctness, but the timing between them determine correctness.
 
 \section{Related Works}
@@ -84,7 +83,7 @@ These are all concerns of NodeTank. While they may be to a lesser degree, as Nod
  to the degree of their perceptibility. As delays grow, corresponds to the players’ abilities to enjoy the experience decline.
 
 
-\subsection{Approach}
+\section{Approach}
 Our approach is to develop a testing framework for NodeTank will combine abstract testing of models, unit testing, and functional testing into a single, yet modular, 
 utility. The effort of functional testing will involve the synchronization of timing of outputs from the server as well as the clients involved. The testing utility 
 should be distributable just as the software being tested and a means of distributing and launching a test should be runnable from a single test location. Any data and 
@@ -205,12 +204,21 @@ there are any open spots in the game, and whether access is granted to a new pla
 an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
 with the token and a tunnel is established between the client and the server. 
 
-\subsection{Automated Unit Testing}
-
-To be developed 
+In the following sections we will cover the specific testing implementations with the goal of addressing the problem of rigorously testing NodeTank, or any 
+other multiplayer game built on the NodeJS platform. 
 
 
 \subsection{Automated Functional Testing}
+
+The first testing scenario we will consider is to allow the system to automatically play the game in order to test a set of pre-defined set of actions.
+For example, we can programatically interact with the game directly in order to control one of the player tanks. With the system having control over a player character, 
+we can individually test the different aspects of the game: movement, shooting, respawning etc... This type of autmated testing could be invoked on an individual developer's 
+machine in order to test each function of the game as its being developed. 
+
+However, we may take this testing even further and consider that since the game runs within the browser, we would be able to tap into any concurrent client simulation. This 
+has the implication that we would be able to inspect the state of each client concurrently. 
+
+\subsection{Automated Unit Testing}
 
 To be developed 
 
