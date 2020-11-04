@@ -109,9 +109,9 @@ as to only build up the necessary intuition.
 \subsection{3D Rendering at a High Level}
 
 In the real world, we have object which we can look at and interact with. When such objects are created in a 3D renderer,
-some data must be modeled about the object. For simplicity, we will only consider a Cartesian coordinate system(Fig 4), in which points are mapped 
+some data must be modeled about the object. For simplicity, we will only consider a Cartesian coordinate system(Fig 2), in which points are mapped 
 by numerical coordinates along three perpendicular lines(axes). Intuitively, the positional information may be expressed in terms of a displacement 
-along each one of the three axes (X, Y, Z). As such, a simple vector with three components can encode this information(Fig 3.): 
+along each one of the three axes (X, Y, Z). As such, a simple vector with three components can encode this information(Fig 1.): 
 
 \begin{figure}[htbp]
 \[ (V_{x}, V_{y}, V_{z}) \]
@@ -124,7 +124,7 @@ along each one of the three axes (X, Y, Z). As such, a simple vector with three 
 \end{figure}
 
 However, simply listing the poistion is not sufficient in order to accurately map the object in space. An object may be rotated 
-around its position. Fig 4. shows a simple example of a car being rotates about the Z axis. The simplest method by which this information can be encoded 
+around its position. Fig 2. shows a simple example of a car being rotates about the Z axis. The simplest method by which this information can be encoded 
 is to use another three component vector to keep track of the roation around each axis, and then apply each rotation to each axis in a cascading fashion. 
 This is commonly known as an Euler Angle, which is intuitive to use, but not sufficent enough in our use case due to the possibility of gimbal lock. 
 In short terms, gimbal lock can occur when two axes are in a parallel configuration to each other, which would force an otherwise single axis rotation to instead 
@@ -139,14 +139,14 @@ become a composite rotation.
 The conventional solution to this problem is to discard the Euler Angle representation of rotation in favor of using quaternions. 
 For the purpose of this paper, we must only know that an equivalent description of orientation can be encoded in a quaternion,
 but without the gimbal lock limitation which would cause rotation behavior should it occur. In short, this quaternion may be expressed as a four dimensional
-vector, similar to the one expressed in Fig 3., but with an extra component, \textit{w}. 
+vector, similar to the one expressed in Fig 1., but with an extra component, \textit{w}. 
 
 At this point, we have all of the necessary information to encode a static object in our game world, yet there is one more attribute which
 must be implemented: velocity. Consider that an object in our game is in motion, assume it is moving along the X axis. If we have enough snapshots of its location,
 then we may be able to render its path up until the current snapshot. However, consider what happens until the next snapshot is received; we will have no idea about the object's path. 
 In order to circumvent this, information about how fast the object is moving may be encoded such that an extrapolation between snapshots may occur. This velocity attribute 
 is split into two segments; the liear velocity, which is the change in position across the Cartesian system, and angular velocity, which is the change in orientation. 
-Each one of these attributes may be encoded in a three dimensional vector(Fig 3).
+Each one of these attributes may be encoded in a three dimensional vector(Fig 1).
 
 \begin{figure}[htbp]
 \begin{equation}
@@ -199,7 +199,7 @@ case. Fig 11 shows the formal definition along with the implementation of the ru
 \section{Implementation}
 
 With the all of the prerequisite work complete, the implementation of the the game and protocol will be discussed. For reference,
-the project code is located at (https://github.com/spac3nerd/CSI-5380Proj). The nodejs server 
+the project code is located at (https://github.com/spac3nerd/CSI-5390Proj). The nodejs server 
 will need to run both traditional HTTP transactons and socket transactions. The HTTP transactions are used to ask the server if 
 there are any open spots in the game, and whether access is granted to a new player. If access is granted, then the server will return 
 an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
