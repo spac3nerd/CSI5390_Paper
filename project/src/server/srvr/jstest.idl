@@ -25,6 +25,7 @@ struct Pose
 service AgentInterface
 {
   string GetTokenByName(1:string name),
+  void SetLookAt(1:string token, 2:Point direction),
   void SetButtons(1:string token, 2:ButtonStates buttons),
   void Fire(1:string token),
   string GetSceneData(1:string token),

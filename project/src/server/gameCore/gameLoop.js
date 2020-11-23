@@ -6,7 +6,8 @@ let crypto = require("crypto");
 let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
 let lastUpdate = new Date();
-
+let agentToken = "";
+let agentLookat = three.Vector3(0,0,0);
 //game rules - should really be a separate config
 //note that xmin is defined as being to the left, zMin being at the bottom
 //also note, -Z axis points to the top
@@ -117,11 +118,22 @@ function loopGame() {
             let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
             playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
             playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
-            newPlayerState[k] = {
-                position: playerTanks[k].obj.position,
-                lookAt: playerTanks[k].lookAt,
-                name: playerTanks[k].name
-            };
+            if(k === agentToken)
+            {
+              newPlayerState[k] = {
+                  position: playerTanks[k].obj.position,
+                  lookAt: agentLookat,
+                  name: playerTanks[k].name
+              };
+            }
+            else
+            {
+              newPlayerState[k] = {
+                  position: playerTanks[k].obj.position,
+                  lookAt: playerTanks[k].lookAt,
+                  name: playerTanks[k].name
+              };
+            }
         }
     }
 
@@ -150,7 +162,6 @@ let thrift     = require("thrift");
 let aInterface = require("../srvr/API/nodejs/AgentInterface");
 let ttypes     = require("../srvr/API/nodejs/jstest_types");
 
-let agentToken = "";
 var GetTokenByNameFunc = function(name)
 {
   console.log('GetTokenByName called...')
@@ -163,6 +174,15 @@ var GetTokenByNameFunc = function(name)
     }
   }
   return "[NONE]";
+}
+
+var SetLookAtFunc = function(token,point)
+{
+  agentLookat = new three.Vector3(point.x,point.y,point.z);
+  playerTanks[token].lookAt = agentLookat;
+  updatePlayer(token,playerTanks[token]);
+  console.log(point);
+  console.log("SetLookat");
 }
 var FireFunc = function(token)
 {
@@ -194,6 +214,7 @@ var GetPoseFunc = function(token)
   return new ttypes.Pose({pos:a,ori:b});
 }
 let thriftServer = thrift.createServer(aInterface,{
+  SetLookAt:      SetLookAtFunc,
   GetTokenByName: GetTokenByNameFunc,
   GetSceneData:   GetSceneDataFunc,
   SetButtons:     SetButtonsFunc,
