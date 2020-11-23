@@ -144,9 +144,66 @@ function loopGame() {
     });
 }
 
+const {Worker,isMainThread,parentPort} = require("worker_threads");
+
+let thrift     = require("thrift");
+let aInterface = require("../srvr/API/nodejs/AgentInterface");
+let ttypes     = require("../srvr/API/nodejs/jstest_types");
+
+var GetTokenByNameFunc = function(name)
+{
+  console.log('GetTokenByName called...')
+  for (let k in playerTanks)
+  {
+    if(playerTanks[k].name === name)
+    {
+      return k;
+    }
+  }
+  return "[NONE]";
+}
+var FireFunc = function(token)
+{
+  console.log("Fire called...");
+}
+
+var SetButtonsFunc = function(token,buttons)
+{
+  console.log("SetButtons called...");
+}
+
+var GetSceneDataFunc = function(token)
+{
+  console.log("GetSceneDataFunc called...")
+  return "thisissomestring"
+}
+
+var GetPoseFunc = function(token)
+{
+  var pos = playerTanks[token].obj.position;
+  var lat = playerTanks[token].lookAt;
+
+  var a = new ttypes.Point({x:pos.x,y:pos.y,z:pos.z});
+  var b = new ttypes.Point({x:lat.x,y:lat.y,z:lat.z});
+
+  console.log("GetPoseFunc called...");
+
+  return new ttypes.Pose({pos:a,ori:b});
+}
+let thriftServer = thrift.createServer(aInterface,{
+  GetTokenByName: GetTokenByNameFunc,
+  GetSceneData:   GetSceneDataFunc,
+  SetButtons:     SetButtonsFunc,
+  GetPose:        GetPoseFunc,
+  Fire:           FireFunc
+});
+if(isMainThread)
+{
+  thriftServer.listen(9090);
+}
+
 //server-side render loop - 60 times a second - no need to implement any fancy pacing here
 setInterval( function() {loopGame()}, 1000 / 60);
-
 
 module.exports = {
     updatePlayer: updatePlayer,
