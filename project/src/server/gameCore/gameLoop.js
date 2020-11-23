@@ -150,6 +150,7 @@ let thrift     = require("thrift");
 let aInterface = require("../srvr/API/nodejs/AgentInterface");
 let ttypes     = require("../srvr/API/nodejs/jstest_types");
 
+let agentToken = "";
 var GetTokenByNameFunc = function(name)
 {
   console.log('GetTokenByName called...')
@@ -157,13 +158,15 @@ var GetTokenByNameFunc = function(name)
   {
     if(playerTanks[k].name === name)
     {
-      return k;
+      agentToken = k;
+      return agentToken;
     }
   }
   return "[NONE]";
 }
 var FireFunc = function(token)
 {
+  shotTaken(agentToken,playerTanks[agentToken].lookAt);
   console.log("Fire called...");
 }
 
