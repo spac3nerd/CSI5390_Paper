@@ -7,8 +7,9 @@ let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
 let lastUpdate = new Date();
 
-let agentToken    = "";
+let agentToken    = undefined;
 let agentLookat   = new three.Vector3(0,0,0);
+var lastImage = "";
 //game rules - should really be a separate config
 //note that xmin is defined as being to the left, zMin being at the bottom
 //also note, -Z axis points to the top
@@ -171,6 +172,8 @@ var GetTokenByNameFunc = function(name)
     if(playerTanks[k].name === name)
     {
       agentToken = k;
+      let socketManager = require("./socket-manager");
+      socketManager.flagSource(agentToken);
       return agentToken;
     }
   }
@@ -202,6 +205,16 @@ var GetSceneDataFunc = function(token)
   return "thisissomestring"
 }
 
+var GetImageData = function(token){
+  console.log("calling GetImageData");
+  if(token === agentToken){
+    let socketManager = require("./socket-manager");
+    socketManager.requestData(agentToken);
+    img = socketManager.getImageData();
+    return img;
+  }
+}
+
 var GetPoseFunc = function(token)
 {
   var pos = playerTanks[token].obj.position;
@@ -219,6 +232,7 @@ let thriftServer = thrift.createServer(aInterface,{
   GetTokenByName: GetTokenByNameFunc,
   GetSceneData:   GetSceneDataFunc,
   SetButtons:     SetButtonsFunc,
+  GetImageData:   GetImageData,
   GetPose:        GetPoseFunc,
   Fire:           FireFunc
 });
@@ -226,7 +240,7 @@ if(isMainThread)
 {
   thriftServer.listen(9090);
 }
-
+var sent = false;
 //server-side render loop - 60 times a second - no need to implement any fancy pacing here
 setInterval( function() {loopGame()}, 1000 / 60);
 

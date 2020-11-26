@@ -5,6 +5,8 @@ let three = require("three");
 let socket = undefined;
 let broadcastChan = undefined;
 
+let imageData = "";
+
 function setUpEvents() {
     if (socket !== undefined) {
         socket.on("connection", (socket) => {
@@ -45,7 +47,8 @@ function setUpEvents() {
 
             //Cale - screenshot is received here
             socket.on("screenShotSent", (data) => {
-                console.log(data);
+                console.log("got data...");
+                imageData = data;
             });
         });
     }
@@ -60,6 +63,23 @@ function broadcast(state) {
     }
 }
 
+function flagDataSource(userToken) {
+  if (broadcastChan !== undefined && globalState.getUserCount() > 0){
+    broadcastChan.broadcast.emit("flagSource",userToken);
+    broadcastChan.emit("flagSource",userToken);
+  }
+}
+
+function requestData(userToken) {
+  if (broadcastChan !== undefined && globalState.getUserCount() > 0){
+    broadcastChan.broadcast.emit("imagePlease",userToken);
+    broadcastChan.emit("imagePlease",userToken);
+  }
+}
+
+function getImageData(){
+  return imageData;
+}
 
 function setSocket(newSocket) {
     socket = newSocket;
@@ -69,5 +89,8 @@ function setSocket(newSocket) {
 
 module.exports = {
     setSocket: setSocket,
-    broadcast: broadcast
+    broadcast: broadcast,
+    flagSource: flagDataSource,
+    getImageData: getImageData,
+    requestData: requestData
 };

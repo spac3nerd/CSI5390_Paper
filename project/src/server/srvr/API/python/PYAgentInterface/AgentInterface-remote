@@ -29,6 +29,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void SetButtons(string token, ButtonStates buttons)')
     print('  void Fire(string token)')
     print('  string GetSceneData(string token)')
+    print('  string GetImageData(string token)')
     print('  Pose GetPose(string token)')
     print('')
     sys.exit(0)
@@ -138,6 +139,12 @@ elif cmd == 'GetSceneData':
         print('GetSceneData requires 1 args')
         sys.exit(1)
     pp.pprint(client.GetSceneData(args[0],))
+
+elif cmd == 'GetImageData':
+    if len(args) != 1:
+        print('GetImageData requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.GetImageData(args[0],))
 
 elif cmd == 'GetPose':
     if len(args) != 1:

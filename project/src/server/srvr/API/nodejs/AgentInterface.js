@@ -467,6 +467,106 @@ AgentInterface_GetSceneData_result.prototype.write = function(output) {
   return;
 };
 
+var AgentInterface_GetImageData_args = function(args) {
+  this.token = null;
+  if (args) {
+    if (args.token !== undefined && args.token !== null) {
+      this.token = args.token;
+    }
+  }
+};
+AgentInterface_GetImageData_args.prototype = {};
+AgentInterface_GetImageData_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid) {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.token = input.readString();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+AgentInterface_GetImageData_args.prototype.write = function(output) {
+  output.writeStructBegin('AgentInterface_GetImageData_args');
+  if (this.token !== null && this.token !== undefined) {
+    output.writeFieldBegin('token', Thrift.Type.STRING, 1);
+    output.writeString(this.token);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+var AgentInterface_GetImageData_result = function(args) {
+  this.success = null;
+  if (args) {
+    if (args.success !== undefined && args.success !== null) {
+      this.success = args.success;
+    }
+  }
+};
+AgentInterface_GetImageData_result.prototype = {};
+AgentInterface_GetImageData_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid) {
+      case 0:
+      if (ftype == Thrift.Type.STRING) {
+        this.success = input.readString();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+AgentInterface_GetImageData_result.prototype.write = function(output) {
+  output.writeStructBegin('AgentInterface_GetImageData_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.STRING, 0);
+    output.writeString(this.success);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 var AgentInterface_GetPose_args = function(args) {
   this.token = null;
   if (args) {
@@ -866,6 +966,65 @@ AgentInterfaceClient.prototype.recv_GetSceneData = function(input,mtype,rseqid) 
   return callback('GetSceneData failed: unknown result');
 };
 
+AgentInterfaceClient.prototype.GetImageData = function(token, callback) {
+  this._seqid = this.new_seqid();
+  if (callback === undefined) {
+    var _defer = Q.defer();
+    this._reqs[this.seqid()] = function(error, result) {
+      if (error) {
+        _defer.reject(error);
+      } else {
+        _defer.resolve(result);
+      }
+    };
+    this.send_GetImageData(token);
+    return _defer.promise;
+  } else {
+    this._reqs[this.seqid()] = callback;
+    this.send_GetImageData(token);
+  }
+};
+
+AgentInterfaceClient.prototype.send_GetImageData = function(token) {
+  var output = new this.pClass(this.output);
+  var params = {
+    token: token
+  };
+  var args = new AgentInterface_GetImageData_args(params);
+  try {
+    output.writeMessageBegin('GetImageData', Thrift.MessageType.CALL, this.seqid());
+    args.write(output);
+    output.writeMessageEnd();
+    return this.output.flush();
+  }
+  catch (e) {
+    delete this._reqs[this.seqid()];
+    if (typeof output.reset === 'function') {
+      output.reset();
+    }
+    throw e;
+  }
+};
+
+AgentInterfaceClient.prototype.recv_GetImageData = function(input,mtype,rseqid) {
+  var callback = this._reqs[rseqid] || function() {};
+  delete this._reqs[rseqid];
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(input);
+    input.readMessageEnd();
+    return callback(x);
+  }
+  var result = new AgentInterface_GetImageData_result();
+  result.read(input);
+  input.readMessageEnd();
+
+  if (null !== result.success) {
+    return callback(null, result.success);
+  }
+  return callback('GetImageData failed: unknown result');
+};
+
 AgentInterfaceClient.prototype.GetPose = function(token, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
@@ -1121,6 +1280,43 @@ AgentInterfaceProcessor.prototype.process_GetSceneData = function(seqid, input, 
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin("GetSceneData", Thrift.MessageType.EXCEPTION, seqid);
+      }
+      result_obj.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    });
+  }
+};
+AgentInterfaceProcessor.prototype.process_GetImageData = function(seqid, input, output) {
+  var args = new AgentInterface_GetImageData_args();
+  args.read(input);
+  input.readMessageEnd();
+  if (this._handler.GetImageData.length === 1) {
+    Q.fcall(this._handler.GetImageData.bind(this._handler),
+      args.token
+    ).then(function(result) {
+      var result_obj = new AgentInterface_GetImageData_result({success: result});
+      output.writeMessageBegin("GetImageData", Thrift.MessageType.REPLY, seqid);
+      result_obj.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    }).catch(function (err) {
+      var result;
+      result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+      output.writeMessageBegin("GetImageData", Thrift.MessageType.EXCEPTION, seqid);
+      result.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    });
+  } else {
+    this._handler.GetImageData(args.token, function (err, result) {
+      var result_obj;
+      if ((err === null || typeof err === 'undefined')) {
+        result_obj = new AgentInterface_GetImageData_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("GetImageData", Thrift.MessageType.REPLY, seqid);
+      } else {
+        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+        output.writeMessageBegin("GetImageData", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();
