@@ -209,7 +209,6 @@ var GetImageData = function(token){
   console.log("calling GetImageData");
   if(token === agentToken){
     let socketManager = require("./socket-manager");
-    socketManager.requestData(agentToken);
     img = socketManager.getImageData();
     return img;
   }

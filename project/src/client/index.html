@@ -53,21 +53,12 @@
 
         function startInterval() {
             canvasElem = document.getElementById("window1").children[0];
-            socket.on("imagePlease",function(){
+            setInterval(function() {
               if(amDataSource===true){
-                d = canvasElem.toDataURL();
-                console.log("transmitting");
-                socket.emit("screenShotSent",d);
-                console.log("sent...");
+                let screenshot = canvasElem.toDataURL();
+                socket.emit("screenShotSent", screenshot);
               }
-            });
-
-            // setInterval(function() {
-            //   if(amDataSource===true){
-            //     let screenshot = canvasElem.toDataURL();
-            //     socket.emit("screenShotSent", screenshot);
-            //   }
-            // }, 5000);
+            }, 500);
         }
 
         var init = function() {

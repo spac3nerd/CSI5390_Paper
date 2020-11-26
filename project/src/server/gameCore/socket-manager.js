@@ -47,7 +47,6 @@ function setUpEvents() {
 
             //Cale - screenshot is received here
             socket.on("screenShotSent", (data) => {
-                console.log("got data...");
                 imageData = data;
             });
         });
@@ -70,13 +69,6 @@ function flagDataSource(userToken) {
   }
 }
 
-function requestData(userToken) {
-  if (broadcastChan !== undefined && globalState.getUserCount() > 0){
-    broadcastChan.broadcast.emit("imagePlease",userToken);
-    broadcastChan.emit("imagePlease",userToken);
-  }
-}
-
 function getImageData(){
   return imageData;
 }
@@ -91,6 +83,5 @@ module.exports = {
     setSocket: setSocket,
     broadcast: broadcast,
     flagSource: flagDataSource,
-    getImageData: getImageData,
-    requestData: requestData
+    getImageData: getImageData
 };
