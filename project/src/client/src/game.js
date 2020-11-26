@@ -17,6 +17,7 @@ game = function(canvas, socket, token, name) {
     this.socket = socket;
     this.token = token;
     this.name = name;
+    this.initCallback = undefined;
 
     //init world objects to default
     this.scene = undefined;
@@ -47,10 +48,11 @@ game = function(canvas, socket, token, name) {
 
 game.prototype = {
     //set up an instance of the game
-    init: function() {
+    init: function(callback) {
         console.log("init");
         console.log(this.canvas);
         console.log(this.socket);
+        this.initCallback = callback;
         this.configSocket();
         console.log(this.name);
         this.socket.emit('joinGame', {
@@ -229,10 +231,14 @@ game.prototype = {
         this.camera = new THREE.OrthographicCamera(-55, 55, 55, -55, 1, 100); //create a fixed orthographic camera
         this.camera.position.set(0, 50, 0);
         this.camera.lookAt(new THREE.Vector3(0, 0 , 0));
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({
+            preserveDrawingBuffer: true
+        });
         this.renderer.setSize(this.canvas.clientWidth, this.canvas.clientHeight);
         this.canvas.append(this.renderer.domElement); //append renderer to DOM
-
+        if (this.initCallback !== undefined) {
+            this.initCallback();
+        }
         //set up the game field
         this.backgroundMesh = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 32), new THREE.MeshBasicMaterial( {color: 0xd1d1d1, side: THREE.DoubleSide} ));
         this.backgroundMesh.setRotationFromEuler(new THREE.Euler( Math.PI / 2, 0, 0, 'XYZ' )); //rotate to coincide with -Z axis into the screen
@@ -435,7 +441,6 @@ game.prototype = {
 
         this.renderer.render(this.scene, this.camera);
         requestAnimationFrame(this.render.bind(this));
-
     }
 
 };

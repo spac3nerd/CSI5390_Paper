@@ -42,6 +42,11 @@ function setUpEvents() {
                     gameLoop.shotTaken(data.token, data.lookAt);
                 }
             });
+
+            //Cale - screenshot is received here
+            socket.on("screenShotSent", (data) => {
+                console.log(data);
+            });
         });
     }
 }
