@@ -26,7 +26,7 @@ service AgentInterface
 {
   string GetTokenByName(1:string name),
   void SetLookAt(1:string token, 2:Point direction),
-  void SetButtons(1:string token, 2:ButtonStates buttons),
+  void SetMove(1:string token, 2:double x, 3:double y, 4:double z),
   void Fire(1:string token),
   string GetSceneData(1:string token),
   string GetImageData(1:string token),

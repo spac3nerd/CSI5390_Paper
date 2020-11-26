@@ -36,11 +36,13 @@ class Iface(object):
         """
         pass
 
-    def SetButtons(self, token, buttons):
+    def SetMove(self, token, x, y, z):
         """
         Parameters:
          - token
-         - buttons
+         - x
+         - y
+         - z
 
         """
         pass
@@ -149,26 +151,30 @@ class Client(Iface):
         iprot.readMessageEnd()
         return
 
-    def SetButtons(self, token, buttons):
+    def SetMove(self, token, x, y, z):
         """
         Parameters:
          - token
-         - buttons
+         - x
+         - y
+         - z
 
         """
-        self.send_SetButtons(token, buttons)
-        self.recv_SetButtons()
+        self.send_SetMove(token, x, y, z)
+        self.recv_SetMove()
 
-    def send_SetButtons(self, token, buttons):
-        self._oprot.writeMessageBegin('SetButtons', TMessageType.CALL, self._seqid)
-        args = SetButtons_args()
+    def send_SetMove(self, token, x, y, z):
+        self._oprot.writeMessageBegin('SetMove', TMessageType.CALL, self._seqid)
+        args = SetMove_args()
         args.token = token
-        args.buttons = buttons
+        args.x = x
+        args.y = y
+        args.z = z
         args.write(self._oprot)
         self._oprot.writeMessageEnd()
         self._oprot.trans.flush()
 
-    def recv_SetButtons(self):
+    def recv_SetMove(self):
         iprot = self._iprot
         (fname, mtype, rseqid) = iprot.readMessageBegin()
         if mtype == TMessageType.EXCEPTION:
@@ -176,7 +182,7 @@ class Client(Iface):
             x.read(iprot)
             iprot.readMessageEnd()
             raise x
-        result = SetButtons_result()
+        result = SetMove_result()
         result.read(iprot)
         iprot.readMessageEnd()
         return
@@ -314,7 +320,7 @@ class Processor(Iface, TProcessor):
         self._processMap = {}
         self._processMap["GetTokenByName"] = Processor.process_GetTokenByName
         self._processMap["SetLookAt"] = Processor.process_SetLookAt
-        self._processMap["SetButtons"] = Processor.process_SetButtons
+        self._processMap["SetMove"] = Processor.process_SetMove
         self._processMap["Fire"] = Processor.process_Fire
         self._processMap["GetSceneData"] = Processor.process_GetSceneData
         self._processMap["GetImageData"] = Processor.process_GetImageData
@@ -387,13 +393,13 @@ class Processor(Iface, TProcessor):
         oprot.writeMessageEnd()
         oprot.trans.flush()
 
-    def process_SetButtons(self, seqid, iprot, oprot):
-        args = SetButtons_args()
+    def process_SetMove(self, seqid, iprot, oprot):
+        args = SetMove_args()
         args.read(iprot)
         iprot.readMessageEnd()
-        result = SetButtons_result()
+        result = SetMove_result()
         try:
-            self._handler.SetButtons(args.token, args.buttons)
+            self._handler.SetMove(args.token, args.x, args.y, args.z)
             msg_type = TMessageType.REPLY
         except TTransport.TTransportException:
             raise
@@ -405,7 +411,7 @@ class Processor(Iface, TProcessor):
             logging.exception('Unexpected exception in handler')
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
-        oprot.writeMessageBegin("SetButtons", msg_type, seqid)
+        oprot.writeMessageBegin("SetMove", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -746,18 +752,22 @@ SetLookAt_result.thrift_spec = (
 )
 
 
-class SetButtons_args(object):
+class SetMove_args(object):
     """
     Attributes:
      - token
-     - buttons
+     - x
+     - y
+     - z
 
     """
 
 
-    def __init__(self, token=None, buttons=None,):
+    def __init__(self, token=None, x=None, y=None, z=None,):
         self.token = token
-        self.buttons = buttons
+        self.x = x
+        self.y = y
+        self.z = z
 
     def read(self, iprot):
         if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
@@ -774,9 +784,18 @@ class SetButtons_args(object):
                 else:
                     iprot.skip(ftype)
             elif fid == 2:
-                if ftype == TType.STRUCT:
-                    self.buttons = ButtonStates()
-                    self.buttons.read(iprot)
+                if ftype == TType.DOUBLE:
+                    self.x = iprot.readDouble()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 3:
+                if ftype == TType.DOUBLE:
+                    self.y = iprot.readDouble()
+                else:
+                    iprot.skip(ftype)
+            elif fid == 4:
+                if ftype == TType.DOUBLE:
+                    self.z = iprot.readDouble()
                 else:
                     iprot.skip(ftype)
             else:
@@ -788,14 +807,22 @@ class SetButtons_args(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('SetButtons_args')
+        oprot.writeStructBegin('SetMove_args')
         if self.token is not None:
             oprot.writeFieldBegin('token', TType.STRING, 1)
             oprot.writeString(self.token.encode('utf-8') if sys.version_info[0] == 2 else self.token)
             oprot.writeFieldEnd()
-        if self.buttons is not None:
-            oprot.writeFieldBegin('buttons', TType.STRUCT, 2)
-            self.buttons.write(oprot)
+        if self.x is not None:
+            oprot.writeFieldBegin('x', TType.DOUBLE, 2)
+            oprot.writeDouble(self.x)
+            oprot.writeFieldEnd()
+        if self.y is not None:
+            oprot.writeFieldBegin('y', TType.DOUBLE, 3)
+            oprot.writeDouble(self.y)
+            oprot.writeFieldEnd()
+        if self.z is not None:
+            oprot.writeFieldBegin('z', TType.DOUBLE, 4)
+            oprot.writeDouble(self.z)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -813,15 +840,17 @@ class SetButtons_args(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(SetButtons_args)
-SetButtons_args.thrift_spec = (
+all_structs.append(SetMove_args)
+SetMove_args.thrift_spec = (
     None,  # 0
     (1, TType.STRING, 'token', 'UTF8', None, ),  # 1
-    (2, TType.STRUCT, 'buttons', [ButtonStates, None], None, ),  # 2
+    (2, TType.DOUBLE, 'x', None, None, ),  # 2
+    (3, TType.DOUBLE, 'y', None, None, ),  # 3
+    (4, TType.DOUBLE, 'z', None, None, ),  # 4
 )
 
 
-class SetButtons_result(object):
+class SetMove_result(object):
 
 
     def read(self, iprot):
@@ -842,7 +871,7 @@ class SetButtons_result(object):
         if oprot._fast_encode is not None and self.thrift_spec is not None:
             oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
             return
-        oprot.writeStructBegin('SetButtons_result')
+        oprot.writeStructBegin('SetMove_result')
         oprot.writeFieldStop()
         oprot.writeStructEnd()
 
@@ -859,8 +888,8 @@ class SetButtons_result(object):
 
     def __ne__(self, other):
         return not (self == other)
-all_structs.append(SetButtons_result)
-SetButtons_result.thrift_spec = (
+all_structs.append(SetMove_result)
+SetMove_result.thrift_spec = (
 )
 
 

@@ -9,6 +9,8 @@ let lastUpdate = new Date();
 
 let agentToken    = undefined;
 let agentLookat   = new three.Vector3(0,0,0);
+let agentMove     = new three.Vector3(0,0,0);
+let goManual      = true;
 var lastImage = "";
 //game rules - should really be a separate config
 //note that xmin is defined as being to the left, zMin being at the bottom
@@ -117,11 +119,17 @@ function loopGame() {
     //go through all players and update the location
     for (let k in playerTanks) {
         if (playerTanks[k].movement !== undefined) {
-            let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
-            playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
-            playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
+          let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
+          if(k===agentToken && goManual === false){
+            mV = agentMove;
+          }
+          playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
+          playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
             if(k === agentToken)
             {
+
+              // playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
+              // playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
               newPlayerState[k] = {
                   position: playerTanks[k].obj.position,
                   lookAt: agentLookat,
@@ -194,9 +202,17 @@ var FireFunc = function(token)
   console.log("Fire called...");
 }
 
-var SetButtonsFunc = function(token,buttons)
+var SetMoveFunc = function(token,x,y,z)
 {
-  console.log("SetButtons called...");
+  console.log("SetMove called...");
+  var movement = new three.Vector3(x,y,z);
+  goManual = false;
+  if(x===0.0 && y===0.0 && z===0.0) {
+    goManual=true;
+  }
+  movement.normalize();
+  agentMove = movement;
+  console.log(movement);
 }
 
 var GetSceneDataFunc = function(token)
@@ -230,7 +246,7 @@ let thriftServer = thrift.createServer(aInterface,{
   SetLookAt:      SetLookAtFunc,
   GetTokenByName: GetTokenByNameFunc,
   GetSceneData:   GetSceneDataFunc,
-  SetButtons:     SetButtonsFunc,
+  SetMove:        SetMoveFunc,
   GetImageData:   GetImageData,
   GetPose:        GetPoseFunc,
   Fire:           FireFunc

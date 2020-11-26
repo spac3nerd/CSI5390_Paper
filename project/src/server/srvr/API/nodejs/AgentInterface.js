@@ -203,20 +203,28 @@ AgentInterface_SetLookAt_result.prototype.write = function(output) {
   return;
 };
 
-var AgentInterface_SetButtons_args = function(args) {
+var AgentInterface_SetMove_args = function(args) {
   this.token = null;
-  this.buttons = null;
+  this.x = null;
+  this.y = null;
+  this.z = null;
   if (args) {
     if (args.token !== undefined && args.token !== null) {
       this.token = args.token;
     }
-    if (args.buttons !== undefined && args.buttons !== null) {
-      this.buttons = new ttypes.ButtonStates(args.buttons);
+    if (args.x !== undefined && args.x !== null) {
+      this.x = args.x;
+    }
+    if (args.y !== undefined && args.y !== null) {
+      this.y = args.y;
+    }
+    if (args.z !== undefined && args.z !== null) {
+      this.z = args.z;
     }
   }
 };
-AgentInterface_SetButtons_args.prototype = {};
-AgentInterface_SetButtons_args.prototype.read = function(input) {
+AgentInterface_SetMove_args.prototype = {};
+AgentInterface_SetMove_args.prototype.read = function(input) {
   input.readStructBegin();
   while (true) {
     var ret = input.readFieldBegin();
@@ -234,9 +242,22 @@ AgentInterface_SetButtons_args.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.buttons = new ttypes.ButtonStates();
-        this.buttons.read(input);
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.x = input.readDouble();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.y = input.readDouble();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.z = input.readDouble();
       } else {
         input.skip(ftype);
       }
@@ -250,16 +271,26 @@ AgentInterface_SetButtons_args.prototype.read = function(input) {
   return;
 };
 
-AgentInterface_SetButtons_args.prototype.write = function(output) {
-  output.writeStructBegin('AgentInterface_SetButtons_args');
+AgentInterface_SetMove_args.prototype.write = function(output) {
+  output.writeStructBegin('AgentInterface_SetMove_args');
   if (this.token !== null && this.token !== undefined) {
     output.writeFieldBegin('token', Thrift.Type.STRING, 1);
     output.writeString(this.token);
     output.writeFieldEnd();
   }
-  if (this.buttons !== null && this.buttons !== undefined) {
-    output.writeFieldBegin('buttons', Thrift.Type.STRUCT, 2);
-    this.buttons.write(output);
+  if (this.x !== null && this.x !== undefined) {
+    output.writeFieldBegin('x', Thrift.Type.DOUBLE, 2);
+    output.writeDouble(this.x);
+    output.writeFieldEnd();
+  }
+  if (this.y !== null && this.y !== undefined) {
+    output.writeFieldBegin('y', Thrift.Type.DOUBLE, 3);
+    output.writeDouble(this.y);
+    output.writeFieldEnd();
+  }
+  if (this.z !== null && this.z !== undefined) {
+    output.writeFieldBegin('z', Thrift.Type.DOUBLE, 4);
+    output.writeDouble(this.z);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -267,10 +298,10 @@ AgentInterface_SetButtons_args.prototype.write = function(output) {
   return;
 };
 
-var AgentInterface_SetButtons_result = function(args) {
+var AgentInterface_SetMove_result = function(args) {
 };
-AgentInterface_SetButtons_result.prototype = {};
-AgentInterface_SetButtons_result.prototype.read = function(input) {
+AgentInterface_SetMove_result.prototype = {};
+AgentInterface_SetMove_result.prototype.read = function(input) {
   input.readStructBegin();
   while (true) {
     var ret = input.readFieldBegin();
@@ -285,8 +316,8 @@ AgentInterface_SetButtons_result.prototype.read = function(input) {
   return;
 };
 
-AgentInterface_SetButtons_result.prototype.write = function(output) {
-  output.writeStructBegin('AgentInterface_SetButtons_result');
+AgentInterface_SetMove_result.prototype.write = function(output) {
+  output.writeStructBegin('AgentInterface_SetMove_result');
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -794,7 +825,7 @@ AgentInterfaceClient.prototype.recv_SetLookAt = function(input,mtype,rseqid) {
   callback(null);
 };
 
-AgentInterfaceClient.prototype.SetButtons = function(token, buttons, callback) {
+AgentInterfaceClient.prototype.SetMove = function(token, x, y, z, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -805,23 +836,25 @@ AgentInterfaceClient.prototype.SetButtons = function(token, buttons, callback) {
         _defer.resolve(result);
       }
     };
-    this.send_SetButtons(token, buttons);
+    this.send_SetMove(token, x, y, z);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_SetButtons(token, buttons);
+    this.send_SetMove(token, x, y, z);
   }
 };
 
-AgentInterfaceClient.prototype.send_SetButtons = function(token, buttons) {
+AgentInterfaceClient.prototype.send_SetMove = function(token, x, y, z) {
   var output = new this.pClass(this.output);
   var params = {
     token: token,
-    buttons: buttons
+    x: x,
+    y: y,
+    z: z
   };
-  var args = new AgentInterface_SetButtons_args(params);
+  var args = new AgentInterface_SetMove_args(params);
   try {
-    output.writeMessageBegin('SetButtons', Thrift.MessageType.CALL, this.seqid());
+    output.writeMessageBegin('SetMove', Thrift.MessageType.CALL, this.seqid());
     args.write(output);
     output.writeMessageEnd();
     return this.output.flush();
@@ -835,7 +868,7 @@ AgentInterfaceClient.prototype.send_SetButtons = function(token, buttons) {
   }
 };
 
-AgentInterfaceClient.prototype.recv_SetButtons = function(input,mtype,rseqid) {
+AgentInterfaceClient.prototype.recv_SetMove = function(input,mtype,rseqid) {
   var callback = this._reqs[rseqid] || function() {};
   delete this._reqs[rseqid];
   if (mtype == Thrift.MessageType.EXCEPTION) {
@@ -844,7 +877,7 @@ AgentInterfaceClient.prototype.recv_SetButtons = function(input,mtype,rseqid) {
     input.readMessageEnd();
     return callback(x);
   }
-  var result = new AgentInterface_SetButtons_result();
+  var result = new AgentInterface_SetMove_result();
   result.read(input);
   input.readMessageEnd();
 
@@ -1175,37 +1208,39 @@ AgentInterfaceProcessor.prototype.process_SetLookAt = function(seqid, input, out
     });
   }
 };
-AgentInterfaceProcessor.prototype.process_SetButtons = function(seqid, input, output) {
-  var args = new AgentInterface_SetButtons_args();
+AgentInterfaceProcessor.prototype.process_SetMove = function(seqid, input, output) {
+  var args = new AgentInterface_SetMove_args();
   args.read(input);
   input.readMessageEnd();
-  if (this._handler.SetButtons.length === 2) {
-    Q.fcall(this._handler.SetButtons.bind(this._handler),
+  if (this._handler.SetMove.length === 4) {
+    Q.fcall(this._handler.SetMove.bind(this._handler),
       args.token,
-      args.buttons
+      args.x,
+      args.y,
+      args.z
     ).then(function(result) {
-      var result_obj = new AgentInterface_SetButtons_result({success: result});
-      output.writeMessageBegin("SetButtons", Thrift.MessageType.REPLY, seqid);
+      var result_obj = new AgentInterface_SetMove_result({success: result});
+      output.writeMessageBegin("SetMove", Thrift.MessageType.REPLY, seqid);
       result_obj.write(output);
       output.writeMessageEnd();
       output.flush();
     }).catch(function (err) {
       var result;
       result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-      output.writeMessageBegin("SetButtons", Thrift.MessageType.EXCEPTION, seqid);
+      output.writeMessageBegin("SetMove", Thrift.MessageType.EXCEPTION, seqid);
       result.write(output);
       output.writeMessageEnd();
       output.flush();
     });
   } else {
-    this._handler.SetButtons(args.token, args.buttons, function (err, result) {
+    this._handler.SetMove(args.token, args.x, args.y, args.z, function (err, result) {
       var result_obj;
       if ((err === null || typeof err === 'undefined')) {
-        result_obj = new AgentInterface_SetButtons_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("SetButtons", Thrift.MessageType.REPLY, seqid);
+        result_obj = new AgentInterface_SetMove_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("SetMove", Thrift.MessageType.REPLY, seqid);
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("SetButtons", Thrift.MessageType.EXCEPTION, seqid);
+        output.writeMessageBegin("SetMove", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();
