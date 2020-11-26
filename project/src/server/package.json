@@ -6,9 +6,10 @@
     "startServer": "node ./init.js"
   },
   "dependencies": {
+    "bcrypt": "~3.0.6",
+    "express": "~4.16.4",
     "socket.io": "2.2.0",
     "three": "~0.103.0",
-    "express": "~4.16.4",
-    "bcrypt": "~3.0.6"
+    "thrift": "^0.13.0-hotfix.1"
   }
 }

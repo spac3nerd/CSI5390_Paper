@@ -6,8 +6,9 @@ let crypto = require("crypto");
 let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
 let lastUpdate = new Date();
-let agentToken = "";
-let agentLookat = three.Vector3(0,0,0);
+
+let agentToken    = "";
+let agentLookat   = new three.Vector3(0,0,0);
 //game rules - should really be a separate config
 //note that xmin is defined as being to the left, zMin being at the bottom
 //also note, -Z axis points to the top
