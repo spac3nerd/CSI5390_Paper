@@ -48,7 +48,8 @@ game = function(canvas, socket, token, name) {
     this.messageObj = {
         geometry: undefined,
         mesh: undefined,
-        text: "",
+        text: "", //the text which is being typed on-screen but not yet sent
+        queuedText: "", //This is the text which will be sent at the next update to the server
         ignoredKeys: [16, 9, 17, 18, 20],
         movementKeys: [87, 68, 65, 83]
     };
@@ -145,7 +146,8 @@ game.prototype = {
 
     sendChatMessage: function() {
         this.closeChatRow(false);
-        socket.emit("newMessage");
+        this.messageObj.queuedText = this.messageObj.text;
+        this.messageObj.text = "";
     },
 
     updateChatRow: function(newKey, isBackspace) {
@@ -544,10 +546,16 @@ game.prototype = {
 
         //used only for simulated clicks
         if (this.clicked) {
-            this.socket.emit('shot', {
+            let updateObj = {
                 token: this.token,
                 lookAt: this.playerTank.getLookAt()
-            });
+            };
+            //we don't want to increase the payload size with a new key unless a new message is actually being sent
+            if (this.messageObj.queuedText.length > 0) {
+                updateObj["message"] = this.messageObj.queuedText;
+                this.messageObj.queuedText = "";
+            }
+            this.socket.emit('shot', updateObj);
             this.clicked = false;
         }
 

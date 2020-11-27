@@ -19,8 +19,8 @@ let bounds = {
     zMin: 50
 };
 
-let bulletVelocity = 120;
-let movementVelocity = 70;
+let bulletVelocity = 80;
+let movementVelocity = 45;
 
 
 //called for each update from clients
@@ -163,7 +163,7 @@ function loopGame() {
     // console.log(now - newTime);
 }
 
-//server-side render loop - 60 times a second - no need to implement any fancy pacing here
+//server-side render loop - 30 times a second - no need to implement any fancy pacing here
 setInterval( function() {loopGame()}, 1000 / 30);
 
 
