@@ -6,6 +6,7 @@ let crypto = require("crypto");
 let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
 let lastUpdate = new Date();
+let newMessages = {}; //contains all new messages to be propagated, cleared after each new render
 
 //game rules - should really be a separate config
 //note that xmin is defined as being to the left, zMin being at the bottom
@@ -25,9 +26,15 @@ let movementVelocity = 45;
 
 //called for each update from clients
 //note that the position is only set internally in the server
-function updatePlayer(token, packet) {
+function updatePlayer(data) {
+    //token, packet
+    let token = data.token;
+    let packet = data.tankState;
     playerTanks[token].lookAt = packet.lookAt;
     playerTanks[token].movement = packet.movement;
+    if (data.message) {
+        newMessages[token] = data.message;
+    }
 }
 
 function addTank(token) {
@@ -153,14 +160,21 @@ function loopGame() {
     checkOutOfBounds();
     checkHits();
 
-    socketManager.broadcast({
+    let latestState = {
         players: newPlayerState,
         bullets: newBulletState,
         score: globalState.getScore()
-    });
-    // let now = new Date();
+    };
 
-    // console.log(now - newTime);
+    if (Object.keys(newMessages).length > 0) {
+        latestState["messages"] = newMessages;
+    }
+
+    socketManager.broadcast(latestState);
+    newMessages = {};
+    let now = new Date();
+
+    console.log(now - newTime);
 }
 
 //server-side render loop - 30 times a second - no need to implement any fancy pacing here

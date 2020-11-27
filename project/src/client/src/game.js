@@ -53,6 +53,7 @@ game = function(canvas, socket, token, name) {
         ignoredKeys: [16, 9, 17, 18, 20],
         movementKeys: [87, 68, 65, 83]
     };
+    this.chatCallback = undefined;
 };
 
 game.prototype = {
@@ -95,7 +96,7 @@ game.prototype = {
                 return;
             }
             //"Esc" key, if the chat window is open, simply close it
-            if (e.keyCode === 27 && !this.messageRowOpen) {
+            if (e.keyCode === 27 && this.messageRowOpen) {
                 this.closeChatRow(false);
                 return;
             }
@@ -164,6 +165,10 @@ game.prototype = {
         this.openChatRow();
     },
 
+    setChatCallback: function(callback) {
+        this.chatCallback = callback;
+    },
+
     configSocket: function() {
         let that = this;
         this.socket.on("playerStart", function(data) {
@@ -186,6 +191,9 @@ game.prototype = {
             that.updateOtherPlayers(data.players);
             that.updateBullets(data.bullets);
             that.updateScore(data.score);
+            if (data.hasOwnProperty("messages")) {
+                that.updateMessages(data);
+            }
         });
     },
 
@@ -200,6 +208,18 @@ game.prototype = {
                 this.otherPlayers[k].setPosition(playerData[k].position.x, playerData[k].position.y, playerData[k].position.z);
                 this.otherPlayers[k].setLookAt(new THREE.Vector3(playerData[k].lookAt.x, 5, playerData[k].lookAt.z));
             }
+        }
+    },
+
+    updateMessages: function(data) {
+        //create a new map of messages so that we can properly render the chat window
+        let mappedMessages = {};
+        for (let k in data.messages) {
+            //we can piggy back off of scoreData since it already has the name
+            mappedMessages[data.score[k].name] = data.messages[k];
+        }
+        if (this.chatCallback) {
+            this.chatCallback(mappedMessages);
         }
     },
 
@@ -535,14 +555,20 @@ game.prototype = {
             this.lastRender = new Date();
         }
 
-        //update the server on this player's state
-        this.socket.emit('playerUpdate', {
+        let plrUpdateObj = {
             token: this.token,
             tankState: {
                 movement: this.movementVector,
                 lookAt: this.playerTank.getLookAt()
             }
-        });
+        };
+        //we don't want to increase the payload size with a new key unless a new message is actually being sent
+        if (this.messageObj.queuedText.length > 0) {
+            plrUpdateObj["message"] = this.messageObj.queuedText;
+            this.messageObj.queuedText = "";
+        }
+        //update the server on this player's state
+        this.socket.emit('playerUpdate', plrUpdateObj);
 
         //used only for simulated clicks
         if (this.clicked) {
@@ -550,11 +576,7 @@ game.prototype = {
                 token: this.token,
                 lookAt: this.playerTank.getLookAt()
             };
-            //we don't want to increase the payload size with a new key unless a new message is actually being sent
-            if (this.messageObj.queuedText.length > 0) {
-                updateObj["message"] = this.messageObj.queuedText;
-                this.messageObj.queuedText = "";
-            }
+
             this.socket.emit('shot', updateObj);
             this.clicked = false;
         }

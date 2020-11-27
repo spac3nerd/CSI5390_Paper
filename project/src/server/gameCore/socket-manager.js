@@ -33,7 +33,7 @@ function setUpEvents() {
             socket.on("playerUpdate", (data) => {
                 //check if the token is valid
                 if (globalState.isTokenValid(data.token)) {
-                    gameLoop.updatePlayer(data.token, data.tankState);
+                    gameLoop.updatePlayer(data);
                 }
             });
             socket.on("shot", (data) => {

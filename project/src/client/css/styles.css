@@ -20,3 +20,16 @@
 .dataContainer {
     padding-left: 50px;
 }
+
+.chatWindow {
+    height: 300px;
+    width: 500px;
+    border: 1px;
+    display: flex;
+    overflow-y: scroll;
+}
+
+.chatItem {
+    display: flex;
+    height: 20px;
+}

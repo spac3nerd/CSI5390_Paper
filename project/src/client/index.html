@@ -30,23 +30,56 @@
             <div class="column">
                 <input type="button" value="Join Game" onclick="joinGame()"/>
             </div>
+            <div class="column">
+                &nbsp
+            </div>
+            <div class="column">
+                Controls:
+            </div>
+            <div class="column">
+                W - Move Up
+            </div>
+            <div class="column">
+                S - Move Down
+            </div>
+            <div class="column">
+                A - Move Left
+            </div>
+            <div class="column">
+                D - Move Right
+            </div>
+            <div class="column">
+                Left Mouse Button - Fire!
+            </div>
+            <div class="column">
+                T - Open Chat Window (Esc cancels, Enter sends message)
+            </div>
+            <div class="column">
+                &nbsp
+            </div>
+            <div class="row chatWindow" id="chatWindow" >
+
+            </div>
+
         </div>
     </div>
     </body>
 
     <script type="text/javascript">
-        var gameInstance;
-        var canvas = document.getElementById("window1");
-        var activePlayerField = document.getElementById("activePlayers");
-        var playerName = document.getElementById("playerName");
+        let gameInstance;
+        let canvas = document.getElementById("window1");
+        let activePlayerField = document.getElementById("activePlayers");
+        let playerName = document.getElementById("playerName");
+        let chatWindow = document.getElementById("chatWindow");
+
 
         //define the endpoints of the server
-        var playerCountEndPoint = "session/getActivePlayers";
-        var requestSessionEndPoint = "session/createNewSession";
-        var socketPort = 8081;
-        var socketURL = ""; //will be set upon connection
-        var socket = undefined;
-        var token = undefined;
+        let playerCountEndPoint = "session/getActivePlayers";
+        let requestSessionEndPoint = "session/createNewSession";
+        let socketPort = 8081;
+        let socketURL = ""; //will be set upon connection
+        let socket = undefined;
+        let token = undefined;
         let canvasElem = undefined;
 
         function startInterval() {
@@ -57,7 +90,18 @@
             }, 5000);
         }
 
-        var init = function() {
+        function appendChat(newEntries) {
+            for (let k in newEntries) {
+                let newRow = $("<div>");
+                newRow.addClass("chatItem");
+                newRow.textContent = k + " says: " + newEntries[k];
+                newRow.text(k + " says: " + newEntries[k]);
+                $(chatWindow).append(newRow);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+        }
+
+        let init = function() {
             //get the current player count every 3 seconds
             function fetchPlayers() {
                 sendRequest("GET", playerCountEndPoint, {}, function(response) {
@@ -99,18 +143,17 @@
                     socket = io(socketURL);
                     gameInstance = new game(canvas, socket, token, playerName.value);
                     gameInstance.init();
-
+                    gameInstance.setChatCallback(appendChat);
                 }
                 else {
                     alert(response.message);
                 }
             });
-
         }
 
         //used to send HTTP requests to the server which hosts this page
         function sendRequest(type, route, packet, callback) {
-            var url = document.URL;
+            let url = document.URL;
             $.ajax({
                 url: url + route,
                 type: type,
