@@ -19,8 +19,8 @@ let bounds = {
     zMin: 50
 };
 
-let bulletVelocity = 80;
-let movementVelocity = 45;
+let bulletVelocity = 120;
+let movementVelocity = 70;
 
 
 //called for each update from clients
@@ -103,6 +103,20 @@ function setInitialPlayerState(token, state, name) {
     playerTanks[token].name = name;
 }
 
+function optimizeBullets() {
+    let prunedShots = {};
+    for (let k in shots) {
+        if (k) {
+            //if the bullets is still in bounds
+            if (!(shots[k].obj.position.x < bounds.xMin || shots[k].obj.position.x > bounds.xMax || shots[k].obj.position.z < bounds.zMax || shots[k].obj.position.z > bounds.zMin)) {
+                prunedShots[k] = shots[k];
+            }
+        }
+    }
+    //set the shots to the pruned list
+    shots = prunedShots;
+}
+
 function loopGame() {
     let newTime = new Date();
     let delta = (newTime - lastUpdate) / 1000;
@@ -125,6 +139,8 @@ function loopGame() {
         }
     }
 
+    optimizeBullets();
+
     let newBulletState = {};
     for (let n in shots) {
         shots[n].obj.translateX((shots[n].direction.x * bulletVelocity) * delta);
@@ -142,10 +158,13 @@ function loopGame() {
         bullets: newBulletState,
         score: globalState.getScore()
     });
+    // let now = new Date();
+
+    // console.log(now - newTime);
 }
 
 //server-side render loop - 60 times a second - no need to implement any fancy pacing here
-setInterval( function() {loopGame()}, 1000 / 60);
+setInterval( function() {loopGame()}, 1000 / 30);
 
 
 module.exports = {

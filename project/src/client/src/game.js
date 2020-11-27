@@ -44,6 +44,14 @@ game = function(canvas, socket, token, name) {
         w: false
     };
     this.clicked = false;
+    this.messageRowOpen = false;
+    this.messageObj = {
+        geometry: undefined,
+        mesh: undefined,
+        text: "",
+        ignoredKeys: [16, 9, 17, 18, 20],
+        movementKeys: [87, 68, 65, 83]
+    };
 };
 
 game.prototype = {
@@ -65,6 +73,93 @@ game.prototype = {
         loader.load( document.location.origin + "/lib/helvetiker_regular.typeface.json", function (font) {
             that.font = font;
         });
+    },
+
+    //all misc event listeners are set here
+    setupListeners: function() {
+        this.canvas.onkeydown = (e) => {
+            // console.log(e);
+
+            //prevent pressed keys from acting outside of the game window
+            //list of ignored keys
+            if (this.messageObj.ignoredKeys.includes(e.keyCode)) {
+                return;
+            }
+            //allow gameplay keys through
+            // if (!this.messageRowOpen)
+
+            //"T" key invokes the message feature
+            if (e.keyCode === 84 && !this.messageRowOpen) {
+                this.openChatRow();
+                return;
+            }
+            //"Esc" key, if the chat window is open, simply close it
+            if (e.keyCode === 27 && !this.messageRowOpen) {
+                this.closeChatRow(false);
+                return;
+            }
+            //"Enter" key, if the chat window is open, send the current message
+            if (e.keyCode === 13 && this.messageRowOpen) {
+                this.sendChatMessage();
+                return;
+            }
+            //"Backspace" key, if the chat window is open, send the current message
+            if (e.keyCode === 8 && this.messageRowOpen) {
+                this.updateChatRow(e.key, true);
+                return;
+            }
+            //for all other keys when the chat is open, call update
+            else if (this.messageRowOpen) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.updateChatRow(e.key);
+                return;
+            }
+        };
+    },
+
+    openChatRow: function() {
+        let newGeometry = new THREE.TextGeometry("Say: >" + this.messageObj.text, {
+            font: this.font,
+            size: 2,
+            height: 2,
+            curveSegments: 12,
+            bevelEnabled: false
+        });
+
+        this.messageObj.geometry = new THREE.BufferGeometry().fromGeometry(newGeometry);
+        // this.messageObj.geometry.translate(-45, 30, 45);
+        this.messageObj.mesh = new THREE.Mesh(this.messageObj.geometry, this.fontMaterial);
+        this.messageObj.mesh.setRotationFromEuler(new THREE.Euler(  -Math.PI / 2, 0, 0, 'XYZ' ))
+        this.messageObj.mesh.position.set(-48, 30, -51.5);
+        this.scene.add(this.messageObj.mesh);
+        this.messageRowOpen = true;
+    },
+
+    closeChatRow: function(update = true) {
+        this.scene.remove(this.messageObj.mesh);
+        if (!update) {
+            this.messageRowOpen = false;
+        }
+    },
+
+    sendChatMessage: function() {
+        this.closeChatRow(false);
+        socket.emit("newMessage");
+    },
+
+    updateChatRow: function(newKey, isBackspace) {
+        if (isBackspace) {
+            if (this.messageObj.text.length > 0) {
+                this.messageObj.text = this.messageObj.text.slice(0, -1);
+            }
+        }
+        else {
+            this.messageObj.text += newKey;
+        }
+        //Just as with the score, we will delete the mesh and re-add it in between rendered frames
+        this.closeChatRow();
+        this.openChatRow();
     },
 
     configSocket: function() {
@@ -94,7 +189,7 @@ game.prototype = {
 
     updateOtherPlayers: function(playerData) {
         for (let k in playerData) {
-            //if a client-side representation does not exit, create it
+            //if a client-side representation does not exist, create it
             if (!this.otherPlayers.hasOwnProperty(k)) {
                 this.createNewTank(k, playerData[k]);
             }
@@ -106,8 +201,17 @@ game.prototype = {
         }
     },
 
+    //used to remove culled bullets from the client-side scene
+    removeBullet: function(token) {
+        this.scene.remove(this.bullets[token].bulletObj);
+        //to avoid possible memory leaks, also remove the reference
+        delete this.bullets[token];
+    },
+
     updateBullets: function(bulletData) {
+        let existingObjs = [];
         for (let k in bulletData) {
+            existingObjs.push(k.toString());
             //if a client-side representation does not exit, create it
             if (!this.bullets.hasOwnProperty(k)) {
                 this.createNewBullet(k, bulletData[k]);
@@ -115,6 +219,11 @@ game.prototype = {
             //if representation already exists
             else {
                 this.bullets[k].setPosition(bulletData[k].position.x, bulletData[k].position.y, bulletData[k].position.z);
+            }
+        }
+        for (let n in this.bullets) {
+            if (!existingObjs.includes(n)){
+                this.removeBullet(n);
             }
         }
     },
@@ -133,7 +242,7 @@ game.prototype = {
                         curveSegments: 12,
                         bevelEnabled: false
                     });
-                    textGeo =  new THREE.BufferGeometry().fromGeometry(textGeo);
+                    textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
                     textGeo.translate(0, 5, -5);
                     let fontMesh = new THREE.Mesh(textGeo, this.fontMaterial);
                     fontMesh.setRotationFromEuler(new THREE.Euler( -Math.PI / 2, 0, 0, 'XYZ' ));
@@ -239,6 +348,9 @@ game.prototype = {
         if (this.initCallback !== undefined) {
             this.initCallback();
         }
+        //set up any event listeners we care about
+        this.setupListeners();
+
         //set up the game field
         this.backgroundMesh = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 32), new THREE.MeshBasicMaterial( {color: 0xd1d1d1, side: THREE.DoubleSide} ));
         this.backgroundMesh.setRotationFromEuler(new THREE.Euler( Math.PI / 2, 0, 0, 'XYZ' )); //rotate to coincide with -Z axis into the screen
@@ -284,7 +396,7 @@ game.prototype = {
             curveSegments: 12,
             bevelEnabled: false
         });
-        textGeo =  new THREE.BufferGeometry().fromGeometry(textGeo);
+        textGeo = new THREE.BufferGeometry().fromGeometry(textGeo);
         textGeo.translate(0, 5, -5);
         let fontMesh = new THREE.Mesh(textGeo, this.fontMaterial);
         fontMesh.setRotationFromEuler(new THREE.Euler( -Math.PI / 2, 0, 0, 'XYZ' ));

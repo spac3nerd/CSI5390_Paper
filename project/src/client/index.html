@@ -25,7 +25,7 @@
             </div>
             <div class="column">
                 <label for="playerName">Enter Player Name:</label>
-                <input id="playerName"/>
+                <input id="playerName" maxlength="25"/>
             </div>
             <div class="column">
                 <input type="button" value="Join Game" onclick="joinGame()"/>
@@ -98,7 +98,7 @@
                     console.log(socketURL);
                     socket = io(socketURL);
                     gameInstance = new game(canvas, socket, token, playerName.value);
-                    gameInstance.init(startInterval);
+                    gameInstance.init();
 
                 }
                 else {
