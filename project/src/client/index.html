@@ -142,7 +142,7 @@
                     console.log(socketURL);
                     socket = io(socketURL);
                     gameInstance = new game(canvas, socket, token, playerName.value);
-                    gameInstance.init(startInterval);
+                    gameInstance.init();
                     gameInstance.setChatCallback(appendChat);
                 }
                 else {

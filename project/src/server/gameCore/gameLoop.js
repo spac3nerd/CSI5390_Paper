@@ -20,8 +20,8 @@ let bounds = {
     zMin: 50
 };
 
-let bulletVelocity = 80;
-let movementVelocity = 45;
+let bulletVelocity = 130;
+let movementVelocity = 70;
 
 
 //called for each update from clients
@@ -172,9 +172,9 @@ function loopGame() {
 
     socketManager.broadcast(latestState);
     newMessages = {};
-    let now = new Date();
-
-    console.log(now - newTime);
+    // let now = new Date();
+    //
+    // console.log(now - newTime);
 }
 
 //server-side render loop - 30 times a second - no need to implement any fancy pacing here

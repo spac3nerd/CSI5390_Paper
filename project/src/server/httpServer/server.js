@@ -34,7 +34,7 @@ function gameServer(gameSettings) {
     });
 
     //route for tests
-    app.get("/tests", function(req, res) {
+    app.get("/unitTesting", function(req, res) {
         res.sendFile(path.resolve(gameSettings.testPage));
     });
 

@@ -1,16 +1,16 @@
 .column {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 .row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .container {
-    width: 800px;
-    height: 800px;
+    width: 1600px;
+    height: 400px;
 }
 .instanceContainer {
     width: 400px;
@@ -23,6 +23,7 @@
 
 .dataContainer {
     padding-left: 50px;
+    padding-top: 20px;
     max-width: 600px;
 }
 

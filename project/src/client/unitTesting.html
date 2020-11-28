@@ -7,19 +7,172 @@
     <script type="text/javascript" src="./src/game.js"></script>
     <script type="text/javascript" src="./src/tank.js"></script>
     <script type="text/javascript" src="./src/bullet.js"></script>
+    <script type="text/javascript" src="./src/testing/testingFramework.js"></script>
     <script type="text/javascript" src="./lib/three.js"></script>
     <script type="text/javascript" src="./lib/socketio.js"></script>
-    <script type="text/javascript" src="./lib/rxjs.js.js"></script>
+    <script type="text/javascript" src="./lib/rxjs.js"></script>
     <!-- I only need jquery to simplify the async server requests -->
     <script type="text/javascript" src="./lib/jquery.js"></script>
     <link rel="stylesheet" type="text/css" href="./css/test.css">
 </head>
 <body>
 
-    <div class="row">
+    <div class="column">
+        <!-- contains all of the game instances -->
+        <div id="container" class="container row" tabindex="1" >
+            <div class="instanceContainer" id="container1"></div>
+            <div class="instanceContainer" id="container2"></div>
+            <div class="instanceContainer" id="container3"></div>
+            <div class="instanceContainer" id="container4"></div>
+        </div>
 
+        <!-- contains all of the test results -->
+        <div class="column dataContainer">
+            <div class="testCase" id="testCase1">
+                <input type="button" value="Test 1" onclick="test1()" class="individualButton"/>
+                <div>Fetch initial number of players - expect 0</div>
+                <div class="pass" style="visibility: hidden;">PASS</div>
+                <div class="fail" style="visibility: hidden;">FAIL</div>
+            </div>
 
+            <div class="testCase" id="testCase2">
+                <input type="button" value="Test 2" onclick="test2()" class="individualButton"/>
+                <div>New session is requested and a token is granted</div>
+                <div class="pass" style="visibility: hidden;">PASS</div>
+                <div class="fail" style="visibility: hidden;">FAIL</div>
+            </div>
+            <div class="testCase" id="testCase3">
+                <input type="button" value="Test 3" onclick="test3()" class="individualButton"/>
+                <div>New game instance is initialized successfully</div>
+                <div class="pass" style="visibility: hidden;">PASS</div>
+                <div class="fail" style="visibility: hidden;">FAIL</div>
+            </div>
+
+            <div class="testCase" id="testCase4">
+                <input type="button" value="Test 4" onclick="test4()" class="individualButton"/>
+                <div>Move Player 1 Left</div>
+                <div class="pass" style="visibility: hidden;">PASS</div>
+                <div class="fail" style="visibility: hidden;">FAIL</div>
+            </div>
+        </div>
     </div>
 
+
+
 </body>
+
+<script type="text/javascript">
+    let t = new nodeTankTesting($("container"), "http://localhost:8081", "http://localhost:8080");
+    //create instance one
+    t.createInstance();
+    t.requestToken("Test", (token) => {
+        console.log(token);
+    });
+
+    let player1Name = "Player 1";
+    let player2Name = "Player 2";
+    let player3Name = "Player 3";
+    let player4Name = "Player 4";
+    let token1 = null;
+
+    let gameInstance1 = null;
+    let gameInstance2 = null;
+    let gameInstance3 = null;
+    let gameInstance4 = null;
+
+    //Test that initially, there are exactly 0 players
+    let id1 = t.registerTest("testCase1");
+    let test1 = () => {
+        t.HTTPRequest("GET", "/session/getActivePlayers", {}, (response) => {
+            if (response.success) {
+                if (t.assertEquals(0, response.data.count)) {
+                    t.passTest(id1);
+                }
+                else {
+                    t.failTest(id1);
+                }
+            }
+            else {
+                t.failTest(id1);
+            }
+        });
+    };
+
+    //test a new session request
+    let id2 = t.registerTest("testCase2");
+    let test2 = () => {
+        t.requestToken(player1Name, (token) => {
+            if (t.assertExists(token)) {
+                t.passTest(id2);
+            }
+            else {
+                t.failTest(id2);
+            }
+        });
+    };
+
+    //test that a new game instance is started successfully
+    let id3 = t.registerTest("testCase3");
+    let test3 = () => {
+        //condition for this test is that an exception is not thrown and that
+        //   gameInstanceX is an instance of game
+        try {
+            gameInstance1 = t.createInstance(document.getElementById("container1"), player1Name);
+            gameInstance1.init();
+            if (t.assertInstanceOf(game, gameInstance1)) {
+                t.passTest(id3);
+            }
+            else {
+                t.failTest(id3);
+            }
+        }
+        catch {
+            t.failTest(id3);
+        }
+    };
+
+    //test a new session request
+    let id4 = t.registerTest("testCase2");
+    let test4MaxAttempts = 3;
+    let test4 = () => {
+        let attempt = 1;
+        //get the original position of Player 1
+        let oPosition = gameInstance1.playerTank.group.position.x;
+        gameInstance1.pressedMovementKey.a = true; //simulate pressing key "a"
+        let verify = () => {
+            let cPosition = gameInstance1.playerTank.group.position.x;
+            if (cPosition < oPosition) {
+                gameInstance1.pressedMovementKey.a = false;
+                t.passTest(id4);
+            }
+            else {
+                //if there are still attempts left
+                if (attempt <= test4MaxAttempts) {
+                    attempt++;
+                    setTimeout(() => {
+                        verify();
+                    }, 30);
+                }
+                //if there are no attempts left
+                else {
+                    gameInstance1.pressedMovementKey.a = false;
+                    t.failTest(id4);
+                }
+            }
+        };
+
+        setTimeout(() => {
+            verify();
+        }, 30);
+    };
+
+
+
+    // //register the tests
+    // let id1 = t.registerTest(() => {
+    //
+    // });
+
+</script>
+
 </html>
