@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NoteTank Unit Tests</title>
+    <title>NodeTank Unit Tests</title>
     <!-- Load assets -->
     <script type="text/javascript" src="./src/game.js"></script>
     <script type="text/javascript" src="./src/tank.js"></script>
@@ -153,6 +153,13 @@
                     <div class="pass" style="visibility: hidden;">PASS</div>
                     <div class="fail" style="visibility: hidden;">FAIL</div>
                 </div>
+
+                <div class="testCase" id="testCase18">
+                    <input type="button" value="Test 18" onclick="test18()" class="individualButton"/>
+                    <div>Fetch number of players, expect 4</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
             </div>
         </div>
     </div>
@@ -162,7 +169,19 @@
 </body>
 
 <script type="text/javascript">
-    let t = new nodeTankTesting($("container"), "http://localhost:8081", "http://localhost:8080");
+
+    let serverURL = "";
+    let socketURL = "";
+    let socketPort = 8081;
+    let fetchBaseUrl = () => {
+        let tokens = document.baseURI.split("/");
+        serverURL = tokens[0] + "//" + tokens[2];
+        let tokens2 = serverURL.split(":");
+        socketURL = tokens2[0] + ":" + tokens2[1] + ":" + socketPort;
+    };
+    fetchBaseUrl();
+
+    let t = new nodeTankTesting($("container"), socketURL, serverURL);
     //create instance one
     t.createInstance();
     t.requestToken("Test", (token) => {
@@ -606,6 +625,24 @@
         catch {
             t.failTest(id17);
         }
+    };
+
+    //Test the current number of players, expect 4 total
+    let id18 = t.registerTest("testCase18");
+    let test18 = () => {
+        t.HTTPRequest("GET", "/session/getActivePlayers", {}, (response) => {
+            if (response.success) {
+                if (t.assertEquals(4, response.data.count)) {
+                    t.passTest(id18);
+                }
+                else {
+                    t.failTest(id18);
+                }
+            }
+            else {
+                t.failTest(id18);
+            }
+        });
     };
 
 
