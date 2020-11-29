@@ -127,6 +127,7 @@ function optimizeBullets() {
 function loopGame() {
     //check for reset flag
     if (globalState.getResetServer()) {
+        console.log("Reset Flag Received");
         playerTanks = {};
         shots = {};
         newMessages = {};

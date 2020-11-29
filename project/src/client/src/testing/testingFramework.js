@@ -20,6 +20,12 @@ nodeTankTesting.prototype = {
     failTest: function(id) {
         this.registeredTestCases[id][0].children[3].style.visibility = "visible";
     },
+    resetTests: function() {
+        for (let k = 0; k < this.registeredTestCases.length; k++) {
+            this.registeredTestCases[k][0].children[2].style.visibility = "hidden";
+            this.registeredTestCases[k][0].children[3].style.visibility = "hidden";
+        }
+    },
     createInstance: function(containerN, playerName) {
         let newSocket = io(this.socketURL);
         let newGame = new game(containerN, newSocket, this.tokens[this.tokens.length - 1], playerName);

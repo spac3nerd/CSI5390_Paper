@@ -7,6 +7,10 @@ router.post("/debug/reset", function(req, res) {
         "Content-Type": "text/plain"
     });
     globalState.setResetServer(true)
+
+    res.end(JSON.stringify({
+        success: true,
+    }), "utf-8");
 });
 
 module.exports = router;

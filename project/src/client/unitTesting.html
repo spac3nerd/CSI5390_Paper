@@ -29,7 +29,10 @@
         </div>
 
 
+        <div class="row">
+            <input type="button" value="Execute All Tests" onclick="runAllTests()" class="individualButton"/>
 
+        </div>
         <!-- contains all of the test results -->
         <div class="row dataContainer">
             <div class="column">
@@ -218,79 +221,127 @@
 
     });
 
-    // observable.subscribe({
-    //     next(x) {
-    //         console.log(x);
-    //     },
-    //     error(err) {},
-    //     complete() {}
-    // });
-    // observable.next(1);
-
-
 
     //I opened up a new endpoint to allow us to run the test suite multiple times without having
     //to manually restart the server each time
-    let resetServer = () => {
-        t.HTTPRequest("POST", "/debug/reset", {});
+    let resetServer = (callback) => {
+        $("#container1").empty()
+        $("#container2").empty()
+        $("#container3").empty()
+        $("#container4").empty()
+        t.resetTests();
+        t.HTTPRequest("POST", "/debug/reset", {}, callback ? callback: null);
+    };
+
+    let runAllTests = () => {
+        resetServer(() => {
+            console.log("Server Reset!");
+            let test1P = new Promise(test1).then(() => {
+                return new Promise(test2);
+            }).then(() => {
+                return new Promise(test3);
+            }).then(() => {
+                return new Promise(test4);
+            }).then(() => {
+                return new Promise(test5);
+            }).then(() => {
+                return new Promise(test6);
+            }).then(() => {
+                return new Promise(test7);
+            }).then(() => {
+                return new Promise(test8);
+            }).then(() => {
+                return new Promise(test9);
+            }).then(() => {
+                return new Promise(test10);
+            }).then(() => {
+                return new Promise(test11);
+            }).then(() => {
+                return new Promise(test12);
+            }).then(() => {
+                return new Promise(test13);
+            }).then(() => {
+                return new Promise(test14);
+            }).then(() => {
+                return new Promise(test15);
+            }).then(() => {
+                return new Promise(test16);
+            }).then(() => {
+                return new Promise(test17);
+            }).then(() => {
+                return new Promise(test18);
+            });
+        });
+
     };
 
 
     //Test that initially, there are exactly 0 players
     let id1 = t.registerTest("testCase1");
-    let test1 = () => {
+    let test1 = (resolve, reject) => {
         t.HTTPRequest("GET", "/session/getActivePlayers", {}, (response) => {
             if (response.success) {
                 if (t.assertEquals(0, response.data.count)) {
                     t.passTest(id1);
+                    resolve ? resolve() : null;
                 }
                 else {
                     t.failTest(id1);
+                    resolve ? resolve() : null;
                 }
             }
             else {
                 t.failTest(id1);
+                resolve ? resolve() : null;
             }
         });
     };
 
     //test a new session request
     let id2 = t.registerTest("testCase2");
-    let test2 = () => {
+    let test2 = (resolve, reject) => {
         t.requestToken(player1Name, (token) => {
             if (t.assertExists(token)) {
                 t.passTest(id2);
+                resolve ? resolve() : null;
             }
             else {
                 t.failTest(id2);
+                resolve ? resolve() : null;
             }
         });
     };
 
     //test that a new game instance is started successfully
     let id3 = t.registerTest("testCase3");
-    let test3 = () => {
+    let test3 = (resolve, reject) => {
         //condition for this test is that an exception is not thrown and that
         //   gameInstanceX is an instance of game
         try {
             gameInstance1 = t.createInstance(document.getElementById("container1"), player1Name);
             gameInstance1.init();
             if (t.assertInstanceOf(game, gameInstance1)) {
-                t.passTest(id3);
+                //let the DOM rendering catch up before continuing
+                setTimeout(() => {
+                    t.passTest(id3);
+                    resolve ? resolve() : null;
+                }, 1000);
             }
             else {
                 t.failTest(id3);
+                resolve ? resolve() : null;
             }
         }
         catch {
             t.failTest(id3);
+            resolve ? resolve() : null;
         }
     };
 
     //test that the tank can move to the left successfully
     let id4 = t.registerTest("testCase4");
     let test4MaxAttempts = 3;
-    let test4 = () => {
+    let test4 = (resolve, reject) => {
         let attempt = 1;
         //get the original position of Player 1
         let oPosition = gameInstance1.playerTank.group.position.x;
@@ -301,6 +352,7 @@
             if (cPosition < oPosition) {
                 gameInstance1.pressedMovementKey.a = false;
                 t.passTest(id4);
+                resolve ? resolve() : null;
             }
             else {
                 //if there are still attempts left
@@ -314,6 +366,7 @@
                 else {
                     gameInstance1.pressedMovementKey.a = false;
                     t.failTest(id4);
+                    resolve ? resolve() : null;
                 }
             }
         };
@@ -326,7 +379,7 @@
     //test that Player 1 can move to the right
     let id5 = t.registerTest("testCase5");
     let test5MaxAttempts = 3;
-    let test5 = () => {
+    let test5 = (resolve, reject) => {
         let attempt = 1;
         //get the original position of Player 1
         let oPosition = gameInstance1.playerTank.group.position.x;
@@ -337,6 +390,7 @@
             if (cPosition > oPosition) {
                 gameInstance1.pressedMovementKey.d = false;
                 t.passTest(id5);
+                resolve ? resolve() : null;
             }
             else {
                 //if there are still attempts left
@@ -350,6 +404,7 @@
                 else {
                     gameInstance1.pressedMovementKey.d = false;
                     t.failTest(id5);
+                    resolve ? resolve() : null;
                 }
             }
         };
@@ -362,7 +417,7 @@
     //test that Player 1 can move down
     let id6 = t.registerTest("testCase6");
     let test6MaxAttempts = 3;
-    let test6 = () => {
+    let test6 = (resolve, reject) => {
         let attempt = 1;
         //get the original position of Player 1
         let oPosition = gameInstance1.playerTank.group.position.z;
@@ -373,6 +428,7 @@
             if (cPosition > oPosition) {
                 gameInstance1.pressedMovementKey.s = false;
                 t.passTest(id6);
+                resolve ? resolve() : null;
             }
             else {
                 //if there are still attempts left
@@ -386,6 +442,7 @@
                 else {
                     gameInstance1.pressedMovementKey.s = false;
                     t.failTest(id6);
+                    resolve ? resolve() : null;
                 }
             }
         };
@@ -398,7 +455,7 @@
     //test that Player 1 can move up
     let id7 = t.registerTest("testCase7");
     let test7MaxAttempts = 3;
-    let test7 = () => {
+    let test7 = (resolve, reject) => {
         let attempt = 1;
         //get the original position of Player 1
         let oPosition = gameInstance1.playerTank.group.position.z;
@@ -409,6 +466,7 @@
             if (cPosition < oPosition) {
                 gameInstance1.pressedMovementKey.w = false;
                 t.passTest(id7);
+                resolve ? resolve() : null;
             }
             else {
                 //if there are still attempts left
@@ -422,6 +480,7 @@
                 else {
                     gameInstance1.pressedMovementKey.w = false;
                     t.failTest(id7);
+                    resolve ? resolve() : null;
                 }
             }
         };
@@ -434,18 +493,19 @@
 
     //Player 1 going into the red area results in the player being killed, and a point deducted from the score
     //Now, this test case has to make some things into consideration:
-    //1 - since a player's intitial starting location is random, we don't know how much time it will
+    //1 - since a player's initial starting location is random, we don't know how much time it will
     //    take to reach the end of the board, unless we calculate this on our end
     let id8 = t.registerTest("testCase8");
+    let t8Data = null;
     // let test8MaxAttempts = 3;
-
-    let test8 = () => {
+    let test8 = (resolve, reject) => {
         //get the original score of Player 1
         let oScore = gameInstance1.playerTank.score;
         let cPosition = t.cloneObj(gameInstance1.playerTank.group.position); //clone the position object so we can compare later on
+        t8Data = t.cloneObj(cPosition);
         let deltaDistance = (-50) - cPosition.z;
         let minimumTime = Math.abs(deltaDistance / movementSpeed); //since movement speed is defined in terms of units per second, we ca set a lower bound on the time needed to wait before checking
-        console.log(minimumTime);
+        // console.log(minimumTime);
         gameInstance1.pressedMovementKey.w = true;
         let verify = () => {
             let cScore = gameInstance1.playerTank.score;
@@ -453,10 +513,12 @@
             if (t.assertEquals(oScore - 1, cScore)) {
                 t.passTest(id8);
                 //we have a dependent test case here, call it
-                test9(cPosition);
+                // ;
+                resolve ? resolve() : test9();
             }
             else {
                 t.failTest(id8);
+                resolve ? resolve() : null;
             }
         };
         setTimeout(() => {
@@ -468,16 +530,18 @@
     //Simple dependent test - ensure that the new spawn position actually exists and is different from the initial position - check component-wise
     let id9 = t.registerTest("testCase9");
     //cPosition - original position before respawn
-    let test9 = (oPosition) => {
+    let test9 = (resolve, reject) => {
         //get the current position of Player 1
         let cPosition = gameInstance1.playerTank.group.position;
-        let isXPositionNew = t.assertNotEquals(oPosition.x, cPosition.x);
-        let isZPositionNew = t.assertNotEquals(oPosition.z, cPosition.z);
+        let isXPositionNew = t.assertNotEquals(cPosition.x, t8Data.x);
+        let isZPositionNew = t.assertNotEquals(cPosition.z, t8Data.z);
         if (isXPositionNew && isZPositionNew) {
             t.passTest(id9);
+            resolve ? resolve() : null;
         }
         else {
             t.failTest(id9);
+            resolve ? resolve() : null;
         }
     };
 
@@ -486,42 +550,49 @@
 
     //Request a token for Player 2
     let id10 = t.registerTest("testCase10");
-    let test10 = () => {
+    let test10 = (resolve, reject) => {
         t.requestToken(player2Name, (token) => {
             if (t.assertExists(token)) {
                 t.passTest(id10);
                 token2 = t.tokens[t.tokens.length - 1];
+                resolve ? resolve() : null;
             }
             else {
                 t.failTest(id10);
+                resolve ? resolve() : null;
             }
         });
     };
 
     //test that a new game instance is started successfully
     let id11 = t.registerTest("testCase11");
-    let test11 = () => {
+    let test11 = (resolve, reject) => {
         //condition for this test is that an exception is not thrown and that
         //   gameInstanceX is an instance of game
         try {
             gameInstance2 = t.createInstance(document.getElementById("container2"), player2Name);
             gameInstance2.init();
             if (t.assertInstanceOf(game, gameInstance2)) {
-                t.passTest(id11);
+                setTimeout(() => {
+                    t.passTest(id11);
+                    resolve ? resolve() : null;
+                }, 1000);
             }
             else {
                 t.failTest(id11);
+                resolve ? resolve() : null;
             }
         }
         catch {
             t.failTest(id11);
+            resolve ? resolve() : null;
         }
     };
 
     //Move Player 2 and check if the movement is reflected in Instance 1
     let id12 = t.registerTest("testCase12");
     let test12MaxAttempts = 3;
-    let test12 = () => {
+    let test12 = (resolve, reject) => {
         //get position of Player 2 from instance 1
         let oPosition = t.cloneObj(gameInstance1.otherPlayers[token2].group.position);
         let attempt = 1;
@@ -534,6 +605,7 @@
                 gameInstance2.pressedMovementKey.w = false;
                 gameInstance2.pressedMovementKey.d = false;
                 t.passTest(id12);
+                resolve ? resolve() : null;
             }
             else {
                 if (attempt <= test12MaxAttempts) {
@@ -547,6 +619,7 @@
                     gameInstance2.pressedMovementKey.w = false;
                     gameInstance2.pressedMovementKey.d = false;
                     t.failTest(id12);
+                    resolve ? resolve() : null;
                 }
             }
         };
@@ -559,7 +632,7 @@
     //Aim Player 2 at Player 1 and shoot- expect a score change and respawn
     //Again, as with the red zone test, we have a general idea of how long to wait since we know the bullet velocity
     let id13 = t.registerTest("testCase13");
-    let test13 = () => {
+    let test13 = (resolve, reject) => {
         //get cloned position of Player 1
         let oP1Position = t.cloneObj(gameInstance1.playerTank.group.position);
         let oP2Score = gameInstance2.playerTank.score;
@@ -577,9 +650,11 @@
             let scoreIncremented = t.assertEquals(oP2Score + 1, cP2Score);
             if (respawned && scoreIncremented) {
                 t.passTest(id13);
+                resolve ? resolve() : null;
             }
             else {
                 t.failTest(id13);
+                resolve ? resolve() : null;
             }
 
             };
@@ -591,86 +666,103 @@
 
     //Request a token for Player 3
     let id14 = t.registerTest("testCase14");
-    let test14 = () => {
+    let test14 = (resolve, reject) => {
         t.requestToken(player3Name, (token) => {
             if (t.assertExists(token)) {
                 t.passTest(id14);
+                resolve ? resolve() : null;
                 token3 = t.tokens[t.tokens.length - 1];
             }
             else {
                 t.failTest(id14);
+                resolve ? resolve() : null;
             }
         });
     };
 
     //test that a new game instance is started successfully for P3
     let id15 = t.registerTest("testCase15");
-    let test15 = () => {
+    let test15 = (resolve, reject) => {
         //condition for this test is that an exception is not thrown and that
         //   gameInstanceX is an instance of game
         try {
             gameInstance3 = t.createInstance(document.getElementById("container3"), player3Name);
             gameInstance3.init();
             if (t.assertInstanceOf(game, gameInstance3)) {
-                t.passTest(id15);
+                setTimeout(() => {
+                    t.passTest(id15);
+                    resolve ? resolve() : null;
+                }, 1000);
             }
             else {
                 t.failTest(id15);
+                resolve ? resolve() : null;
             }
         }
         catch {
             t.failTest(id15);
+            resolve ? resolve() : null;
         }
     };
 
     //Request a token for Player 3
     let id16 = t.registerTest("testCase16");
-    let test16 = () => {
+    let test16 = (resolve, reject) => {
         t.requestToken(player4Name, (token) => {
             if (t.assertExists(token)) {
                 t.passTest(id16);
+                resolve ? resolve() : null;
                 token4 = t.tokens[t.tokens.length - 1];
             }
             else {
                 t.failTest(id16);
+                resolve ? resolve() : null;
             }
         });
     };
 
     //test that a new game instance is started successfully for P4
     let id17 = t.registerTest("testCase17");
-    let test17 = () => {
+    let test17 = (resolve, reject) => {
         //condition for this test is that an exception is not thrown and that
         //   gameInstanceX is an instance of game
         try {
             gameInstance4 = t.createInstance(document.getElementById("container4"), player4Name);
             gameInstance4.init();
             if (t.assertInstanceOf(game, gameInstance4)) {
-                t.passTest(id17);
+                setTimeout(() => {
+                    t.passTest(id17);
+                    resolve ? resolve() : null;
+                }, 1000);
             }
             else {
                 t.failTest(id17);
+                resolve ? resolve() : null;
             }
         }
         catch {
             t.failTest(id17);
+            resolve ? resolve() : null;
         }
     };
 
     //Test the current number of players, expect 4 total
     let id18 = t.registerTest("testCase18");
-    let test18 = () => {
+    let test18 = (resolve, reject) => {
         t.HTTPRequest("GET", "/session/getActivePlayers", {}, (response) => {
             if (response.success) {
                 if (t.assertEquals(4, response.data.count)) {
                     t.passTest(id18);
+                    resolve ? resolve() : null;
                 }
                 else {
                     t.failTest(id18);
+                    resolve ? resolve() : null;
                 }
             }
             else {
                 t.failTest(id18);
+                resolve ? resolve() : null;
             }
         });
     };

@@ -18,7 +18,8 @@ function getScore() {
 }
 
 function resetScore() {
-    return score = {};
+    score = {};
+    currentUsers = 0;
 }
 
 function incrementScore(token) {
