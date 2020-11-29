@@ -60,6 +60,8 @@
             <div class="row chatWindow" id="chatWindow" >
 
             </div>
+            <input type="button" value="Reset Server" onclick="resetServer()" class="individualButton"/>
+
 
         </div>
     </div>
@@ -165,6 +167,10 @@
                     callback(data);
                 }
             });
+        }
+
+        function resetServer() {
+            sendRequest("POST", "debug/reset", {});
         }
 
     </script>
