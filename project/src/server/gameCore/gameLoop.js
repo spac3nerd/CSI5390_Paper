@@ -125,6 +125,17 @@ function optimizeBullets() {
 }
 
 function loopGame() {
+    //check for reset flag
+    if (globalState.getResetServer()) {
+        playerTanks = {};
+        shots = {};
+        newMessages = {};
+        globalState.resetUserCount();
+        globalState.resetScore();
+        globalState.setResetServer(false);
+        globalState.resetUserTokens();
+        return;
+    }
     let newTime = new Date();
     let delta = (newTime - lastUpdate) / 1000;
     lastUpdate = newTime;

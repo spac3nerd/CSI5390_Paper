@@ -19,6 +19,14 @@ router.get("/session/getActivePlayers", function(req, res) {
     }), "utf-8");
 });
 
+router.post("/server/reset", function(req, res) {
+    res.writeHead(200, {
+        "Content-Type": "text/plain"
+    });
+    debugger;
+    globalState.setResetServer(true)
+});
+
 
 //This route tells the client whether they can enter the game, if so an unique token is returned
 //which is used by the client to set up the socket

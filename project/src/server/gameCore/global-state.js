@@ -2,6 +2,7 @@ let currentUsers = 0;
 let maxUsers = 4;
 let userTokens = {};
 let score = {};
+let resetServer = false;
 
 function addUser(token, name) {
     currentUsers += 1;
@@ -16,6 +17,10 @@ function getScore() {
     return score;
 }
 
+function resetScore() {
+    return score = {};
+}
+
 function incrementScore(token) {
     score[token].score += 1;
 }
@@ -26,6 +31,10 @@ function decrementScore(token) {
 
 function getUserCount() {
     return currentUsers;
+}
+
+function resetUserCount() {
+    currentUsers = 0;
 }
 
 function setMaxUsers(m) {
@@ -43,8 +52,21 @@ function setUserTokens(newUserTokens) {
 function getUserTokens() {
     return userTokens;
 }
+
+function resetUserTokens() {
+    userTokens = {};
+}
+
 function isTokenValid(token) {
     return userTokens.hasOwnProperty(token);
+}
+
+function setResetServer(flag) {
+    resetServer = flag;
+}
+
+function getResetServer() {
+    return resetServer;
 }
 
 
@@ -58,5 +80,10 @@ module.exports = {
     isTokenValid: isTokenValid,
     incrementScore: incrementScore,
     decrementScore: decrementScore,
-    getScore: getScore
+    getScore: getScore,
+    setResetServer: setResetServer,
+    getResetServer: getResetServer,
+    resetScore: resetScore,
+    resetUserCount: resetUserCount,
+    resetUserTokens: resetUserTokens
 };

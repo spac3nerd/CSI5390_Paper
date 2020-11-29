@@ -17,6 +17,8 @@
 </head>
 <body>
 
+    <input type="button" value="Reset Server" onclick="resetServer()" class="individualButton"/>
+
     <div class="column">
         <!-- contains all of the game instances -->
         <div id="container" class="container row" tabindex="1" >
@@ -25,6 +27,8 @@
             <div class="instanceContainer" id="container3"></div>
             <div class="instanceContainer" id="container4"></div>
         </div>
+
+
 
         <!-- contains all of the test results -->
         <div class="row dataContainer">
@@ -183,10 +187,10 @@
 
     let t = new nodeTankTesting($("container"), socketURL, serverURL);
     //create instance one
-    t.createInstance();
-    t.requestToken("Test", (token) => {
-        console.log(token);
-    });
+    // t.createInstance();
+    // t.requestToken("Test", (token) => {
+    //     console.log(token);
+    // });
 
     let player1Name = "Player 1";
     let player2Name = "Player 2";
@@ -204,7 +208,15 @@
 
     //I was lazy and just hardcoded these at the same value as the server
     let movementSpeed = 70; //the speed of the current game simulation - units/s
-    let bulletSpeed = 130; //speed of the buller - units/s
+    let bulletSpeed = 130; //speed of the bullet - units/s
+
+    //I opened up a new endpoint to allow us to run the test suite multiple times without having
+    //to manually restart the server each time
+    let resetServer = () => {
+        t.HTTPRequest("POST", "/server/reset", {});
+    };
+
+
 
     //Test that initially, there are exactly 0 players
     let id1 = t.registerTest("testCase1");
@@ -607,13 +619,13 @@
         });
     };
 
-    //test that a new game instance is started successfully for P3
+    //test that a new game instance is started successfully for P4
     let id17 = t.registerTest("testCase17");
     let test17 = () => {
         //condition for this test is that an exception is not thrown and that
         //   gameInstanceX is an instance of game
         try {
-            gameInstance4 = t.createInstance(document.getElementById("container4"), player3Name);
+            gameInstance4 = t.createInstance(document.getElementById("container4"), player4Name);
             gameInstance4.init();
             if (t.assertInstanceOf(game, gameInstance4)) {
                 t.passTest(id17);
