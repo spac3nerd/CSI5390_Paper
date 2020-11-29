@@ -512,11 +512,11 @@ game.prototype = {
                 //that.createNewBullet();
             }
         };
-
         this.render();
     },
 
     render: function() {
+        // console.log(this.playerTank.group.position.z)
         if (this.lastRender !== undefined) {
             let newTime = new Date();
             let delta = (newTime - this.lastRender) / 1000; //time difference in seconds

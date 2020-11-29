@@ -27,32 +27,97 @@
         </div>
 
         <!-- contains all of the test results -->
-        <div class="column dataContainer">
-            <div class="testCase" id="testCase1">
-                <input type="button" value="Test 1" onclick="test1()" class="individualButton"/>
-                <div>Fetch initial number of players - expect 0</div>
-                <div class="pass" style="visibility: hidden;">PASS</div>
-                <div class="fail" style="visibility: hidden;">FAIL</div>
-            </div>
+        <div class="row dataContainer">
+            <div class="column">
+                <div>
+                    Single Instance Testing
+                </div>
+                <div class="testCase" id="testCase1">
+                    <input type="button" value="Test 1" onclick="test1()" class="individualButton"/>
+                    <div>Fetch initial number of players - expect 0</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
 
-            <div class="testCase" id="testCase2">
-                <input type="button" value="Test 2" onclick="test2()" class="individualButton"/>
-                <div>New session is requested and a token is granted</div>
-                <div class="pass" style="visibility: hidden;">PASS</div>
-                <div class="fail" style="visibility: hidden;">FAIL</div>
-            </div>
-            <div class="testCase" id="testCase3">
-                <input type="button" value="Test 3" onclick="test3()" class="individualButton"/>
-                <div>New game instance is initialized successfully</div>
-                <div class="pass" style="visibility: hidden;">PASS</div>
-                <div class="fail" style="visibility: hidden;">FAIL</div>
-            </div>
+                <div class="testCase" id="testCase2">
+                    <input type="button" value="Test 2" onclick="test2()" class="individualButton"/>
+                    <div>New session is requested and a token is granted</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+                <div class="testCase" id="testCase3">
+                    <input type="button" value="Test 3" onclick="test3()" class="individualButton"/>
+                    <div>New game instance is initialized successfully</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
 
-            <div class="testCase" id="testCase4">
-                <input type="button" value="Test 4" onclick="test4()" class="individualButton"/>
-                <div>Move Player 1 Left</div>
-                <div class="pass" style="visibility: hidden;">PASS</div>
-                <div class="fail" style="visibility: hidden;">FAIL</div>
+                <div class="testCase" id="testCase4">
+                    <input type="button" value="Test 4" onclick="test4()" class="individualButton"/>
+                    <div>Move Player 1 Left</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase5">
+                    <input type="button" value="Test 5" onclick="test5()" class="individualButton"/>
+                    <div>Move Player 1 Right</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase6">
+                    <input type="button" value="Test 6" onclick="test6()" class="individualButton"/>
+                    <div>Move Player 1 Down</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase7">
+                    <input type="button" value="Test 7" onclick="test7()" class="individualButton"/>
+                    <div>Move Player 1 Up</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase8">
+                    <input type="button" value="Test 8" onclick="test8()" class="individualButton"/>
+                    <div>Move Player 1 to Red Zone, expect a point loss</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase9">
+                    <input type="button" value="Test 9" disabled class="individualButton"/>
+                    <div>Dependent on Test 8 - After respawn, verify new position is set</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+            </div>
+            <div class="column">
+                <div>
+                    Multiple Instance Testing
+                </div>
+                <div class="testCase" id="testCase10">
+                    <input type="button" value="Test 10" onclick="test10()" class="individualButton"/>
+                    <div>Request new session for Player 2</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase11">
+                    <input type="button" value="Test 11" onclick="test11()" class="individualButton"/>
+                    <div>Initialize instance for Player 2</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase12">
+                    <input type="button" value="Test 12" onclick="test12()" class="individualButton"/>
+                    <div>Move Player 2 and check if shown in Instance 1</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
             </div>
         </div>
     </div>
@@ -74,11 +139,16 @@
     let player3Name = "Player 3";
     let player4Name = "Player 4";
     let token1 = null;
+    let token2 = null;
+    let token3 = null;
+    let token4 = null;
 
     let gameInstance1 = null;
     let gameInstance2 = null;
     let gameInstance3 = null;
     let gameInstance4 = null;
+
+    let movementSpeed = 70; //the speed of the currect game simulation
 
     //Test that initially, there are exactly 0 players
     let id1 = t.registerTest("testCase1");
@@ -131,8 +201,8 @@
         }
     };
 
-    //test a new session request
-    let id4 = t.registerTest("testCase2");
+    //test that the tank can move to the left successfully
+    let id4 = t.registerTest("testCase4");
     let test4MaxAttempts = 3;
     let test4 = () => {
         let attempt = 1;
@@ -141,6 +211,7 @@
         gameInstance1.pressedMovementKey.a = true; //simulate pressing key "a"
         let verify = () => {
             let cPosition = gameInstance1.playerTank.group.position.x;
+            //movement to the left implies that the position on the x-axis should decrease
             if (cPosition < oPosition) {
                 gameInstance1.pressedMovementKey.a = false;
                 t.passTest(id4);
@@ -151,7 +222,7 @@
                     attempt++;
                     setTimeout(() => {
                         verify();
-                    }, 30);
+                    }, 80);
                 }
                 //if there are no attempts left
                 else {
@@ -163,15 +234,245 @@
 
         setTimeout(() => {
             verify();
-        }, 30);
+        }, 80);
+    };
+
+    //test that Player 1 can move to the right
+    let id5 = t.registerTest("testCase5");
+    let test5MaxAttempts = 3;
+    let test5 = () => {
+        let attempt = 1;
+        //get the original position of Player 1
+        let oPosition = gameInstance1.playerTank.group.position.x;
+        gameInstance1.pressedMovementKey.d = true; //simulate pressing key "d"
+        let verify = () => {
+            let cPosition = gameInstance1.playerTank.group.position.x;
+            //movement to the left implies that the position on the x-axis should decrease
+            if (cPosition > oPosition) {
+                gameInstance1.pressedMovementKey.d = false;
+                t.passTest(id5);
+            }
+            else {
+                //if there are still attempts left
+                if (attempt <= test5MaxAttempts) {
+                    attempt++;
+                    setTimeout(() => {
+                        verify();
+                    }, 80);
+                }
+                //if there are no attempts left
+                else {
+                    gameInstance1.pressedMovementKey.d = false;
+                    t.failTest(id5);
+                }
+            }
+        };
+
+        setTimeout(() => {
+            verify();
+        }, 80);
+    };
+
+    //test that Player 1 can move down
+    let id6 = t.registerTest("testCase6");
+    let test6MaxAttempts = 3;
+    let test6 = () => {
+        let attempt = 1;
+        //get the original position of Player 1
+        let oPosition = gameInstance1.playerTank.group.position.z;
+        gameInstance1.pressedMovementKey.s = true; //simulate pressing key "s"
+        let verify = () => {
+            let cPosition = gameInstance1.playerTank.group.position.z;
+            //movement down implies that the position on the z-axis should increase
+            if (cPosition > oPosition) {
+                gameInstance1.pressedMovementKey.s = false;
+                t.passTest(id6);
+            }
+            else {
+                //if there are still attempts left
+                if (attempt <= test6MaxAttempts) {
+                    attempt++;
+                    setTimeout(() => {
+                        verify();
+                    }, 80);
+                }
+                //if there are no attempts left
+                else {
+                    gameInstance1.pressedMovementKey.s = false;
+                    t.failTest(id6);
+                }
+            }
+        };
+
+        setTimeout(() => {
+            verify();
+        }, 80);
+    };
+
+    //test that Player 1 can move up
+    let id7 = t.registerTest("testCase7");
+    let test7MaxAttempts = 3;
+    let test7 = () => {
+        let attempt = 1;
+        //get the original position of Player 1
+        let oPosition = gameInstance1.playerTank.group.position.z;
+        gameInstance1.pressedMovementKey.w = true; //simulate pressing key "w"
+        let verify = () => {
+            let cPosition = gameInstance1.playerTank.group.position.z;
+            //movement up implies that the position on the z-axis should decrease
+            if (cPosition < oPosition) {
+                gameInstance1.pressedMovementKey.w = false;
+                t.passTest(id7);
+            }
+            else {
+                //if there are still attempts left
+                if (attempt <= test7MaxAttempts) {
+                    attempt++;
+                    setTimeout(() => {
+                        verify();
+                    }, 80);
+                }
+                //if there are no attempts left
+                else {
+                    gameInstance1.pressedMovementKey.w = false;
+                    t.failTest(id7);
+                }
+            }
+        };
+
+        setTimeout(() => {
+            verify();
+        }, 80);
     };
 
 
+    //Player 1 going into the red area results in the player being killed, and a point deducted from the score
+    //Now, this test case has to make some things into consideration:
+    //1 - since a player's intitial starting location is random, we don't know how much time it will
+    //    take to reach the end of the board, unless we calculate this on our end
+    let id8 = t.registerTest("testCase8");
+    // let test8MaxAttempts = 3;
 
-    // //register the tests
-    // let id1 = t.registerTest(() => {
-    //
-    // });
+    let test8 = () => {
+        //get the original score of Player 1
+        let oScore = gameInstance1.playerTank.score;
+        let cPosition = t.cloneObj(gameInstance1.playerTank.group.position); //clone the position object so we can compare later on
+        let deltaDistance = (-50) - cPosition.z;
+        let minimumTime = Math.abs(deltaDistance / movementSpeed); //since movement speed is defined in terms of units per second, we ca set a lower bound on the time needed to wait before checking
+        console.log(minimumTime);
+        gameInstance1.pressedMovementKey.w = true;
+        let verify = () => {
+            let cScore = gameInstance1.playerTank.score;
+            gameInstance1.pressedMovementKey.w = false;
+            if (t.assertEquals(oScore - 1, cScore)) {
+                t.passTest(id8);
+                //we have a dependent test case here, call it
+                test9(cPosition);
+            }
+            else {
+                t.failTest(id8);
+            }
+        };
+        setTimeout(() => {
+            verify();
+        }, (minimumTime + 0.05) * 1000); //converted time to milliseconds
+    };
+
+
+    //Simple dependent test - ensure that the new spawn position actually exists and is different from the initial position - check component-wise
+    let id9 = t.registerTest("testCase9");
+    //cPosition - original position before respawn
+    let test9 = (oPosition) => {
+        //get the current position of Player 1
+        let cPosition = gameInstance1.playerTank.group.position;
+        let isXPositionNew = t.assertNotEquals(oPosition.x, cPosition.x);
+        let isZPositionNew = t.assertNotEquals(oPosition.z, cPosition.z);
+        if (isXPositionNew && isZPositionNew) {
+            t.passTest(id9);
+        }
+        else {
+            t.failTest(id9);
+        }
+    };
+
+
+    //***Multiple Instance Tests
+
+    //Request a token for Player 2
+    let id10 = t.registerTest("testCase10");
+    let test10 = () => {
+        t.requestToken(player2Name, (token) => {
+            if (t.assertExists(token)) {
+                t.passTest(id10);
+                token2 = t.tokens[t.tokens.length - 1];
+            }
+            else {
+                t.failTest(id10);
+            }
+        });
+    };
+
+    //test that a new game instance is started successfully
+    let id11 = t.registerTest("testCase11");
+    let test11 = () => {
+        //condition for this test is that an exception is not thrown and that
+        //   gameInstanceX is an instance of game
+        try {
+            gameInstance2 = t.createInstance(document.getElementById("container2"), player2Name);
+            gameInstance2.init();
+            if (t.assertInstanceOf(game, gameInstance2)) {
+                t.passTest(id11);
+            }
+            else {
+                t.failTest(id11);
+            }
+        }
+        catch {
+            t.failTest(id11);
+        }
+    };
+
+    //Move Player 2 and check if the movement is reflected in Instance 1
+    let id12 = t.registerTest("testCase12");
+    let test12MaxAttempts = 3;
+    let test12 = () => {
+        //get position of Player 2 from instance 1
+        let oPosition = t.cloneObj(gameInstance1.otherPlayers[token2].group.position);
+        let attempt = 1;
+        gameInstance2.pressedMovementKey.w = true;
+        gameInstance2.pressedMovementKey.d = true;
+
+        let verify = () => {
+            let cPosition = gameInstance1.otherPlayers[token2].group.position;
+            if (t.assertNotEquals(oPosition.z, cPosition.z) && t.assertNotEquals(oPosition.x, cPosition.x)) {
+                gameInstance2.pressedMovementKey.w = false;
+                gameInstance2.pressedMovementKey.d = false;
+                t.passTest(id12);
+            }
+            else {
+                if (attempt <= test12MaxAttempts) {
+                    attempt++;
+                    setTimeout(() => {
+                        verify();
+                    }, 80);
+                }
+
+                else {
+                    gameInstance2.pressedMovementKey.w = false;
+                    gameInstance2.pressedMovementKey.d = false;
+                    t.failTest(id12);
+                }
+            }
+        };
+
+
+        setTimeout(() => {
+            verify();
+        }, 200);
+
+    };
+
+
 
 </script>
 

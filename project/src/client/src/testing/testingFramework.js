@@ -44,6 +44,10 @@ nodeTankTesting.prototype = {
     assertEquals: function(expected, actual) {
         return expected === actual;
     },
+    //kind of pointless, just added for completeness
+    assertNotEquals: function(v1, v2) {
+        return v1 !== v2;
+    },
     assertTrue: function(condition) {
         return condition === true;
     },
@@ -59,7 +63,11 @@ nodeTankTesting.prototype = {
 
 
 
-    //"Private" function used internally by this framework
+    //Helper functions
+    cloneObj: function(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    },
+
     //type - POST/GET/DELETE
     //endPoint - specific endpoint to be called
     //data - outgoing data packet, if applicable
