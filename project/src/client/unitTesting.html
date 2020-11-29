@@ -118,6 +118,41 @@
                     <div class="pass" style="visibility: hidden;">PASS</div>
                     <div class="fail" style="visibility: hidden;">FAIL</div>
                 </div>
+
+                <div class="testCase" id="testCase13">
+                    <input type="button" value="Test 13" onclick="test13()" class="individualButton"/>
+                    <div>Aim P2 to P1 and shoot - expect score change and respawn</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase14">
+                    <input type="button" value="Test 14" onclick="test14()" class="individualButton"/>
+                    <div>Request new session for Player 3</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase15">
+                    <input type="button" value="Test 15" onclick="test15()" class="individualButton"/>
+                    <div>Initialize instance for Player 3</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase16">
+                    <input type="button" value="Test 16" onclick="test16()" class="individualButton"/>
+                    <div>Request new session for Player 4</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
+
+                <div class="testCase" id="testCase17">
+                    <input type="button" value="Test 17" onclick="test17()" class="individualButton"/>
+                    <div>Initialize instance for Player 4</div>
+                    <div class="pass" style="visibility: hidden;">PASS</div>
+                    <div class="fail" style="visibility: hidden;">FAIL</div>
+                </div>
             </div>
         </div>
     </div>
@@ -148,7 +183,9 @@
     let gameInstance3 = null;
     let gameInstance4 = null;
 
-    let movementSpeed = 70; //the speed of the currect game simulation
+    //I was lazy and just hardcoded these at the same value as the server
+    let movementSpeed = 70; //the speed of the current game simulation - units/s
+    let bulletSpeed = 130; //speed of the buller - units/s
 
     //Test that initially, there are exactly 0 players
     let id1 = t.registerTest("testCase1");
@@ -465,11 +502,110 @@
             }
         };
 
-
         setTimeout(() => {
             verify();
         }, 200);
+    };
 
+    //Aim Player 2 at Player 1 and shoot- expect a score change and respawn
+    //Again, as with the red zone test, we have a general idea of how long to wait since we know the bullet velocity
+    let id13 = t.registerTest("testCase13");
+    let test13 = () => {
+        //get cloned position of Player 1
+        let oP1Position = t.cloneObj(gameInstance1.playerTank.group.position);
+        let oP2Score = gameInstance2.playerTank.score;
+        let minimumTime = 110 / bulletSpeed;
+
+        //aim and shoot at P1
+        gameInstance2.playerTank.setLookAt(gameInstance1.playerTank.group.position);
+        gameInstance2.clicked = true; //flip the internal shoot flag
+
+        let verify = () => {
+            //current position of P1
+            let cP1Position = gameInstance1.playerTank.group.position;
+            let cP2Score = gameInstance2.playerTank.score;
+            let respawned = t.assertNotEquals(oP1Position.z, cP1Position.z) && t.assertNotEquals(oP1Position.x, cP1Position.x);
+            let scoreIncremented = t.assertEquals(oP2Score + 1, cP2Score);
+            if (respawned && scoreIncremented) {
+                t.passTest(id13);
+            }
+            else {
+                t.failTest(id13);
+            }
+
+            };
+
+        setTimeout(() => {
+            verify();
+        }, (minimumTime + 0.05) * 1000);
+    };
+
+    //Request a token for Player 3
+    let id14 = t.registerTest("testCase14");
+    let test14 = () => {
+        t.requestToken(player3Name, (token) => {
+            if (t.assertExists(token)) {
+                t.passTest(id14);
+                token3 = t.tokens[t.tokens.length - 1];
+            }
+            else {
+                t.failTest(id14);
+            }
+        });
+    };
+
+    //test that a new game instance is started successfully for P3
+    let id15 = t.registerTest("testCase15");
+    let test15 = () => {
+        //condition for this test is that an exception is not thrown and that
+        //   gameInstanceX is an instance of game
+        try {
+            gameInstance3 = t.createInstance(document.getElementById("container3"), player3Name);
+            gameInstance3.init();
+            if (t.assertInstanceOf(game, gameInstance3)) {
+                t.passTest(id15);
+            }
+            else {
+                t.failTest(id15);
+            }
+        }
+        catch {
+            t.failTest(id15);
+        }
+    };
+
+    //Request a token for Player 3
+    let id16 = t.registerTest("testCase16");
+    let test16 = () => {
+        t.requestToken(player4Name, (token) => {
+            if (t.assertExists(token)) {
+                t.passTest(id16);
+                token4 = t.tokens[t.tokens.length - 1];
+            }
+            else {
+                t.failTest(id16);
+            }
+        });
+    };
+
+    //test that a new game instance is started successfully for P3
+    let id17 = t.registerTest("testCase17");
+    let test17 = () => {
+        //condition for this test is that an exception is not thrown and that
+        //   gameInstanceX is an instance of game
+        try {
+            gameInstance4 = t.createInstance(document.getElementById("container4"), player3Name);
+            gameInstance4.init();
+            if (t.assertInstanceOf(game, gameInstance4)) {
+                t.passTest(id17);
+            }
+            else {
+                t.failTest(id17);
+            }
+        }
+        catch {
+            t.failTest(id17);
+        }
     };
 
 
