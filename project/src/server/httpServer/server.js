@@ -19,6 +19,7 @@ function gameServer(gameSettings) {
 
     //import routes
     var sessionRoutes = require("../routes/session.js");
+    var debugRoutes = require("../routes/debugging.js");
 
     app.use(bodyParser.urlencoded({
         extended: true
@@ -40,6 +41,7 @@ function gameServer(gameSettings) {
 
     //map the routes
     app.use(sessionRoutes);
+    app.use(debugRoutes);
 
     var httpServer = http.createServer(app).listen(gameSettings.httpPort);
     console.log("--Game HTTP Server listening on port: " + gameSettings.httpPort);

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NodeTank Unit Tests</title>
+    <!-- Load assets -->
+    <script type="text/javascript" src="./src/game.js"></script>
+    <script type="text/javascript" src="./src/tank.js"></script>
+    <script type="text/javascript" src="./src/bullet.js"></script>
+    <script type="text/javascript" src="./src/testing/testingFramework.js"></script>
+    <script type="text/javascript" src="./lib/three.js"></script>
+    <script type="text/javascript" src="./lib/socketio.js"></script>
+    <script type="text/javascript" src="./lib/rxjs.js"></script>
+    <!-- I only need jquery to simplify the async server requests -->
+    <script type="text/javascript" src="./lib/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="./css/test.css">
+</head>
+<body>
+
+<input type="button" value="Reset Server" onclick="resetServer()" class="individualButton"/>
+
+<div class="column">
+    <!-- contains all of the game instances -->
+    <div id="container" class="container row" tabindex="1" >
+        <div class="instanceContainer" id="container1"></div>
+        <div class="instanceContainer" id="container2"></div>
+        <div class="instanceContainer" id="container3"></div>
+        <div class="instanceContainer" id="container4"></div>
+    </div>
+
+
+</div>
+
+
+
+</body>
+
+<script type="text/javascript">
+
+    let serverURL = "";
+    let socketURL = "";
+    let socketPort = 8081;
+    let fetchBaseUrl = () => {
+        let tokens = document.baseURI.split("/");
+        serverURL = tokens[0] + "//" + tokens[2];
+        let tokens2 = serverURL.split(":");
+        socketURL = tokens2[0] + ":" + tokens2[1] + ":" + socketPort;
+    };
+    fetchBaseUrl();
+
+    //instantiate teh testing framework
+    let t = new nodeTankTesting($("container"), socketURL, serverURL);
+    //create instance one
+    // t.createInstance();
+    // t.requestToken("Test", (token) => {
+    //     console.log(token);
+    // });
+
+    let player1Name = "Player 1";
+    let player2Name = "Player 2";
+    let player3Name = "Player 3";
+    let player4Name = "Player 4";
+    let token1 = null;
+    let token2 = null;
+    let token3 = null;
+    let token4 = null;
+
+    let gameInstance1 = null;
+    let gameInstance2 = null;
+    let gameInstance3 = null;
+    let gameInstance4 = null;
+
+    //I was lazy and just hardcoded these at the same value as the server
+    let movementSpeed = 70; //the speed of the current game simulation - units/s
+    let bulletSpeed = 130; //speed of the bullet - units/s
+
+
+
+
+</script>
+
+</html>

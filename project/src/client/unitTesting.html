@@ -185,6 +185,7 @@
     };
     fetchBaseUrl();
 
+    //instantiate teh testing framework
     let t = new nodeTankTesting($("container"), socketURL, serverURL);
     //create instance one
     // t.createInstance();
@@ -210,12 +211,29 @@
     let movementSpeed = 70; //the speed of the current game simulation - units/s
     let bulletSpeed = 130; //speed of the bullet - units/s
 
+    //get a reference to observable to make it easier to use
+    let Observable = rxjs.Observable;
+
+    const observable = new Observable(subscriber => {
+
+    });
+
+    // observable.subscribe({
+    //     next(x) {
+    //         console.log(x);
+    //     },
+    //     error(err) {},
+    //     complete() {}
+    // });
+    // observable.next(1);
+
+
+
     //I opened up a new endpoint to allow us to run the test suite multiple times without having
     //to manually restart the server each time
     let resetServer = () => {
-        t.HTTPRequest("POST", "/server/reset", {});
+        t.HTTPRequest("POST", "/debug/reset", {});
     };
-
 
 
     //Test that initially, there are exactly 0 players
