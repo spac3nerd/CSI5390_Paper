@@ -5,7 +5,7 @@ let three = require("three");
 let socket = undefined;
 let broadcastChan = undefined;
 
-let iamgeData = "";
+let imageData = "";
 
 function setUpEvents() {
     if (socket !== undefined) {
