@@ -6,8 +6,9 @@ let crypto = require("crypto");
 const {Worker,isMainThread,parentPort} = require("worker_threads");
 
 let thrift     = require("thrift");
-let aInterface = require("../../centralData/API/nodejs/AgentInterface");
-let ttypes     = require("../../centralData/API/nodejs/jstest_types");
+let aInterface = require("../../centralData/API/RemoteCtrl/nodejs/AgentInterface");
+let ttypes     = require("../../centralData/API/RemoteCtrl/nodejs/jstest_types");
+let dataInterface = require("../../centralData/API/Data/nodejs/DataInterface");
 
 let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
@@ -318,8 +319,18 @@ let thriftServer = thrift.createServer(aInterface,{
   GetPose:        GetPoseFunc,
   Fire:           FireFunc
 });
+dataServer = thrift.createServer(dataInterface,{
+  GetGameData: function(json){},
+  ExecuteTests: function(){},
+  GetTestRestults: function(){return "thisString";}
+});
 if(isMainThread)
 {
+  const {Worker2,isMainThread2,parentPort2} = require("worker_threads");
+  if(isMainThread2)
+  {
+
+  }
   thriftServer.listen(9090);
 }
 

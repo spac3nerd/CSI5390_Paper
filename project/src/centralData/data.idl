@@ -1,0 +1,9 @@
+namespace js JSDataInterface
+namespace py PYDataInterface
+
+service DataInterface
+{
+  string GetGameData(1:string jsonData),
+  void ExecuteTests(),
+  string GetTestResults()
+}
