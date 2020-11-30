@@ -33,7 +33,7 @@ let movementVelocity = 70;
 let DataState = {
   'agentToken':  undefined,
   'agentLookat': new three.Vector3(0,0,0),
-  'agentMove':   new three.Vector(0,0,0),
+  'agentMove':   new three.Vector3(0,0,0),
   'goManual':    true,
   'lastImage':   ""
 }
