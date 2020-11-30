@@ -27,7 +27,13 @@
         <div class="instanceContainer" id="container3"></div>
         <div class="instanceContainer" id="container4"></div>
     </div>
+    <div class="row">
+        <input type="button" value="Setup Instances" onclick="setupInstances()" class="individualButton"/>
+    </div>
 
+    <div class="row">
+        <input type="button" value="Iterate" onclick="startTests()" class="individualButton"/>
+    </div>
 
 </div>
 
@@ -69,12 +75,296 @@
     let gameInstance2 = null;
     let gameInstance3 = null;
     let gameInstance4 = null;
+    //THis array is a hack to allow me to randomly select another instance to shoot at quickly
+    let instanceArray = [];
 
     //I was lazy and just hardcoded these at the same value as the server
     let movementSpeed = 70; //the speed of the current game simulation - units/s
     let bulletSpeed = 130; //speed of the bullet - units/s
 
+    //The length of time to perform an action before switching to a different one
+    let tickLength = 10;
+    let ticksBetweenChecks = 8; //an upper bound on the number of ticks to perform before checking against the server state
+    let currentTick = 0;
+    let currentMaxTicks = 0;
+    let runTest = false;
 
+    let interval1 = undefined;
+    let interval2 = undefined;
+    let interval3 = undefined;
+    let interval4 = undefined;
+
+
+    //The specific tests cases we need
+
+
+    let randomInRange = (max) => {
+        return Math.floor(Math.random() * Math.floor(max + 1));
+    };
+
+    let stopAllMovement = () => {
+        t.stopAllMovement(gameInstance1);
+        t.stopAllMovement(gameInstance2);
+        t.stopAllMovement(gameInstance3);
+        t.stopAllMovement(gameInstance4);
+    };
+
+    let stopAllActions = () => {
+        //clear previously set shooting intervals
+        clearInterval(interval1);
+        clearInterval(interval2);
+        clearInterval(interval3);
+        clearInterval(interval4);
+    };
+
+    let runIteration = () => {
+        stopAllActions();
+
+        if (runTest) {
+            console.log("Tick " + currentTick);
+            currentTick++;
+            stopAllMovement();
+            stopAllActions();
+            t.setRandomMovement(gameInstance1);
+            t.setRandomMovement(gameInstance2);
+            t.setRandomMovement(gameInstance3);
+            t.setRandomMovement(gameInstance4);
+            //set each instance to shoot at another random instance
+            interval1 = setInterval(() => {
+                //aim at something other than itself
+                let target = 0;
+                while (target === 0) {
+                    target = randomInRange(3);
+                }
+                gameInstance1.playerTank.setLookAt(instanceArray[target].playerTank.group.position);
+                gameInstance1.clicked = true;
+
+                stopAllMovement();
+                t.setRandomMovement(gameInstance1);
+            }, randomInRange(tickLength) * 1000);
+
+            interval2 = setInterval(() => {
+                let target = 1;
+                while (target === 1) {
+                    target = randomInRange(3);
+                }
+                gameInstance2.playerTank.setLookAt(instanceArray[target].playerTank.group.position);
+                gameInstance2.clicked = true;
+
+                stopAllMovement();
+                t.setRandomMovement(gameInstance2);
+            }, randomInRange(tickLength) * 1000);
+
+            interval3 = setInterval(() => {
+                let target = 2;
+                while (target === 2) {
+                    target = randomInRange(3);
+                }
+                gameInstance3.playerTank.setLookAt(instanceArray[target].playerTank.group.position);
+                gameInstance3.clicked = true;
+                stopAllMovement();
+                t.setRandomMovement(gameInstance3);
+            }, randomInRange(tickLength) * 1000);
+
+            interval4 = setInterval(() => {
+                let target = 3;
+                while (target === 3) {
+                    target = randomInRange(3);
+                }
+                gameInstance4.playerTank.setLookAt(instanceArray[target].playerTank.group.position);
+                gameInstance4.clicked = true;
+                stopAllMovement();
+                t.setRandomMovement(gameInstance4);
+            }, randomInRange(tickLength) * 1000);
+
+            if (currentTick >= currentMaxTicks) {
+                verify();
+            }
+        }
+    };
+
+    let startTests = () => {
+        let lastInterval = undefined;
+        currentTick = 0;
+        currentMaxTicks = randomInRange(ticksBetweenChecks) + 1;
+        runTest = true;
+        setInterval(() => {
+            runIteration()
+        }, tickLength * 1000);
+
+        runIteration();
+    };
+
+    //this function is called at the end of every iteration
+    //We will verify the integrity of each instance with the interval server data
+    let verify = () => {
+        console.log("verify");
+        runTest = false;
+        stopAllActions();
+        stopAllMovement();
+    };
+
+
+
+
+
+
+
+    //Below is just mostly the same setup code as in the front-end unit tests, we can just reuse them
+    let setupInstances = () => {
+        resetServer(() => {
+            console.log("Server Reset!");
+            let firstPromise = new Promise(requestToken1).then(() => {
+                return new Promise(setupInstance1);
+            }).then(() => {
+                return new Promise(requestToken2);
+            }).then(() => {
+                return new Promise(setupInstance2);
+            }).then(() => {
+                return new Promise(requestToken3);
+            }).then(() => {
+                return new Promise(setupInstance3);
+            }).then(() => {
+                return new Promise(requestToken4);
+            }).then(() => {
+                return new Promise(setupInstance4);
+            });
+        });
+
+    };
+
+    let resetServer = (callback) => {
+        $("#container1").empty()
+        $("#container2").empty()
+        $("#container3").empty()
+        $("#container4").empty()
+        t.resetTests();
+        t.HTTPRequest("POST", "/debug/reset", {}, callback ? callback: null);
+    };
+
+    let requestToken1 = (resolve, reject) => {
+        t.requestToken(player1Name, (token) => {
+            if (t.assertExists(token)) {
+                resolve ? resolve() : null;
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        });
+    };
+
+    let setupInstance1 = (resolve, reject) => {
+        try {
+            gameInstance1 = t.createInstance(document.getElementById("container1"), player1Name);
+            gameInstance1.init();
+            if (t.assertInstanceOf(game, gameInstance1)) {
+                //let the DOM rendering catch up before continuing
+                setTimeout(() => {
+                    instanceArray.push(gameInstance1);
+                    resolve ? resolve() : null;
+                }, 1000);
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        }
+        catch {
+            resolve ? resolve() : null;
+        }
+    };
+
+    let requestToken2 = (resolve, reject) => {
+        t.requestToken(player2Name, (token) => {
+            if (t.assertExists(token)) {
+                resolve ? resolve() : null;
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        });
+    };
+
+    let setupInstance2 = (resolve, reject) => {
+        try {
+            gameInstance2 = t.createInstance(document.getElementById("container2"), player2Name);
+            gameInstance2.init();
+            if (t.assertInstanceOf(game, gameInstance2)) {
+                //let the DOM rendering catch up before continuing
+                setTimeout(() => {
+                    instanceArray.push(gameInstance2);
+                    resolve ? resolve() : null;
+                }, 1000);
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        }
+        catch {
+            resolve ? resolve() : null;
+        }
+    };
+
+    let requestToken3 = (resolve, reject) => {
+        t.requestToken(player3Name, (token) => {
+            if (t.assertExists(token)) {
+                resolve ? resolve() : null;
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        });
+    };
+
+    let setupInstance3 = (resolve, reject) => {
+        try {
+            gameInstance3 = t.createInstance(document.getElementById("container3"), player3Name);
+            gameInstance3.init();
+            if (t.assertInstanceOf(game, gameInstance3)) {
+                //let the DOM rendering catch up before continuing
+                setTimeout(() => {
+                    instanceArray.push(gameInstance3);
+                    resolve ? resolve() : null;
+                }, 1000);
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        }
+        catch {
+            resolve ? resolve() : null;
+        }
+    };
+
+    let requestToken4 = (resolve, reject) => {
+        t.requestToken(player4Name, (token) => {
+            if (t.assertExists(token)) {
+                resolve ? resolve() : null;
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        });
+    };
+
+    let setupInstance4 = (resolve, reject) => {
+        try {
+            gameInstance4 = t.createInstance(document.getElementById("container4"), player4Name);
+            gameInstance4.init();
+            if (t.assertInstanceOf(game, gameInstance4)) {
+                //let the DOM rendering catch up before continuing
+                setTimeout(() => {
+                    instanceArray.push(gameInstance4);
+                    resolve ? resolve() : null;
+                }, 1000);
+            }
+            else {
+                resolve ? resolve() : null;
+            }
+        }
+        catch {
+            resolve ? resolve() : null;
+        }
+    };
 
 
 </script>

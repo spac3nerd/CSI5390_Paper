@@ -90,5 +90,32 @@ nodeTankTesting.prototype = {
                 callback(data);
             }
         });
+    },
+
+    setRandomMovement: function(gameInstance){
+        //0 - move north, 1 - move south, anything else - none
+        let moveNothSouth = Math.floor(Math.random() * Math.floor(3));
+        //0 - move east, 1 - move west, anything else - none
+        let moveEastWest = Math.floor(Math.random() * Math.floor(3));
+        if (moveNothSouth === 0) {
+            gameInstance.pressedMovementKey.w = true;
+        }
+        if (moveNothSouth === 1) {
+            gameInstance.pressedMovementKey.s = true;
+        }
+        if (moveEastWest === 0) {
+            gameInstance.pressedMovementKey.d = true;
+        }
+        if (moveEastWest === 1) {
+            gameInstance.pressedMovementKey.a = true;
+        }
+    },
+
+    stopAllMovement: function(gameInstance) {
+        gameInstance.pressedMovementKey.w = false;
+        gameInstance.pressedMovementKey.s = false;
+        gameInstance.pressedMovementKey.d = false;
+        gameInstance.pressedMovementKey.a = false;
     }
+
 };
