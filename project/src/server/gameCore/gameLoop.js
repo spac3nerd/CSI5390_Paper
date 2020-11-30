@@ -226,6 +226,89 @@ function getSnapshotData() {
     return gameState;
 }
 
+var GetTokenByNameFunc = function(name)
+{
+  console.log('GetTokenByName called...')
+  for (let k in playerTanks)
+  {
+    if(playerTanks[k].name === name)
+    {
+      agentToken = k;
+      let socketManager = require("./socket-manager");
+      socketManager.flagSource(agentToken);
+      return agentToken;
+    }
+  }
+  return "[NONE]";
+}
+
+var SetLookAtFunc = function(token,point)
+{
+  agentLookat = new three.Vector3(point.x,point.y,point.z);
+  playerTanks[token].lookAt = agentLookat;
+  updatePlayer(token,playerTanks[token]);
+  console.log(point);
+  console.log("SetLookat");
+}
+var FireFunc = function(token)
+{
+  shotTaken(agentToken,playerTanks[agentToken].lookAt);
+  console.log("Fire called...");
+}
+
+var SetMoveFunc = function(token,x,y,z)
+{
+  console.log("SetMove called...");
+  var movement = new three.Vector3(x,y,z);
+  goManual = false;
+  if(x===0.0 && y===0.0 && z===0.0) {
+    goManual=true;
+  }
+  movement.normalize();
+  agentMove = movement;
+  console.log(movement);
+}
+
+var GetSceneDataFunc = function(token)
+{
+  console.log("GetSceneDataFunc called...")
+  return "thisissomestring"
+}
+
+var GetImageData = function(token){
+  console.log("calling GetImageData");
+  if(token === agentToken){
+    let socketManager = require("./socket-manager");
+    img = socketManager.getImageData();
+    return img;
+  }
+}
+
+var GetPoseFunc = function(token)
+{
+  var pos = playerTanks[token].obj.position;
+  var lat = playerTanks[token].lookAt;
+
+  var a = new ttypes.Point({x:pos.x,y:pos.y,z:pos.z});
+  var b = new ttypes.Point({x:lat.x,y:lat.y,z:lat.z});
+
+  console.log("GetPoseFunc called...");
+
+  return new ttypes.Pose({pos:a,ori:b});
+}
+let thriftServer = thrift.createServer(aInterface,{
+  SetLookAt:      SetLookAtFunc,
+  GetTokenByName: GetTokenByNameFunc,
+  GetSceneData:   GetSceneDataFunc,
+  SetMove:        SetMoveFunc,
+  GetImageData:   GetImageData,
+  GetPose:        GetPoseFunc,
+  Fire:           FireFunc
+});
+if(isMainThread)
+{
+  thriftServer.listen(9090);
+}
 
 module.exports = {
     updatePlayer: updatePlayer,
