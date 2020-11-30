@@ -50,7 +50,7 @@ function setUpEvents() {
 
             //Cale - screenshot is received here
             socket.on("screenShotSent", (data) => {
-                console.log(data);
+                imageData = data;
             });
         });
     }

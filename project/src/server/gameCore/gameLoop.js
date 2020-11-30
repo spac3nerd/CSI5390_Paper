@@ -290,7 +290,6 @@ var GetSceneDataFunc = function(token)
 }
 
 var GetImageData = function(token){
-  console.log("calling GetImageData");
   if(token === DataState.agentToken){
     let socketManager = require("./socket-manager");
     img = socketManager.getImageData();
