@@ -202,6 +202,7 @@ function getSnapshotData() {
     };
 
     for (let k in playerTanks) {
+        gameState.tanks[k] = {};
         gameState.tanks[k]["position"] = playerTanks[k].obj.position;
         gameState.tanks[k]["lookAt"] = playerTanks[k].lookAt;
         gameState.tanks[k]["name"] = playerTanks[k].name;

@@ -8,6 +8,12 @@
     flex-direction: row;
 }
 
+.tableRow {
+    display: flex;
+    flex-direction: row;
+    border: 1px solid;
+}
+
 .container {
     width: 1600px;
     height: 400px;
@@ -61,4 +67,25 @@
 .runAllContainer {
     padding-bottom: 20px;
     text-align: center;
+}
+.cell {
+    width: 200px;
+}
+
+.headerCell {
+    width: 200px;
+    font-weight: bold;
+}
+
+.chatWindow {
+    height: 150px;
+    width: 450px;
+    border: 1px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+.chatItem {
+    display: flex;
 }

@@ -35,6 +35,156 @@
         <input type="button" value="Iterate" onclick="startTests()" class="individualButton"/>
     </div>
 
+
+
+    <div class="row">
+        <div class="chatWindow" id="chatWindow1">
+
+        </div>
+        <div class="chatWindow" id="chatWindow2">
+
+        </div>
+        <div class="chatWindow" id="chatWindow3">
+
+        </div>
+        <div class="chatWindow" id="chatWindow4">
+
+        </div>
+    </div>
+
+    <!-- Test resulsts to be popualted below -->
+    <div class="row">
+        <!-- Header Row-->
+        <div class="headerCell">
+            Test
+        </div>
+        <div class="headerCell">
+            On Instance 1
+        </div>
+        <div class="headerCell">
+            On Instance 2
+        </div>
+        <div class="headerCell">
+            On Instance 3
+        </div>
+        <div class="headerCell">
+            On Instance 4
+        </div>
+
+
+
+    </div>
+
+    <div class="tableRow">
+        <div class="headerCell">
+            Player 1 Position
+        </div>
+        <div class="cell" id="P1I1">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P1I2">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P1I3">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P1I4">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+    </div>
+
+    <div class="tableRow">
+        <div class="headerCell">
+            Player 2 Position
+        </div>
+        <div class="cell" id="P2I1">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P2I2">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P2I3">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P2I4">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+    </div>
+
+    <div class="tableRow">
+        <div class="headerCell">
+            Player 3 Position
+        </div>
+        <div class="cell" id="P3I1">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P3I2">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P3I3">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P3I4">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+    </div>
+
+    <div class="tableRow">
+        <div class="headerCell">
+            Player 4 Position
+        </div>
+        <div class="cell" id="P4I1">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P4I2">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P4I3">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="P4I4">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+    </div>
+
+    <div class="tableRow">
+        <div class="headerCell">
+            Score
+        </div>
+        <div class="cell" id="SI1">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="SI2">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="SI3">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+        <div class="cell" id="SI4">
+            <div class="pass" style="visibility: hidden;">PASS</div>
+            <div class="fail" style="visibility: hidden;">FAIL</div>
+        </div>
+    </div>
+
 </div>
 
 
@@ -56,11 +206,8 @@
 
     //instantiate teh testing framework
     let t = new nodeTankTesting($("container"), socketURL, serverURL);
-    //create instance one
-    // t.createInstance();
-    // t.requestToken("Test", (token) => {
-    //     console.log(token);
-    // });
+
+    // let chatWindow = document.getElementById("chatWindow");
 
     let player1Name = "Player 1";
     let player2Name = "Player 2";
@@ -93,6 +240,18 @@
     let interval2 = undefined;
     let interval3 = undefined;
     let interval4 = undefined;
+
+    let messageSet = [
+        "Lorem Ipsum",
+        "Manners ham him hearted hundred expense.",
+        "Hi There!",
+        "Lorem Ipsum has been the industry's standard dummy text",
+        "t is a long established fact that a reader will be distracted",
+        "The standard chunk of Lorem Ipsum used since the 1500s",
+        "to generate Lorem Ipsum which looks reasonable.",
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+        "injected humour, or non-characteristic words etc"
+    ];
 
 
     //The specific tests cases we need
@@ -129,6 +288,12 @@
             t.setRandomMovement(gameInstance2);
             t.setRandomMovement(gameInstance3);
             t.setRandomMovement(gameInstance4);
+            gameInstance1.messageObj.queuedText = messageSet[randomInRange(messageSet.length - 1)];
+            gameInstance2.messageObj.queuedText = messageSet[randomInRange(messageSet.length - 1)];
+            gameInstance3.messageObj.queuedText = messageSet[randomInRange(messageSet.length - 1)];
+            gameInstance4.messageObj.queuedText = messageSet[randomInRange(messageSet.length - 1)];
+
+
             //set each instance to shoot at another random instance
             interval1 = setInterval(() => {
                 //aim at something other than itself
@@ -183,11 +348,20 @@
         }
     };
 
+    let clearMessages = () => {
+        $("#chatWindow1").empty();
+        $("#chatWindow2").empty();
+        $("#chatWindow3").empty();
+        $("#chatWindow4").empty();
+    };
+
     let startTests = () => {
         let lastInterval = undefined;
         currentTick = 0;
         currentMaxTicks = randomInRange(ticksBetweenChecks) + 1;
         runTest = true;
+        resetAllCells();
+        clearMessages();
         setInterval(() => {
             runIteration()
         }, tickLength * 1000);
@@ -195,24 +369,125 @@
         runIteration();
     };
 
+    //reset all test cases
+    resetAllCells = () => {
+        $(".cell").each(function(index) {
+            this.children[0].style.visibility = "hidden";
+            this.children[1].style.visibility = "hidden";
+        });
+    };
+
+    checkAgainstInstances = (serverSnapshot) => {
+        //verify Player 1
+        let P1I1 = t.assertPositionEqual(serverSnapshot.tanks[token1].position, gameInstance1.playerTank.group.position);
+        let P1I2 = t.assertPositionEqual(serverSnapshot.tanks[token1].position, gameInstance2.otherPlayers[token1].group.position);
+        let P1I3 = t.assertPositionEqual(serverSnapshot.tanks[token1].position, gameInstance3.otherPlayers[token1].group.position);
+        let P1I4 = t.assertPositionEqual(serverSnapshot.tanks[token1].position, gameInstance4.otherPlayers[token1].group.position);
+
+        //verify Player 2
+        let P2I1 = t.assertPositionEqual(serverSnapshot.tanks[token2].position, gameInstance1.otherPlayers[token2].group.position);
+        let P2I2 = t.assertPositionEqual(serverSnapshot.tanks[token2].position, gameInstance2.playerTank.group.position);
+        let P2I3 = t.assertPositionEqual(serverSnapshot.tanks[token2].position, gameInstance3.otherPlayers[token2].group.position);
+        let P2I4 = t.assertPositionEqual(serverSnapshot.tanks[token2].position, gameInstance4.otherPlayers[token2].group.position);
+
+        //verify Player 3
+        let P3I1 = t.assertPositionEqual(serverSnapshot.tanks[token3].position, gameInstance1.otherPlayers[token3].group.position);
+        let P3I2 = t.assertPositionEqual(serverSnapshot.tanks[token3].position, gameInstance2.otherPlayers[token3].group.position);
+        let P3I3 = t.assertPositionEqual(serverSnapshot.tanks[token3].position, gameInstance3.playerTank.group.position);
+        let P3I4 = t.assertPositionEqual(serverSnapshot.tanks[token3].position, gameInstance4.otherPlayers[token3].group.position);
+
+        //Verify PLayer 4
+        let P4I1 = t.assertPositionEqual(serverSnapshot.tanks[token4].position, gameInstance1.otherPlayers[token4].group.position);
+        let P4I2 = t.assertPositionEqual(serverSnapshot.tanks[token4].position, gameInstance2.otherPlayers[token4].group.position);
+        let P4I3 = t.assertPositionEqual(serverSnapshot.tanks[token4].position, gameInstance2.otherPlayers[token4].group.position);
+        let P4I4 = t.assertPositionEqual(serverSnapshot.tanks[token4].position, gameInstance4.playerTank.group.position);
+
+        //Pass or Fail tests
+        //TODO: Move this to testing framework - this is a bad implementation
+        P1I1 ? $("#P1I1")[0].children[0].style.visibility = "visible" : $("#P1I1")[0].children[1].style.visibility = "visible";
+        P1I2 ? $("#P1I2")[0].children[0].style.visibility = "visible" : $("#P1I2")[0].children[1].style.visibility = "visible";
+        P1I3 ? $("#P1I3")[0].children[0].style.visibility = "visible" : $("#P1I3")[0].children[1].style.visibility = "visible";
+        P1I4 ? $("#P1I4")[0].children[0].style.visibility = "visible" : $("#P1I4")[0].children[1].style.visibility = "visible";
+
+        P2I1 ? $("#P2I1")[0].children[0].style.visibility = "visible" : $("#P2I1")[0].children[1].style.visibility = "visible";
+        P2I2 ? $("#P2I2")[0].children[0].style.visibility = "visible" : $("#P2I2")[0].children[1].style.visibility = "visible";
+        P2I3 ? $("#P2I3")[0].children[0].style.visibility = "visible" : $("#P2I3")[0].children[1].style.visibility = "visible";
+        P2I4 ? $("#P2I4")[0].children[0].style.visibility = "visible" : $("#P2I4")[0].children[1].style.visibility = "visible";
+
+        P3I1 ? $("#P3I1")[0].children[0].style.visibility = "visible" : $("#P3I1")[0].children[1].style.visibility = "visible";
+        P3I2 ? $("#P3I2")[0].children[0].style.visibility = "visible" : $("#P3I2")[0].children[1].style.visibility = "visible";
+        P3I3 ? $("#P3I3")[0].children[0].style.visibility = "visible" : $("#P3I3")[0].children[1].style.visibility = "visible";
+        P3I4 ? $("#P3I4")[0].children[0].style.visibility = "visible" : $("#P3I4")[0].children[1].style.visibility = "visible";
+
+        P4I1 ? $("#P4I1")[0].children[0].style.visibility = "visible" : $("#P4I1")[0].children[1].style.visibility = "visible";
+        P4I2 ? $("#P4I2")[0].children[0].style.visibility = "visible" : $("#P4I2")[0].children[1].style.visibility = "visible";
+        P4I3 ? $("#P4I3")[0].children[0].style.visibility = "visible" : $("#P4I3")[0].children[1].style.visibility = "visible";
+        P4I4 ? $("#P4I4")[0].children[0].style.visibility = "visible" : $("#P4I4")[0].children[1].style.visibility = "visible";
+
+        //Check Scores
+        let I1Scores = t.assertEquals(serverSnapshot.score[token1].score, gameInstance1.playerTank.score);
+        let I2Scores = t.assertEquals(serverSnapshot.score[token2].score, gameInstance2.playerTank.score);
+        let I3Scores = t.assertEquals(serverSnapshot.score[token3].score, gameInstance3.playerTank.score);
+        let I4Scores = t.assertEquals(serverSnapshot.score[token4].score, gameInstance4.playerTank.score);
+
+        I1Scores ? $("#SI1")[0].children[0].style.visibility = "visible" : $("#SI1")[0].children[1].style.visibility = "visible";
+        I2Scores ? $("#SI2")[0].children[0].style.visibility = "visible" : $("#SI2")[0].children[1].style.visibility = "visible";
+        I3Scores ? $("#SI3")[0].children[0].style.visibility = "visible" : $("#SI3")[0].children[1].style.visibility = "visible";
+        I4Scores ? $("#SI4")[0].children[0].style.visibility = "visible" : $("#SI4")[0].children[1].style.visibility = "visible";
+    };
+
+    function appendChat(chatWindow, newEntries) {
+        for (let k in newEntries) {
+            let newRow = $("<div>");
+            newRow.addClass("chatItem");
+            newRow.textContent = k + " says: " + newEntries[k];
+            newRow.text(k + " says: " + newEntries[k]);
+            chatWindow.append(newRow);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    }
+
+    let addChat1 = (newEntry) => {
+        appendChat($("#chatWindow1"), newEntry);
+    };
+    let addChat2 = (newEntry) => {
+        appendChat($("#chatWindow2"), newEntry);
+    };
+    let addChat3 = (newEntry) => {
+        appendChat($("#chatWindow3"), newEntry);
+    };
+    let addChat4 = (newEntry) => {
+        appendChat($("#chatWindow4"), newEntry);
+    };
+
+    fetchServerSnapshot = () => {
+        t.HTTPRequest("POST", "/debug/getGameState", {}, (response) => {
+            if (response.success) {
+                checkAgainstInstances(response.data);
+            }
+            else {
+                alert("Something Went Wrong");
+            }
+
+        });
+    };
+
     //this function is called at the end of every iteration
     //We will verify the integrity of each instance with the interval server data
     let verify = () => {
+        resetAllCells();
         console.log("verify");
         runTest = false;
         stopAllActions();
         stopAllMovement();
+        fetchServerSnapshot();
     };
-
-
-
-
 
 
 
     //Below is just mostly the same setup code as in the front-end unit tests, we can just reuse them
     let setupInstances = () => {
-        resetServer(() => {
+        // resetServer(() => {
             console.log("Server Reset!");
             let firstPromise = new Promise(requestToken1).then(() => {
                 return new Promise(setupInstance1);
@@ -229,7 +504,7 @@
             }).then(() => {
                 return new Promise(setupInstance4);
             });
-        });
+        // }
 
     };
 
@@ -239,13 +514,18 @@
         $("#container3").empty()
         $("#container4").empty()
         t.resetTests();
+        clearMessages();
         t.HTTPRequest("POST", "/debug/reset", {}, callback ? callback: null);
     };
 
     let requestToken1 = (resolve, reject) => {
         t.requestToken(player1Name, (token) => {
             if (t.assertExists(token)) {
-                resolve ? resolve() : null;
+                token1 = token;
+                setTimeout(() => {
+                    resolve ? resolve() : null;
+                }, 200)
+
             }
             else {
                 resolve ? resolve() : null;
@@ -257,6 +537,7 @@
         try {
             gameInstance1 = t.createInstance(document.getElementById("container1"), player1Name);
             gameInstance1.init();
+            gameInstance1.setChatCallback(addChat1);
             if (t.assertInstanceOf(game, gameInstance1)) {
                 //let the DOM rendering catch up before continuing
                 setTimeout(() => {
@@ -276,6 +557,7 @@
     let requestToken2 = (resolve, reject) => {
         t.requestToken(player2Name, (token) => {
             if (t.assertExists(token)) {
+                token2 = token;
                 resolve ? resolve() : null;
             }
             else {
@@ -288,6 +570,7 @@
         try {
             gameInstance2 = t.createInstance(document.getElementById("container2"), player2Name);
             gameInstance2.init();
+            gameInstance2.setChatCallback(addChat2);
             if (t.assertInstanceOf(game, gameInstance2)) {
                 //let the DOM rendering catch up before continuing
                 setTimeout(() => {
@@ -307,6 +590,7 @@
     let requestToken3 = (resolve, reject) => {
         t.requestToken(player3Name, (token) => {
             if (t.assertExists(token)) {
+                token3 = token;
                 resolve ? resolve() : null;
             }
             else {
@@ -319,6 +603,7 @@
         try {
             gameInstance3 = t.createInstance(document.getElementById("container3"), player3Name);
             gameInstance3.init();
+            gameInstance3.setChatCallback(addChat3);
             if (t.assertInstanceOf(game, gameInstance3)) {
                 //let the DOM rendering catch up before continuing
                 setTimeout(() => {
@@ -337,6 +622,7 @@
 
     let requestToken4 = (resolve, reject) => {
         t.requestToken(player4Name, (token) => {
+            token4 = token;
             if (t.assertExists(token)) {
                 resolve ? resolve() : null;
             }
@@ -350,6 +636,7 @@
         try {
             gameInstance4 = t.createInstance(document.getElementById("container4"), player4Name);
             gameInstance4.init();
+            gameInstance4.setChatCallback(addChat4);
             if (t.assertInstanceOf(game, gameInstance4)) {
                 //let the DOM rendering catch up before continuing
                 setTimeout(() => {

@@ -67,6 +67,10 @@ nodeTankTesting.prototype = {
         return (variable instanceof expected);
     },
 
+    assertPositionEqual: function(p1, p2) {
+        return (p1.x === p2.x) && (p2.z === p2.z);
+    },
+
 
 
     //Helper functions

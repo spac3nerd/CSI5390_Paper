@@ -28,6 +28,9 @@ function setUpEvents() {
                         movementVelocity: 45 //units per second
                     });
                 }
+                else {
+                    console.log(globalState.isTokenValid(data.token));
+                }
             });
 
             socket.on("playerUpdate", (data) => {
