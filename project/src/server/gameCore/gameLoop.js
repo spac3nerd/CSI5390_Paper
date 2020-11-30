@@ -3,6 +3,12 @@ let socketManager = require("./socket-manager");
 let globalState = require("./global-state");
 let crypto = require("crypto");
 
+const {Worker,isMainThread,parentPort} = require("worker_threads");
+
+let thrift     = require("thrift");
+let aInterface = require("../../centralData/API/nodejs/AgentInterface");
+let ttypes     = require("../../centralData/API/nodejs/jstest_types");
+
 let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
 let lastUpdate = new Date();
@@ -23,6 +29,14 @@ let bounds = {
 let bulletVelocity = 130;
 let movementVelocity = 70;
 
+
+let DataState = {
+  'agentToken':  undefined,
+  'agentLookat': new three.Vector3(0,0,0),
+  'agentMove':   new three.Vector(0,0,0),
+  'goManual':    true,
+  'lastImage':   ""
+}
 
 //called for each update from clients
 //note that the position is only set internally in the server
