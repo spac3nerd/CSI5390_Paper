@@ -36,7 +36,12 @@ function gameServer(gameSettings) {
 
     //route for tests
     app.get("/unitTesting", function(req, res) {
-        res.sendFile(path.resolve(gameSettings.testPage));
+        res.sendFile(path.resolve(gameSettings.frontEndTests));
+    });
+
+    //route for tests
+    app.get("/fullStackTesting", function(req, res) {
+        res.sendFile(path.resolve(gameSettings.fullStackTests));
     });
 
     //map the routes

@@ -193,10 +193,30 @@ function loopGame() {
 setInterval( function() {loopGame()}, 1000 / 30);
 
 
+//***Debugging functions
+
+function getSnapshotData() {
+    let gameState = {
+        tanks: {},
+        score: null
+    };
+
+    for (let k in playerTanks) {
+        gameState.tanks[k]["position"] = playerTanks[k].obj.position;
+        gameState.tanks[k]["lookAt"] = playerTanks[k].lookAt;
+        gameState.tanks[k]["name"] = playerTanks[k].name;
+    }
+    gameState.score = globalState.getScore();
+
+    return gameState;
+}
+
+
 module.exports = {
     updatePlayer: updatePlayer,
     addTank: addTank,
     setInitialPlayerState: setInitialPlayerState,
     shotTaken: shotTaken,
-    generateSpawnPosition: generateSpawnPosition
+    generateSpawnPosition: generateSpawnPosition,
+    getSnapshotData: getSnapshotData
 };
