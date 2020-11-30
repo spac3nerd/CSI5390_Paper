@@ -161,14 +161,28 @@ function loopGame() {
     //go through all players and update the location
     for (let k in playerTanks) {
         if (playerTanks[k].movement !== undefined) {
-            let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
-            playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
-            playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
-            newPlayerState[k] = {
-                position: playerTanks[k].obj.position,
-                lookAt: playerTanks[k].lookAt,
-                name: playerTanks[k].name
-            };
+          let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
+          if(k===DataState.agentToken && DataState.goManual === false){
+            mV = DataState.agentMove;
+          }
+          playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
+          playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
+            if(k === DataState.agentToken)
+            {
+              newPlayerState[k] = {
+                  position: playerTanks[k].obj.position,
+                  lookAt: DataState.agentLookat,
+                  name: playerTanks[k].name
+              };
+            }
+            else
+            {
+              newPlayerState[k] = {
+                  position: playerTanks[k].obj.position,
+                  lookAt: playerTanks[k].lookAt,
+                  name: playerTanks[k].name
+              };
+            }
         }
     }
 
@@ -233,10 +247,10 @@ var GetTokenByNameFunc = function(name)
   {
     if(playerTanks[k].name === name)
     {
-      agentToken = k;
+      DataState.agentToken = k;
       let socketManager = require("./socket-manager");
-      socketManager.flagSource(agentToken);
-      return agentToken;
+      socketManager.flagSource(DataState.agentToken);
+      return DataState.agentToken;
     }
   }
   return "[NONE]";
@@ -244,15 +258,15 @@ var GetTokenByNameFunc = function(name)
 
 var SetLookAtFunc = function(token,point)
 {
-  agentLookat = new three.Vector3(point.x,point.y,point.z);
-  playerTanks[token].lookAt = agentLookat;
+  DataState.agentLookat = new three.Vector3(point.x,point.y,point.z);
+  playerTanks[token].lookAt = DataState.agentLookat;
   updatePlayer(token,playerTanks[token]);
   console.log(point);
   console.log("SetLookat");
 }
 var FireFunc = function(token)
 {
-  shotTaken(agentToken,playerTanks[agentToken].lookAt);
+  shotTaken(DataState.agentToken,playerTanks[DataState.agentToken].lookAt);
   console.log("Fire called...");
 }
 
@@ -260,12 +274,12 @@ var SetMoveFunc = function(token,x,y,z)
 {
   console.log("SetMove called...");
   var movement = new three.Vector3(x,y,z);
-  goManual = false;
+  DataState.goManual = false;
   if(x===0.0 && y===0.0 && z===0.0) {
-    goManual=true;
+    DataState.goManual=true;
   }
   movement.normalize();
-  agentMove = movement;
+  DataState.agentMove = movement;
   console.log(movement);
 }
 
@@ -277,7 +291,7 @@ var GetSceneDataFunc = function(token)
 
 var GetImageData = function(token){
   console.log("calling GetImageData");
-  if(token === agentToken){
+  if(token === DataState.agentToken){
     let socketManager = require("./socket-manager");
     img = socketManager.getImageData();
     return img;

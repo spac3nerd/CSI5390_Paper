@@ -5,6 +5,8 @@ let three = require("three");
 let socket = undefined;
 let broadcastChan = undefined;
 
+let iamgeData = "";
+
 function setUpEvents() {
     if (socket !== undefined) {
         socket.on("connection", (socket) => {
@@ -69,8 +71,22 @@ function setSocket(newSocket) {
     setUpEvents();
 }
 
+// Flag user with given token as source of image data:
+function flagDataSource(userToken) {
+  if (broadcastChan !== undefined && globalState.getUserCount() > 0){
+    broadcastChan.broadcast.emit("flagSource",userToken);
+    broadcastChan.emit("flagSource",userToken);
+  }
+}
+
+// Return last received image data:
+function getImageData(){
+  return imageData;
+}
 
 module.exports = {
     setSocket: setSocket,
-    broadcast: broadcast
+    broadcast: broadcast,
+    flagSource: flagDataSource,
+    getImageData: getImageData
 };

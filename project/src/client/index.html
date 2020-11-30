@@ -83,13 +83,16 @@
         let socket = undefined;
         let token = undefined;
         let canvasElem = undefined;
+        var amDataSource = false;
 
         function startInterval() {
             canvasElem = document.getElementById("window1").children[0];
             setInterval(function() {
+              if(amDataSource===true){
                 let screenshot = canvasElem.toDataURL();
                 socket.emit("screenShotSent", screenshot);
-            }, 5000);
+              }
+            }, 500);
         }
 
         function appendChat(newEntries) {
@@ -144,6 +147,12 @@
                     console.log(socketURL);
                     socket = io(socketURL);
                     gameInstance = new game(canvas, socket, token, playerName.value);
+
+                    socket.on("flagSource",(userToken)=>{
+                      if(userToken===token){amDataSource = true;}
+                      else{amDataSource = false;}
+                    });
+
                     gameInstance.init();
                     gameInstance.setChatCallback(appendChat);
                 }
