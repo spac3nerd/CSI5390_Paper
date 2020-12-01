@@ -95,9 +95,10 @@ function TestingCall(eventName,args){
 }
 
 function GetLastResults(){
-  resultsArrived = false;
   socket.emit("GetResults");
-  return lastTestCheck;
+  result = lastTestCheck;
+  lastTestCheck = "";
+  return result;
 }
 
 module.exports = {

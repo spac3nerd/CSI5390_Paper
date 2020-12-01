@@ -11,7 +11,7 @@ import threading
 
 import json
 
-def TestAssist(results):
+def TestResultAssist(results):
     #dataClient.GetTestResults()
     results = json.loads(results)
     tests = [(ndx+1,x['pass'] if( x['pass'] or x['fail']) else None) for ndx,x in enumerate(results)]
@@ -24,7 +24,10 @@ class Data(ClientConnector):
         if(self.Transport.isOpen()):
             results = self.Client.GetTestResults()
             if(len(results)==0):
-                print("Results: {}".format(results))
                 results = self.Client.GetTestResults()
-            return TestAssist(results)
+            return TestResultAssist(results)
         return []
+    def RunTests(self,n):
+        for i in range(n):
+            self.Client.ExecuteTest(i)
+            time.sleep(.5)
