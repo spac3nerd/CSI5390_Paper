@@ -79,6 +79,14 @@ class Iface(object):
         """
         pass
 
+    def StartDataServer(self, portno):
+        """
+        Parameters:
+         - portno
+
+        """
+        pass
+
 
 class Client(Iface):
     def __init__(self, iprot, oprot=None):
@@ -313,6 +321,36 @@ class Client(Iface):
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "GetPose failed: unknown result")
 
+    def StartDataServer(self, portno):
+        """
+        Parameters:
+         - portno
+
+        """
+        self.send_StartDataServer(portno)
+        self.recv_StartDataServer()
+
+    def send_StartDataServer(self, portno):
+        self._oprot.writeMessageBegin('StartDataServer', TMessageType.CALL, self._seqid)
+        args = StartDataServer_args()
+        args.portno = portno
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_StartDataServer(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = StartDataServer_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        return
+
 
 class Processor(Iface, TProcessor):
     def __init__(self, handler):
@@ -325,6 +363,7 @@ class Processor(Iface, TProcessor):
         self._processMap["GetSceneData"] = Processor.process_GetSceneData
         self._processMap["GetImageData"] = Processor.process_GetImageData
         self._processMap["GetPose"] = Processor.process_GetPose
+        self._processMap["StartDataServer"] = Processor.process_StartDataServer
         self._on_message_begin = None
 
     def on_message_begin(self, func):
@@ -504,6 +543,29 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("GetPose", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_StartDataServer(self, seqid, iprot, oprot):
+        args = StartDataServer_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = StartDataServer_result()
+        try:
+            self._handler.StartDataServer(args.portno)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("StartDataServer", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -1365,6 +1427,111 @@ class GetPose_result(object):
 all_structs.append(GetPose_result)
 GetPose_result.thrift_spec = (
     (0, TType.STRUCT, 'success', [Pose, None], None, ),  # 0
+)
+
+
+class StartDataServer_args(object):
+    """
+    Attributes:
+     - portno
+
+    """
+
+
+    def __init__(self, portno=None,):
+        self.portno = portno
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.I16:
+                    self.portno = iprot.readI16()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('StartDataServer_args')
+        if self.portno is not None:
+            oprot.writeFieldBegin('portno', TType.I16, 1)
+            oprot.writeI16(self.portno)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(StartDataServer_args)
+StartDataServer_args.thrift_spec = (
+    None,  # 0
+    (1, TType.I16, 'portno', None, None, ),  # 1
+)
+
+
+class StartDataServer_result(object):
+
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('StartDataServer_result')
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(StartDataServer_result)
+StartDataServer_result.thrift_spec = (
 )
 fix_spec(all_structs)
 del all_structs

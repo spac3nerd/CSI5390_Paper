@@ -31,6 +31,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  string GetSceneData(string token)')
     print('  string GetImageData(string token)')
     print('  Pose GetPose(string token)')
+    print('  void StartDataServer(i16 portno)')
     print('')
     sys.exit(0)
 
@@ -151,6 +152,12 @@ elif cmd == 'GetPose':
         print('GetPose requires 1 args')
         sys.exit(1)
     pp.pprint(client.GetPose(args[0],))
+
+elif cmd == 'StartDataServer':
+    if len(args) != 1:
+        print('StartDataServer requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.StartDataServer(eval(args[0]),))
 
 else:
     print('Unrecognized method %s' % cmd)

@@ -699,6 +699,81 @@ AgentInterface_GetPose_result.prototype.write = function(output) {
   return;
 };
 
+var AgentInterface_StartDataServer_args = function(args) {
+  this.portno = null;
+  if (args) {
+    if (args.portno !== undefined && args.portno !== null) {
+      this.portno = args.portno;
+    }
+  }
+};
+AgentInterface_StartDataServer_args.prototype = {};
+AgentInterface_StartDataServer_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid) {
+      case 1:
+      if (ftype == Thrift.Type.I16) {
+        this.portno = input.readI16();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+AgentInterface_StartDataServer_args.prototype.write = function(output) {
+  output.writeStructBegin('AgentInterface_StartDataServer_args');
+  if (this.portno !== null && this.portno !== undefined) {
+    output.writeFieldBegin('portno', Thrift.Type.I16, 1);
+    output.writeI16(this.portno);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+var AgentInterface_StartDataServer_result = function(args) {
+};
+AgentInterface_StartDataServer_result.prototype = {};
+AgentInterface_StartDataServer_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+AgentInterface_StartDataServer_result.prototype.write = function(output) {
+  output.writeStructBegin('AgentInterface_StartDataServer_result');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 var AgentInterfaceClient = exports.Client = function(output, pClass) {
   this.output = output;
   this.pClass = pClass;
@@ -1116,6 +1191,62 @@ AgentInterfaceClient.prototype.recv_GetPose = function(input,mtype,rseqid) {
   }
   return callback('GetPose failed: unknown result');
 };
+
+AgentInterfaceClient.prototype.StartDataServer = function(portno, callback) {
+  this._seqid = this.new_seqid();
+  if (callback === undefined) {
+    var _defer = Q.defer();
+    this._reqs[this.seqid()] = function(error, result) {
+      if (error) {
+        _defer.reject(error);
+      } else {
+        _defer.resolve(result);
+      }
+    };
+    this.send_StartDataServer(portno);
+    return _defer.promise;
+  } else {
+    this._reqs[this.seqid()] = callback;
+    this.send_StartDataServer(portno);
+  }
+};
+
+AgentInterfaceClient.prototype.send_StartDataServer = function(portno) {
+  var output = new this.pClass(this.output);
+  var params = {
+    portno: portno
+  };
+  var args = new AgentInterface_StartDataServer_args(params);
+  try {
+    output.writeMessageBegin('StartDataServer', Thrift.MessageType.CALL, this.seqid());
+    args.write(output);
+    output.writeMessageEnd();
+    return this.output.flush();
+  }
+  catch (e) {
+    delete this._reqs[this.seqid()];
+    if (typeof output.reset === 'function') {
+      output.reset();
+    }
+    throw e;
+  }
+};
+
+AgentInterfaceClient.prototype.recv_StartDataServer = function(input,mtype,rseqid) {
+  var callback = this._reqs[rseqid] || function() {};
+  delete this._reqs[rseqid];
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(input);
+    input.readMessageEnd();
+    return callback(x);
+  }
+  var result = new AgentInterface_StartDataServer_result();
+  result.read(input);
+  input.readMessageEnd();
+
+  callback(null);
+};
 var AgentInterfaceProcessor = exports.Processor = function(handler) {
   this._handler = handler;
 };
@@ -1389,6 +1520,43 @@ AgentInterfaceProcessor.prototype.process_GetPose = function(seqid, input, outpu
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin("GetPose", Thrift.MessageType.EXCEPTION, seqid);
+      }
+      result_obj.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    });
+  }
+};
+AgentInterfaceProcessor.prototype.process_StartDataServer = function(seqid, input, output) {
+  var args = new AgentInterface_StartDataServer_args();
+  args.read(input);
+  input.readMessageEnd();
+  if (this._handler.StartDataServer.length === 1) {
+    Q.fcall(this._handler.StartDataServer.bind(this._handler),
+      args.portno
+    ).then(function(result) {
+      var result_obj = new AgentInterface_StartDataServer_result({success: result});
+      output.writeMessageBegin("StartDataServer", Thrift.MessageType.REPLY, seqid);
+      result_obj.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    }).catch(function (err) {
+      var result;
+      result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+      output.writeMessageBegin("StartDataServer", Thrift.MessageType.EXCEPTION, seqid);
+      result.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    });
+  } else {
+    this._handler.StartDataServer(args.portno, function (err, result) {
+      var result_obj;
+      if ((err === null || typeof err === 'undefined')) {
+        result_obj = new AgentInterface_StartDataServer_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("StartDataServer", Thrift.MessageType.REPLY, seqid);
+      } else {
+        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+        output.writeMessageBegin("StartDataServer", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();
