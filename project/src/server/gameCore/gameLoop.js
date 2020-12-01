@@ -323,7 +323,12 @@ var StartDataServerFunc = function(inPort)
   if(!isMainThread2)
   {
     console.log("data listening");
-    dataServer.listen(inPort);
+    try{
+        dataServer.listen(inPort);
+    }
+    catch(err){
+      console.log("Data server has shut down");
+    }
   }
 }
 
@@ -340,7 +345,12 @@ let thriftServer = thrift.createServer(aInterface,{
 if(isMainThread)
 {
   console.log("Ctrl listening");
-  thriftServer.listen(9090);
+  try{
+      thriftServer.listen(9090);
+  }
+  catch(err){
+    console.log("Control server has shut down");
+  }
 }
 
 module.exports = {
