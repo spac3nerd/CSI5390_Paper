@@ -241,6 +241,12 @@ function getSnapshotData() {
     return gameState;
 }
 
+dataServer = thrift.createServer(dataInterface,{
+  GetGameData: function(json){},
+  ExecuteTests: function(){},
+  GetTestRestults: function(){return "thisString";}
+});
+
 var GetTokenByNameFunc = function(name)
 {
   console.log('GetTokenByName called...')
@@ -310,6 +316,17 @@ var GetPoseFunc = function(token)
 
   return new ttypes.Pose({pos:a,ori:b});
 }
+
+var StartDataServerFunc = function(inPort)
+{
+  const {Worker2,isMainThread2,parentPort2} = require("worker_threads");
+  if(!isMainThread2)
+  {
+    console.log("data listening");
+    dataServer.listen(inPort);
+  }
+}
+
 let thriftServer = thrift.createServer(aInterface,{
   SetLookAt:      SetLookAtFunc,
   GetTokenByName: GetTokenByNameFunc,
@@ -317,20 +334,12 @@ let thriftServer = thrift.createServer(aInterface,{
   SetMove:        SetMoveFunc,
   GetImageData:   GetImageData,
   GetPose:        GetPoseFunc,
-  Fire:           FireFunc
-});
-dataServer = thrift.createServer(dataInterface,{
-  GetGameData: function(json){},
-  ExecuteTests: function(){},
-  GetTestRestults: function(){return "thisString";}
+  Fire:           FireFunc,
+  StartDataServer:StartDataServerFunc
 });
 if(isMainThread)
 {
-  const {Worker2,isMainThread2,parentPort2} = require("worker_threads");
-  if(isMainThread2)
-  {
-
-  }
+  console.log("Ctrl listening");
   thriftServer.listen(9090);
 }
 
