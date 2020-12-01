@@ -245,8 +245,15 @@ var GetGameDataFunc = function(json){
   console.log("GetGameData called");
   return "Some other string";
 }
+var ExecuteTestFunc = function(testNumber){
+  console.log("ExecuteTests called");
+  let socketManager = require("./socket-manager");
+  socketManager.testingCall("RunTest",testNumber);
+}
 var ExecuteTestsFunc = function(){
   console.log("ExecuteTests called");
+  let socketManager = require("./socket-manager");
+  socketManager.testingCall("RunAllTests",{});
 }
 var GetTestResultsFunc = function(){
   console.log("GetTestResults called");
@@ -256,7 +263,8 @@ var GetTestResultsFunc = function(){
 dataServer = thrift.createServer(dataInterface,{
   GetGameData:     GetGameDataFunc,
   ExecuteTests:    ExecuteTestsFunc,
-  GetTestResults: GetTestResultsFunc
+  GetTestResults:  GetTestResultsFunc,
+  ExecuteTest:     ExecuteTestFunc
 });
 
 var GetTokenByNameFunc = function(name)
@@ -339,7 +347,7 @@ var StartDataServerFunc = function(inPort)
       console.log(inPort);
       try{
           dataServer.listen(inPort);
-          console.log("Data server has closed.")
+          // console.log("Data server has closed.")
       }
       catch(err){
         console.log("Data server error has occurred.");
@@ -363,7 +371,7 @@ if(isMainThread)
   console.log("Ctrl listening");
   try{
       thriftServer.listen(9090);
-      console.log("Control server has shut down.")
+      // console.log("Control server has shut down.")
   }
   catch(err){
     console.log("Control server error has occurred.");

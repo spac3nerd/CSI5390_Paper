@@ -27,6 +27,14 @@ class Iface(object):
         """
         pass
 
+    def ExecuteTest(self, testNumber):
+        """
+        Parameters:
+         - testNumber
+
+        """
+        pass
+
     def ExecuteTests(self):
         pass
 
@@ -72,6 +80,36 @@ class Client(Iface):
         if result.success is not None:
             return result.success
         raise TApplicationException(TApplicationException.MISSING_RESULT, "GetGameData failed: unknown result")
+
+    def ExecuteTest(self, testNumber):
+        """
+        Parameters:
+         - testNumber
+
+        """
+        self.send_ExecuteTest(testNumber)
+        self.recv_ExecuteTest()
+
+    def send_ExecuteTest(self, testNumber):
+        self._oprot.writeMessageBegin('ExecuteTest', TMessageType.CALL, self._seqid)
+        args = ExecuteTest_args()
+        args.testNumber = testNumber
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_ExecuteTest(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = ExecuteTest_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        return
 
     def ExecuteTests(self):
         self.send_ExecuteTests()
@@ -129,6 +167,7 @@ class Processor(Iface, TProcessor):
         self._handler = handler
         self._processMap = {}
         self._processMap["GetGameData"] = Processor.process_GetGameData
+        self._processMap["ExecuteTest"] = Processor.process_ExecuteTest
         self._processMap["ExecuteTests"] = Processor.process_ExecuteTests
         self._processMap["GetTestResults"] = Processor.process_GetTestResults
         self._on_message_begin = None
@@ -172,6 +211,29 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("GetGameData", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_ExecuteTest(self, seqid, iprot, oprot):
+        args = ExecuteTest_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = ExecuteTest_result()
+        try:
+            self._handler.ExecuteTest(args.testNumber)
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("ExecuteTest", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -345,6 +407,111 @@ class GetGameData_result(object):
 all_structs.append(GetGameData_result)
 GetGameData_result.thrift_spec = (
     (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+)
+
+
+class ExecuteTest_args(object):
+    """
+    Attributes:
+     - testNumber
+
+    """
+
+
+    def __init__(self, testNumber=None,):
+        self.testNumber = testNumber
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            if fid == 1:
+                if ftype == TType.I32:
+                    self.testNumber = iprot.readI32()
+                else:
+                    iprot.skip(ftype)
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('ExecuteTest_args')
+        if self.testNumber is not None:
+            oprot.writeFieldBegin('testNumber', TType.I32, 1)
+            oprot.writeI32(self.testNumber)
+            oprot.writeFieldEnd()
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(ExecuteTest_args)
+ExecuteTest_args.thrift_spec = (
+    None,  # 0
+    (1, TType.I32, 'testNumber', None, None, ),  # 1
+)
+
+
+class ExecuteTest_result(object):
+
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('ExecuteTest_result')
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(ExecuteTest_result)
+ExecuteTest_result.thrift_spec = (
 )
 
 

@@ -25,6 +25,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('')
     print('Functions:')
     print('  string GetGameData(string jsonData)')
+    print('  void ExecuteTest(i32 testNumber)')
     print('  void ExecuteTests()')
     print('  string GetTestResults()')
     print('')
@@ -111,6 +112,12 @@ if cmd == 'GetGameData':
         print('GetGameData requires 1 args')
         sys.exit(1)
     pp.pprint(client.GetGameData(args[0],))
+
+elif cmd == 'ExecuteTest':
+    if len(args) != 1:
+        print('ExecuteTest requires 1 args')
+        sys.exit(1)
+    pp.pprint(client.ExecuteTest(eval(args[0]),))
 
 elif cmd == 'ExecuteTests':
     if len(args) != 0:

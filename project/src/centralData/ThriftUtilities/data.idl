@@ -4,6 +4,7 @@ namespace py PYDataInterface
 service DataInterface
 {
   string GetGameData(1:string jsonData),
+  void ExecuteTest(1:i32 testNumber),
   void ExecuteTests(),
   string GetTestResults()
 }

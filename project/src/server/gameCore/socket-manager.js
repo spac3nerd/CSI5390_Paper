@@ -84,9 +84,14 @@ function getImageData(){
   return imageData;
 }
 
+function TestingCall(eventName,args){
+  socket.emit(eventName,args);
+}
+
 module.exports = {
     setSocket: setSocket,
     broadcast: broadcast,
     flagSource: flagDataSource,
-    getImageData: getImageData
+    getImageData: getImageData,
+    testingCall: TestingCall
 };

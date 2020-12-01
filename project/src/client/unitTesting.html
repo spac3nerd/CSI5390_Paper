@@ -187,6 +187,10 @@
     };
     fetchBaseUrl();
 
+    console.log("***socketURL***");
+    console.log(socketURL);
+    let autoSocket = io(socketURL);
+
     //instantiate teh testing framework
     let t = new nodeTankTesting($("container"), socketURL, serverURL);
     //create instance one
@@ -765,7 +769,77 @@
         });
     };
 
-
+autoSocket.on("ResetServer",()=>{
+  resetServer();
+});
+autoSocket.on("RunAllTests",(args)=>{
+  runAllTests();
+});
+autoSocket.on("RunTest",(testNumber)=>{
+  switch (testNumber)
+  {
+    case 0:
+      test0();
+    break;
+    case 1:
+      test1();
+    break;
+    case 2:
+      test2();
+    break;
+    case 3:
+      test3();
+    break;
+    case 4:
+      test4();
+    break;
+    case 5:
+      test5();
+    break;
+    case 6:
+      test6();
+    break;
+    case 7:
+      test7();
+    break;
+    case 8:
+      test8();
+    break;
+    case 9:
+      test9();
+    break;
+    case 10:
+      test10();
+    break;
+    case 11:
+      test11();
+    break;
+    case 12:
+      test12();
+    break;
+    case 13:
+      test13();
+    break;
+    case 14:
+      test14();
+    break;
+    case 15:
+      test15();
+    break;
+    case 16:
+      test16();
+    break;
+    case 17:
+      test17();
+    break;
+    default:
+      break;
+    }
+});
+// autoSocket.on("",()=>{});
+// autoSocket.on("",()=>{});
+// autoSocket.on("",()=>{});
+// autoSocket.on("",()=>{});
 
 </script>
 
