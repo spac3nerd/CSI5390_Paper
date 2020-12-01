@@ -5,6 +5,10 @@ let three = require("three");
 let socket = undefined;
 let broadcastChan = undefined;
 
+let imageData = "";
+let lastTestCheck = "";
+let resultsArrived = false;
+
 function setUpEvents() {
     if (socket !== undefined) {
         socket.on("connection", (socket) => {
@@ -48,7 +52,11 @@ function setUpEvents() {
 
             //Cale - screenshot is received here
             socket.on("screenShotSent", (data) => {
-                console.log(data);
+                imageData = data;
+            });
+
+            socket.on("TestResults",(data)=>{
+              lastTestCheck = data;
             });
         });
     }
@@ -69,8 +77,35 @@ function setSocket(newSocket) {
     setUpEvents();
 }
 
+// Flag user with given token as source of image data:
+function flagDataSource(userToken) {
+  if (broadcastChan !== undefined && globalState.getUserCount() > 0){
+    broadcastChan.broadcast.emit("flagSource",userToken);
+    broadcastChan.emit("flagSource",userToken);
+  }
+}
+
+// Return last received image data:
+function getImageData(){
+  return imageData;
+}
+
+function TestingCall(eventName,args){
+  socket.emit(eventName,args);
+}
+
+function GetLastResults(){
+  socket.emit("GetResults");
+  result = lastTestCheck;
+  lastTestCheck = "";
+  return result;
+}
 
 module.exports = {
     setSocket: setSocket,
-    broadcast: broadcast
+    broadcast: broadcast,
+    flagSource: flagDataSource,
+    getImageData: getImageData,
+    testingCall: TestingCall,
+    getLastResults: GetLastResults
 };

@@ -1,0 +1,35 @@
+namespace js JSAgentInterface
+namespace py PYAgentInterface
+
+struct ButtonStates
+{
+  1: bool WDown = false;
+  2: bool ADown = false;
+  3: bool SDown = false;
+  4: bool DDown = false;
+}
+
+struct Point
+{
+  1: double x = 0.0;
+  2: double y = 0.0;
+  3: double z = 0.0;
+}
+
+struct Pose
+{
+  1: required Point pos;
+  2: required Point ori;
+}
+
+service AgentInterface
+{
+  string GetTokenByName(1:string name),
+  void SetLookAt(1:string token, 2:Point direction),
+  void SetMove(1:string token, 2:double x, 3:double y, 4:double z),
+  void Fire(1:string token),
+  string GetSceneData(1:string token),
+  string GetImageData(1:string token),
+  Pose GetPose(1:string token),
+  void StartDataServer(1:i16 portno)
+}

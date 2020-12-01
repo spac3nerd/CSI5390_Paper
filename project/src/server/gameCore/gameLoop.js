@@ -3,6 +3,13 @@ let socketManager = require("./socket-manager");
 let globalState = require("./global-state");
 let crypto = require("crypto");
 
+const {Worker,isMainThread,parentPort} = require("worker_threads");
+
+let thrift     = require("thrift");
+let aInterface = require("../../centralData/API/RemoteCtrl/nodejs/AgentInterface");
+// let ttypes     = require("../../centralData/API/RemoteCtrl/nodejs/jstest_types");
+let dataInterface = require("../../centralData/API/Data/nodejs/DataInterface");
+
 let playerTanks = {}; //tracks all player tanks
 let shots = {}; //tracks all shots and their owner
 let lastUpdate = new Date();
@@ -23,6 +30,14 @@ let bounds = {
 let bulletVelocity = 130;
 let movementVelocity = 70;
 
+
+let DataState = {
+  'agentToken':  undefined,
+  'agentLookat': new three.Vector3(0,0,0),
+  'agentMove':   new three.Vector3(0,0,0),
+  'goManual':    true,
+  'lastImage':   ""
+}
 
 //called for each update from clients
 //note that the position is only set internally in the server
@@ -147,14 +162,28 @@ function loopGame() {
     //go through all players and update the location
     for (let k in playerTanks) {
         if (playerTanks[k].movement !== undefined) {
-            let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
-            playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
-            playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
-            newPlayerState[k] = {
-                position: playerTanks[k].obj.position,
-                lookAt: playerTanks[k].lookAt,
-                name: playerTanks[k].name
-            };
+          let mV = new three.Vector3(playerTanks[k].movement.x, playerTanks[k].movement.y, playerTanks[k].movement.z).normalize(); //normalize this vector to prevent any shenanigans
+          if(k===DataState.agentToken && DataState.goManual === false){
+            mV = DataState.agentMove;
+          }
+          playerTanks[k].obj.translateX((mV.x * movementVelocity) * delta);
+          playerTanks[k].obj.translateZ((mV.z * movementVelocity) * delta);
+            if(k === DataState.agentToken)
+            {
+              newPlayerState[k] = {
+                  position: playerTanks[k].obj.position,
+                  lookAt: DataState.agentLookat,
+                  name: playerTanks[k].name
+              };
+            }
+            else
+            {
+              newPlayerState[k] = {
+                  position: playerTanks[k].obj.position,
+                  lookAt: playerTanks[k].lookAt,
+                  name: playerTanks[k].name
+              };
+            }
         }
     }
 
@@ -212,6 +241,150 @@ function getSnapshotData() {
     return gameState;
 }
 
+var GetGameDataFunc = function(json){
+  console.log("GetGameData called");
+  return "Some other string";
+}
+var ExecuteTestFunc = function(testNumber){
+  console.log("ExecuteTests called");
+  let socketManager = require("./socket-manager");
+  socketManager.testingCall("RunTest",testNumber);
+}
+var ExecuteTestsFunc = function(){
+  console.log("ExecuteTests called");
+  let socketManager = require("./socket-manager");
+  socketManager.testingCall("RunAllTests",{});
+}
+var GetTestResultsFunc = function(){
+  console.log("GetTestResults called");
+  let socketManager = require("./socket-manager");
+  results = socketManager.getLastResults();
+  return results;
+}
+var RestartServerFunc = function(){
+  console.log("RestartServer called");
+  let socketManager = require("./socket-manager");
+  socketManager.testingCall("Restart",{});
+}
+
+dataServer = thrift.createServer(dataInterface,{
+  GetGameData:     GetGameDataFunc,
+  ExecuteTests:    ExecuteTestsFunc,
+  GetTestResults:  GetTestResultsFunc,
+  ExecuteTest:     ExecuteTestFunc,
+  RestartServer:   RestartServerFunc
+});
+
+var GetTokenByNameFunc = function(name)
+{
+  console.log('GetTokenByName called...')
+  for (let k in playerTanks)
+  {
+    if(playerTanks[k].name === name)
+    {
+      DataState.agentToken = k;
+      let socketManager = require("./socket-manager");
+      socketManager.flagSource(DataState.agentToken);
+      return DataState.agentToken;
+    }
+  }
+  return "[NONE]";
+}
+
+var SetLookAtFunc = function(token,point)
+{
+  DataState.agentLookat = new three.Vector3(point.x,point.y,point.z);
+  playerTanks[token].lookAt = DataState.agentLookat;
+  updatePlayer(token,playerTanks[token]);
+  console.log(point);
+  console.log("SetLookat");
+}
+var FireFunc = function(token)
+{
+  shotTaken(DataState.agentToken,playerTanks[DataState.agentToken].lookAt);
+  console.log("Fire called...");
+}
+
+var SetMoveFunc = function(token,x,y,z)
+{
+  console.log("SetMove called...");
+  var movement = new three.Vector3(x,y,z);
+  DataState.goManual = false;
+  if(x===0.0 && y===0.0 && z===0.0) {
+    DataState.goManual=true;
+  }
+  movement.normalize();
+  DataState.agentMove = movement;
+  console.log(movement);
+}
+
+var GetSceneDataFunc = function(token)
+{
+  console.log("GetSceneDataFunc called...")
+  return "thisissomestring"
+}
+
+var GetImageData = function(token){
+  if(token === DataState.agentToken){
+    let socketManager = require("./socket-manager");
+    img = socketManager.getImageData();
+    return img;
+  }
+}
+
+var GetPoseFunc = function(token)
+{
+  var pos = playerTanks[token].obj.position;
+  var lat = playerTanks[token].lookAt;
+
+  var a = new ttypes.Point({x:pos.x,y:pos.y,z:pos.z});
+  var b = new ttypes.Point({x:lat.x,y:lat.y,z:lat.z});
+
+  console.log("GetPoseFunc called...");
+
+  return new ttypes.Pose({pos:a,ori:b});
+}
+
+var StartDataServerFunc = function(inPort)
+{
+  if(isMainThread){
+      const {Worker2,isMainThread2,parentPort2} = require("worker_threads");
+    if(!isMainThread2)
+    {
+      console.log("data listening");
+      console.log(inPort);
+      try{
+          dataServer.listen(inPort);
+          // console.log("Data server has closed.")
+      }
+      catch(err){
+        console.log("Data server error has occurred.");
+      }
+    }
+  }
+}
+
+let thriftServer = thrift.createServer(aInterface,{
+  SetLookAt:      SetLookAtFunc,
+  GetTokenByName: GetTokenByNameFunc,
+  GetSceneData:   GetSceneDataFunc,
+  SetMove:        SetMoveFunc,
+  GetImageData:   GetImageData,
+  GetPose:        GetPoseFunc,
+  Fire:           FireFunc,
+  StartDataServer:StartDataServerFunc
+});
+if(isMainThread)
+{
+  console.log("Ctrl listening");
+  try{
+      thriftServer.listen(9090);
+      // console.log("Control server has shut down.")
+  }
+  catch(err){
+    console.log("Control server error has occurred.");
+  }
+}
 
 module.exports = {
     updatePlayer: updatePlayer,
