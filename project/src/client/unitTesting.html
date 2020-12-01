@@ -769,18 +769,25 @@
         });
     };
 
-autoSocket.on("ResetServer",()=>{
-  resetServer();
-});
-autoSocket.on("RunAllTests",(args)=>{
+
+autoSocket.on("RunAllTests",()=>{
   runAllTests();
 });
+autoSocket.on("Restart",()=>{
+  resetServer();
+});
+autoSocket.on("GetResults",()=>{
+  results = {}
+  for (let k = 0; k < t.registeredTestCases.length; k++) {
+      testResult = t.registeredTestCases[k][0].children[2].style.visibility === "hidden" ? (t.registeredTestCases[k][0].children[3].style.visibility === "hidden"?"untested":"fail"):"pass";
+      results.k = testResult;
+    }
+    autoSocket.emit("TestResults",results);
+});
 autoSocket.on("RunTest",(testNumber)=>{
+  testNumber = (testNumber%18)+1;
   switch (testNumber)
   {
-    case 0:
-      test0();
-    break;
     case 1:
       test1();
     break;
@@ -832,14 +839,13 @@ autoSocket.on("RunTest",(testNumber)=>{
     case 17:
       test17();
     break;
+    case 18:
+      test18();
+    break;
     default:
       break;
     }
 });
-// autoSocket.on("",()=>{});
-// autoSocket.on("",()=>{});
-// autoSocket.on("",()=>{});
-// autoSocket.on("",()=>{});
 
 </script>
 

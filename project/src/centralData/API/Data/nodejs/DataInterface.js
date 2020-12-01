@@ -239,6 +239,56 @@ DataInterface_ExecuteTests_result.prototype.write = function(output) {
   return;
 };
 
+var DataInterface_RestartServer_args = function(args) {
+};
+DataInterface_RestartServer_args.prototype = {};
+DataInterface_RestartServer_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataInterface_RestartServer_args.prototype.write = function(output) {
+  output.writeStructBegin('DataInterface_RestartServer_args');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+var DataInterface_RestartServer_result = function(args) {
+};
+DataInterface_RestartServer_result.prototype = {};
+DataInterface_RestartServer_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true) {
+    var ret = input.readFieldBegin();
+    var ftype = ret.ftype;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+DataInterface_RestartServer_result.prototype.write = function(output) {
+  output.writeStructBegin('DataInterface_RestartServer_result');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 var DataInterface_GetTestResults_args = function(args) {
 };
 DataInterface_GetTestResults_args.prototype = {};
@@ -492,6 +542,59 @@ DataInterfaceClient.prototype.recv_ExecuteTests = function(input,mtype,rseqid) {
   callback(null);
 };
 
+DataInterfaceClient.prototype.RestartServer = function(callback) {
+  this._seqid = this.new_seqid();
+  if (callback === undefined) {
+    var _defer = Q.defer();
+    this._reqs[this.seqid()] = function(error, result) {
+      if (error) {
+        _defer.reject(error);
+      } else {
+        _defer.resolve(result);
+      }
+    };
+    this.send_RestartServer();
+    return _defer.promise;
+  } else {
+    this._reqs[this.seqid()] = callback;
+    this.send_RestartServer();
+  }
+};
+
+DataInterfaceClient.prototype.send_RestartServer = function() {
+  var output = new this.pClass(this.output);
+  var args = new DataInterface_RestartServer_args();
+  try {
+    output.writeMessageBegin('RestartServer', Thrift.MessageType.CALL, this.seqid());
+    args.write(output);
+    output.writeMessageEnd();
+    return this.output.flush();
+  }
+  catch (e) {
+    delete this._reqs[this.seqid()];
+    if (typeof output.reset === 'function') {
+      output.reset();
+    }
+    throw e;
+  }
+};
+
+DataInterfaceClient.prototype.recv_RestartServer = function(input,mtype,rseqid) {
+  var callback = this._reqs[rseqid] || function() {};
+  delete this._reqs[rseqid];
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(input);
+    input.readMessageEnd();
+    return callback(x);
+  }
+  var result = new DataInterface_RestartServer_result();
+  result.read(input);
+  input.readMessageEnd();
+
+  callback(null);
+};
+
 DataInterfaceClient.prototype.GetTestResults = function(callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
@@ -667,6 +770,42 @@ DataInterfaceProcessor.prototype.process_ExecuteTests = function(seqid, input, o
       } else {
         result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
         output.writeMessageBegin("ExecuteTests", Thrift.MessageType.EXCEPTION, seqid);
+      }
+      result_obj.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    });
+  }
+};
+DataInterfaceProcessor.prototype.process_RestartServer = function(seqid, input, output) {
+  var args = new DataInterface_RestartServer_args();
+  args.read(input);
+  input.readMessageEnd();
+  if (this._handler.RestartServer.length === 0) {
+    Q.fcall(this._handler.RestartServer.bind(this._handler)
+    ).then(function(result) {
+      var result_obj = new DataInterface_RestartServer_result({success: result});
+      output.writeMessageBegin("RestartServer", Thrift.MessageType.REPLY, seqid);
+      result_obj.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    }).catch(function (err) {
+      var result;
+      result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+      output.writeMessageBegin("RestartServer", Thrift.MessageType.EXCEPTION, seqid);
+      result.write(output);
+      output.writeMessageEnd();
+      output.flush();
+    });
+  } else {
+    this._handler.RestartServer(function (err, result) {
+      var result_obj;
+      if ((err === null || typeof err === 'undefined')) {
+        result_obj = new DataInterface_RestartServer_result((err !== null || typeof err === 'undefined') ? err : {success: result});
+        output.writeMessageBegin("RestartServer", Thrift.MessageType.REPLY, seqid);
+      } else {
+        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+        output.writeMessageBegin("RestartServer", Thrift.MessageType.EXCEPTION, seqid);
       }
       result_obj.write(output);
       output.writeMessageEnd();

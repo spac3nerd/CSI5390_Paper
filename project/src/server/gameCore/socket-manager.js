@@ -6,6 +6,8 @@ let socket = undefined;
 let broadcastChan = undefined;
 
 let imageData = "";
+let lastTestCheck = "";
+let resultsArrived = false;
 
 function setUpEvents() {
     if (socket !== undefined) {
@@ -52,6 +54,11 @@ function setUpEvents() {
             socket.on("screenShotSent", (data) => {
                 imageData = data;
             });
+
+            socket.on("TestResults",(data)=>{
+              lastTestCheck = data;
+              resultsArrived = true;
+            });
         });
     }
 }
@@ -88,10 +95,18 @@ function TestingCall(eventName,args){
   socket.emit(eventName,args);
 }
 
+function GetLastResults(){
+  resultsArrived = false;
+  socket.emit("GetResults");
+  while(resultsArrived===false){}
+  return lastTestCheck;
+}
+
 module.exports = {
     setSocket: setSocket,
     broadcast: broadcast,
     flagSource: flagDataSource,
     getImageData: getImageData,
-    testingCall: TestingCall
+    testingCall: TestingCall,
+    getLastResults: GetLastResults
 };

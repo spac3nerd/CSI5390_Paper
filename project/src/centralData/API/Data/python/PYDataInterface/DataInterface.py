@@ -38,6 +38,9 @@ class Iface(object):
     def ExecuteTests(self):
         pass
 
+    def RestartServer(self):
+        pass
+
     def GetTestResults(self):
         pass
 
@@ -135,6 +138,30 @@ class Client(Iface):
         iprot.readMessageEnd()
         return
 
+    def RestartServer(self):
+        self.send_RestartServer()
+        self.recv_RestartServer()
+
+    def send_RestartServer(self):
+        self._oprot.writeMessageBegin('RestartServer', TMessageType.CALL, self._seqid)
+        args = RestartServer_args()
+        args.write(self._oprot)
+        self._oprot.writeMessageEnd()
+        self._oprot.trans.flush()
+
+    def recv_RestartServer(self):
+        iprot = self._iprot
+        (fname, mtype, rseqid) = iprot.readMessageBegin()
+        if mtype == TMessageType.EXCEPTION:
+            x = TApplicationException()
+            x.read(iprot)
+            iprot.readMessageEnd()
+            raise x
+        result = RestartServer_result()
+        result.read(iprot)
+        iprot.readMessageEnd()
+        return
+
     def GetTestResults(self):
         self.send_GetTestResults()
         return self.recv_GetTestResults()
@@ -169,6 +196,7 @@ class Processor(Iface, TProcessor):
         self._processMap["GetGameData"] = Processor.process_GetGameData
         self._processMap["ExecuteTest"] = Processor.process_ExecuteTest
         self._processMap["ExecuteTests"] = Processor.process_ExecuteTests
+        self._processMap["RestartServer"] = Processor.process_RestartServer
         self._processMap["GetTestResults"] = Processor.process_GetTestResults
         self._on_message_begin = None
 
@@ -257,6 +285,29 @@ class Processor(Iface, TProcessor):
             msg_type = TMessageType.EXCEPTION
             result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
         oprot.writeMessageBegin("ExecuteTests", msg_type, seqid)
+        result.write(oprot)
+        oprot.writeMessageEnd()
+        oprot.trans.flush()
+
+    def process_RestartServer(self, seqid, iprot, oprot):
+        args = RestartServer_args()
+        args.read(iprot)
+        iprot.readMessageEnd()
+        result = RestartServer_result()
+        try:
+            self._handler.RestartServer()
+            msg_type = TMessageType.REPLY
+        except TTransport.TTransportException:
+            raise
+        except TApplicationException as ex:
+            logging.exception('TApplication exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = ex
+        except Exception:
+            logging.exception('Unexpected exception in handler')
+            msg_type = TMessageType.EXCEPTION
+            result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+        oprot.writeMessageBegin("RestartServer", msg_type, seqid)
         result.write(oprot)
         oprot.writeMessageEnd()
         oprot.trans.flush()
@@ -598,6 +649,92 @@ class ExecuteTests_result(object):
         return not (self == other)
 all_structs.append(ExecuteTests_result)
 ExecuteTests_result.thrift_spec = (
+)
+
+
+class RestartServer_args(object):
+
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('RestartServer_args')
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(RestartServer_args)
+RestartServer_args.thrift_spec = (
+)
+
+
+class RestartServer_result(object):
+
+
+    def read(self, iprot):
+        if iprot._fast_decode is not None and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None:
+            iprot._fast_decode(self, iprot, [self.__class__, self.thrift_spec])
+            return
+        iprot.readStructBegin()
+        while True:
+            (fname, ftype, fid) = iprot.readFieldBegin()
+            if ftype == TType.STOP:
+                break
+            else:
+                iprot.skip(ftype)
+            iprot.readFieldEnd()
+        iprot.readStructEnd()
+
+    def write(self, oprot):
+        if oprot._fast_encode is not None and self.thrift_spec is not None:
+            oprot.trans.write(oprot._fast_encode(self, [self.__class__, self.thrift_spec]))
+            return
+        oprot.writeStructBegin('RestartServer_result')
+        oprot.writeFieldStop()
+        oprot.writeStructEnd()
+
+    def validate(self):
+        return
+
+    def __repr__(self):
+        L = ['%s=%r' % (key, value)
+             for key, value in self.__dict__.items()]
+        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not (self == other)
+all_structs.append(RestartServer_result)
+RestartServer_result.thrift_spec = (
 )
 
 

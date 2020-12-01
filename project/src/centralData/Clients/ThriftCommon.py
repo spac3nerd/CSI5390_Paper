@@ -4,6 +4,10 @@ from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
+import time
+TIMEOUT = 5
+#######################################
+#   Client base class:
 class ClientConnector(object):
     def __init__(self,
                  ThriftInterface,
@@ -33,4 +37,24 @@ class ClientConnector(object):
             return True
         return False
     def CloseCommunication(self):
-        self.Transport.close()
+        if(self.Transport):
+            self.Transport.close()
+    def AutoConnect(self):
+        t = time.time()
+        self.Connect()
+        while(True):
+            shouldRetry = time.time()-t < TIMEOUT
+            try:
+                self.OpenCommunication()
+                return
+            except Exception as exc:
+                if(not shouldRetry):
+                    return
+
+    def __enter__(self):
+        self.AutoConnect()
+        return self
+    def __exit__(self,excType,excValue,excTraceback):
+        time.sleep(.125)
+        self.CloseCommunication()
+#############################################
