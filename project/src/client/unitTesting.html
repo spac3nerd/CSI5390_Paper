@@ -777,12 +777,11 @@ autoSocket.on("Restart",()=>{
   resetServer();
 });
 autoSocket.on("GetResults",()=>{
-  results = {}
+  results = [];
   for (let k = 0; k < t.registeredTestCases.length; k++) {
-      testResult = t.registeredTestCases[k][0].children[2].style.visibility === "hidden" ? (t.registeredTestCases[k][0].children[3].style.visibility === "hidden"?"untested":"fail"):"pass";
-      results.k = testResult;
+      results.push({"pass":t.registeredTestCases[k][0].children[2].style.visibility==="visible","fail":t.registeredTestCases[k][0].children[3].style.visibility==="visible"});
     }
-    autoSocket.emit("TestResults",results);
+    autoSocket.emit("TestResults",JSON.stringify(results));
 });
 autoSocket.on("RunTest",(testNumber)=>{
   testNumber = (testNumber%18)+1;

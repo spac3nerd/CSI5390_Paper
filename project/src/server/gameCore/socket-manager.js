@@ -57,7 +57,6 @@ function setUpEvents() {
 
             socket.on("TestResults",(data)=>{
               lastTestCheck = data;
-              resultsArrived = true;
             });
         });
     }
@@ -98,7 +97,6 @@ function TestingCall(eventName,args){
 function GetLastResults(){
   resultsArrived = false;
   socket.emit("GetResults");
-  while(resultsArrived===false){}
   return lastTestCheck;
 }
 

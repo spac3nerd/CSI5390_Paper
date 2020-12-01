@@ -5,6 +5,7 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
 import time
+
 TIMEOUT = 5
 #######################################
 #   Client base class:

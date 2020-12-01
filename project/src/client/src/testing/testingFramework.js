@@ -28,8 +28,6 @@ nodeTankTesting.prototype = {
     },
     createInstance: function(containerN, playerName) {
         let newSocket = io(this.socketURL);
-        console.log("***socket***");
-        console.log(this.socketURL);
         let newGame = new game(containerN, newSocket, this.tokens[this.tokens.length - 1], playerName);
         this.gameInstances.push(newGame);
 

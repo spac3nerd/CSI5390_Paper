@@ -9,6 +9,22 @@ import time
 import math
 import threading
 
+import json
+
+def TestAssist(results):
+    #dataClient.GetTestResults()
+    results = json.loads(results)
+    tests = [(ndx+1,x['pass'] if( x['pass'] or x['fail']) else None) for ndx,x in enumerate(results)]
+    return tests
+
 class Data(ClientConnector):
     def __init__(self,IPAddr='127.0.0.1',port=9091):
         super().__init__(DataInterface,IPAddr,port)
+    def GetTestResults(self):
+        if(self.Transport.isOpen()):
+            results = self.Client.GetTestResults()
+            if(len(results)==0):
+                print("Results: {}".format(results))
+                results = self.Client.GetTestResults()
+            return TestAssist(results)
+        return []
