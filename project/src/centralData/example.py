@@ -9,8 +9,9 @@ TEST_NAME = "name"
 # while(results[1]==False):
 #     time.sleep(1)
 
-client,tx = Connect()
-tx.open()
+client = Clients.Control()
+client.Connect()
+client.OpenCommunication()
 
 token = client.GetTokenByName(TEST_NAME)
 

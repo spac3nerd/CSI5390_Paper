@@ -7,7 +7,7 @@ const {Worker,isMainThread,parentPort} = require("worker_threads");
 
 let thrift     = require("thrift");
 let aInterface = require("../../centralData/API/RemoteCtrl/nodejs/AgentInterface");
-let ttypes     = require("../../centralData/API/RemoteCtrl/nodejs/jstest_types");
+// let ttypes     = require("../../centralData/API/RemoteCtrl/nodejs/jstest_types");
 let dataInterface = require("../../centralData/API/Data/nodejs/DataInterface");
 
 let playerTanks = {}; //tracks all player tanks
@@ -241,10 +241,22 @@ function getSnapshotData() {
     return gameState;
 }
 
+var GetGameDataFunc = function(json){
+  console.log("GetGameData called");
+  return "Some other string";
+}
+var ExecuteTestsFunc = function(){
+  console.log("ExecuteTests called");
+}
+var GetTestResultsFunc = function(){
+  console.log("GetTestResults called");
+  return "Some string.";
+}
+
 dataServer = thrift.createServer(dataInterface,{
-  GetGameData: function(json){},
-  ExecuteTests: function(){},
-  GetTestRestults: function(){return "thisString";}
+  GetGameData:     GetGameDataFunc,
+  ExecuteTests:    ExecuteTestsFunc,
+  GetTestResults: GetTestResultsFunc
 });
 
 var GetTokenByNameFunc = function(name)
@@ -319,15 +331,19 @@ var GetPoseFunc = function(token)
 
 var StartDataServerFunc = function(inPort)
 {
-  const {Worker2,isMainThread2,parentPort2} = require("worker_threads");
-  if(!isMainThread2)
-  {
-    console.log("data listening");
-    try{
-        dataServer.listen(inPort);
-    }
-    catch(err){
-      console.log("Data server has shut down");
+  if(isMainThread){
+      const {Worker2,isMainThread2,parentPort2} = require("worker_threads");
+    if(!isMainThread2)
+    {
+      console.log("data listening");
+      console.log(inPort);
+      try{
+          dataServer.listen(inPort);
+          console.log("Data server has closed.")
+      }
+      catch(err){
+        console.log("Data server error has occurred.");
+      }
     }
   }
 }
@@ -347,9 +363,10 @@ if(isMainThread)
   console.log("Ctrl listening");
   try{
       thriftServer.listen(9090);
+      console.log("Control server has shut down.")
   }
   catch(err){
-    console.log("Control server has shut down");
+    console.log("Control server error has occurred.");
   }
 }
 
