@@ -30,5 +30,6 @@ service AgentInterface
   void Fire(1:string token),
   string GetSceneData(1:string token),
   string GetImageData(1:string token),
-  Pose GetPose(1:string token)
+  Pose GetPose(1:string token),
+  void StartDataServer(1:i16 portno)
 }
