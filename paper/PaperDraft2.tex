@@ -79,14 +79,17 @@ delays. The more delay that is introduced, the more the data and validity of the
 minimizes hindrance of the simulation and its core goals. Multi-body simulations require that, at a minimum, coordinates and orientations of bodies subject to physics and dynamics 
 calculations be routinely transmitted at reliable intervals.
 
-These are all concerns of NodeTank. While they may be to a lesser degree, as NodeTank is a game rather than a tool for executing experiments for research, they will be valid concerns
+These are all concerns of our case study, NodeTank. While they may be to a lesser degree, as NodeTank is a game rather than a tool for executing experiments for research, they will be valid concerns
  to the degree of their perceptibility. As delays grow, corresponds to the players’ abilities to enjoy the experience decline.
 
 \section{Background}
 
-As this protocol will work with 3D graphical data, we need to present some prerequisite ideas that the reader may not be
-familiar with. Since the purpose of this paper is not to discuss how 3D graphics work, the explanation will be kept brief 
-as to only build up the necessary intuition. 
+Before we may continue to discuss testing methodologies for centralized simulations, we should take a look at what exactly a centralized asynchronous simulation is. 
+In this section, we will take a look at the high-level overview of such a simulation before delving into the specific type of data utilized by NodeTank.
+
+\subsection{Architecture}
+
+In attempting to understand the 
 
 \subsection{3D Rendering at a High Level}
 
@@ -245,11 +248,14 @@ Retrieved from https://search-proquest-com.huaryu.kl.oakland.edu/docview/1881527
 Synthetic and Human-Like Agents”, 2019, Available: https://arxiv.org/pdf/1906.00317.pdf
 	
 [3] R. Rezin, ”Model Checking in multiplayer games development”, Innopolis University, 
-2017, Available: https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8432324
+2017, Available: https://arxiv.org/pdf/1712.01207.pdf
 
 [4] R. Hofer “DIS Today”, 1995, Available:
 https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=400453
 
 [5] J.Peusaari, “Distributed Issues in Real-Time Interactive Simulations”, Department of Technology Lappeenranta University of Technology, Finland,
  Available: https://ieeexplore.ieee.org/abstract/document/5361761
+ 
+[6] J. Smed, "Aspects of Networking in Multiplayer Computer Games", Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
+Available: https://www.researchgate.net/publication/269251176_Aspects_of_Networking_in_Multiplayer_Computer_Games
 \end{document}
