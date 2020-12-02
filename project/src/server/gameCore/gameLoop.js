@@ -266,13 +266,19 @@ var RestartServerFunc = function(){
   let socketManager = require("./socket-manager");
   socketManager.testingCall("Restart",{});
 }
+var GetCasesFunc = function(){
+  let socketManager = require("./socket-manager");
+  socketManager.testingCall("GetTestCases",{});
+  return socketManager.getCases();
+}
 
 dataServer = thrift.createServer(dataInterface,{
   GetGameData:     GetGameDataFunc,
   ExecuteTests:    ExecuteTestsFunc,
   GetTestResults:  GetTestResultsFunc,
   ExecuteTest:     ExecuteTestFunc,
-  RestartServer:   RestartServerFunc
+  RestartServer:   RestartServerFunc,
+  GetTestCases:        GetCasesFunc
 });
 
 var GetTokenByNameFunc = function(name)

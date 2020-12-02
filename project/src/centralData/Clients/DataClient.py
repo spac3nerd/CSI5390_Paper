@@ -31,3 +31,15 @@ class Data(ClientConnector):
         for i in range(n):
             self.Client.ExecuteTest(i)
             time.sleep(.5)
+    def GetTestCases(self):
+        prev = self.Client.GetTestCases()
+        time.sleep(.125)
+        t = time.time()
+        while(len(prev)==0 and time.time()-t < 5):
+            if(len(prev)>0):
+                break
+            prev = self.Client.GetTestCases()
+            time.sleep(.125)
+        if(len(prev)>0):
+            return [ x.strip().split('\n')[0] for x in json.loads(prev)]
+        return []

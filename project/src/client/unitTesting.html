@@ -783,6 +783,13 @@ autoSocket.on("GetResults",()=>{
     }
     autoSocket.emit("TestResults",JSON.stringify(results));
 });
+autoSocket.on("GetTestCases",()=>{
+  results = [];
+  for (let k = 0; k < t.registeredTestCases.length; k++) {
+      results.push(t.registeredTestCases[k].text());
+    }
+  autoSocket.emit("TestCases",JSON.stringify(results));
+});
 autoSocket.on("RunTest",(testNumber)=>{
   testNumber = (testNumber%18)+1;
   switch (testNumber)
