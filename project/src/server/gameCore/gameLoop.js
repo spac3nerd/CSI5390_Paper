@@ -263,8 +263,8 @@ var GetTestResultsFunc = function(){
 }
 var RestartServerFunc = function(){
   console.log("RestartServer called");
-  let socketManager = require("./socket-manager");
-  socketManager.testingCall("Restart",{});
+  let gstate = require("./global-state");
+  gstate.setResetServer(true);
 }
 var GetCasesFunc = function(){
   let socketManager = require("./socket-manager");

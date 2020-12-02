@@ -20,17 +20,20 @@ def TestResultAssist(results):
 class Data(ClientConnector):
     def __init__(self,IPAddr='127.0.0.1',port=9091):
         super().__init__(DataInterface,IPAddr,port)
+        self.Delay = .25
     def GetTestResults(self):
         if(self.Transport.isOpen()):
             results = self.Client.GetTestResults()
-            if(len(results)==0):
+            while(len(results)==0):
                 results = self.Client.GetTestResults()
             return TestResultAssist(results)
         return []
+    def SetDelay(self,delay):
+        self.Delay = delay
     def RunTests(self,n):
         for i in range(n):
             self.Client.ExecuteTest(i)
-            time.sleep(.5)
+            time.sleep(self.Delay)
     def GetTestCases(self):
         prev = self.Client.GetTestCases()
         time.sleep(.125)

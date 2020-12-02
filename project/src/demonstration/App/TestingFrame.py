@@ -10,12 +10,10 @@ import time
 gameDescriptor = "game"
 testDescriptor = "testing"
 
-hostedPage = "173.255.226.26"
-localhost  = '127.0.0.1'
-ip         = localhost
+# ctrlClient = Clients.Control(ip,9090)
+# dataClient = Clients.Data(ip,9091)
 
-ctrlClient = Clients.Control(ip,9090)
-dataClient = Clients.Data(ip,9091)
+
 
 def GetDataClient():
     with ctrlClient as ctrl:
@@ -63,20 +61,29 @@ class View(wx.Panel):
         self.Sz       = wx.BoxSizer(wx.VERTICAL)
         self.BtnSizer = wx.BoxSizer(wx.HORIZONTAL)
 
+        self.servers = ["127.0.0.1","173.255.226.26"]
+        self.current = 0
+        self.ip      = self.servers[self.current]
+
         self.Panel    = wx.Panel(self,id=wx.ID_ANY,style=wx.BORDER_SUNKEN)
         self.BPanel   = wx.Panel(self,id=wx.ID_ANY)
 
-        self.button1  = wx.Button(self.BPanel,label='button1')
-        self.button2  = wx.Button(self.BPanel,label='button2')
+        self.textDisp = wx.StaticText(self.BPanel,wx.ID_ANY,label="Using: "+self.ip)
+        self.button1  = wx.Button(self.BPanel,label='ToggleServer')
+        self.button2  = wx.Button(self.BPanel,label='CheckTests')
         self.button3  = wx.Button(self.BPanel,label='PopulateTests')
+        self.button4  = wx.Button(self.BPanel,label='RunTests')
 
-        self.button1.Bind(wx.EVT_BUTTON,self.OnAdd)
+        self.button1.Bind(wx.EVT_BUTTON,self.Toggle)
         self.button2.Bind(wx.EVT_BUTTON,self.OnSecond)
-        self.button3.Bind(wx.EVT_BUTTON,self.OnThird)
+        self.button4.Bind(wx.EVT_BUTTON,self.OnRun)
+        self.button3.Bind(wx.EVT_BUTTON,self.OnCheckTests)
 
         self.BtnSizer.Add(self.button1,0,wx.ALL,5)
         self.BtnSizer.Add(self.button2,0,wx.ALL,5)
+        self.BtnSizer.Add(self.button4,0,wx.ALL,5)
         self.BtnSizer.Add(self.button3,0,wx.ALL,5)
+        self.BtnSizer.Add(self.textDisp,0,wx.ALL,5)
 
         self.Horiz.Add(self.BPanel,0,wx.ALL,5)
         self.Horiz.Add(self.Panel,0,wx.ALL,5)
@@ -85,39 +92,76 @@ class View(wx.Panel):
         self.Panel.SetSizer(self.Sz)
         self.SetSizer(self.Horiz)
 
+        self.FirstRun = True
         self.Disps = []
-        self.LoadTestThings()
+        # self.LoadTestThings()
+        self.SetEnabledButton(3)
+        self.button1.Enable()
 
+    def RemoveIt(self):
+        for item in self.Disps:
+            item.Destroy()
+        self.Disps = []
+        self.Horiz.Layout()
+    def SetEnabledButton(self,*btns):
+        buttons = [self.button1,self.button2,self.button4,self.button3]
+        for button in buttons:
+            button.Disable()
+        for i,button in enumerate(buttons):
+            if(i in btns):
+                button.Enable()
     def LoadTestThings(self):
         self.browser = BrowserManager()
-        self.browser.AddBasePage('http://'+ip)
+        self.browser.AddBasePage('http://'+self.ip)
         self.browser.AddSubPage(gameDescriptor,"")
         self.browser.AddSubPage(testDescriptor,"unitTesting")
-        self.ctrlClient = Clients.Control(ip,9090)
-        self.dataClient = Clients.Data(ip,9091)
+        if(self.FirstRun==False):
+            if(self.ctrlClient.DefaultIp != self.ip):
+                self.ctrlClient.Transport.close()
+                self.dataClient.Transport.close()
+        self.ctrlClient = Clients.Control(self.ip,9090)
+        self.dataClient = Clients.Data(self.ip,9091)
 
-    def OnAdd(self,event):
-        self.Add("asdfasdf")
-        self.Horiz.Layout()
+    def Toggle(self,event):
+        self.current += 1
+        self.current = self.current%2
+        self.ip = self.servers[self.current]
+        self.textDisp.SetLabel("Using: "+self.ip)
+        self.RemoveIt()
+
+    def OnRun(self,event):
+        self.SetEnabledButton(-1)
+        self.dataClient.RunTests(len(self.Disps))
+        time.sleep(2)
+        self.SetEnabledButton(1)
 
     def OnSecond(self,event):
-        t   = int(time.time())
-        pos = t%len(self.Disps)
-        self.Disps[pos].SetValue("lll")
-        self.Disps[pos].MakeRed()
+        res = self.dataClient.GetTestResults()
+        for a,b in res:
+            if(b==True):
+                self.Disps[a-1].MarkSucceeded()
+                self.Disps[a-1].Refresh()
+            else:
+                self.Disps[a-1].MarkFailed()
+                self.Disps[a-1].Refresh()
+        self.SetEnabledButton(0,3)
 
-    def OnThird(self,event):
+    def OnCheckTests(self,event):
+        self.SetEnabledButton(-1)
+        self.LoadTestThings()
         self.browser.Load(testDescriptor)
         time.sleep(2)
 
         with self.ctrlClient as ctrl:
             ctrl.Client.StartDataServer(9091)
         self.dataClient.AutoConnect()
+        self.FirstRun = False
 
         cases = self.dataClient.GetTestCases()
         for item in cases:
             self.Add(item)
         self.Horiz.Layout()
+        self.SetEnabledButton(2)
 
     def Add(self,text):
         self.Disps.append(AddItem(text,self.Panel,self.Sz))
