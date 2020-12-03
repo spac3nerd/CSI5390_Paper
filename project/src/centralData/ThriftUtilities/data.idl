@@ -7,5 +7,6 @@ service DataInterface
   void ExecuteTest(1:i32 testNumber),
   void ExecuteTests(),
   void RestartServer(),
+  string GetTestCases(),
   string GetTestResults()
 }

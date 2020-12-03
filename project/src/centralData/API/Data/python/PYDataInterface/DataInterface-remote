@@ -28,6 +28,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('  void ExecuteTest(i32 testNumber)')
     print('  void ExecuteTests()')
     print('  void RestartServer()')
+    print('  string GetTestCases()')
     print('  string GetTestResults()')
     print('')
     sys.exit(0)
@@ -131,6 +132,12 @@ elif cmd == 'RestartServer':
         print('RestartServer requires 0 args')
         sys.exit(1)
     pp.pprint(client.RestartServer())
+
+elif cmd == 'GetTestCases':
+    if len(args) != 0:
+        print('GetTestCases requires 0 args')
+        sys.exit(1)
+    pp.pprint(client.GetTestCases())
 
 elif cmd == 'GetTestResults':
     if len(args) != 0:
