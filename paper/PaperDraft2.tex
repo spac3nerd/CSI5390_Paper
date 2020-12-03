@@ -106,13 +106,30 @@ however we cannot maintain the type of centralized simulation which is pertinent
 
 \begin{figure}[htbp]
 \centerline{\includegraphics [width = 9cm, height = 5cm] {NetworkArchitecture.jpg}}
-\caption{Example of a peer to peer and client server architecture}
+\caption{Example of a Client-Server and Peer-Peer Architecture}
 \end{figure}
 
 Another type of network architecture exists which has one server serve multiple clients, client-server(Fig. 1). In this type of architecture, one node is designated as the server,
 and all authoritative communication is handled through it before being sent to the clients[6]. As noted in Fig 1, we can see that any number of clients may connect to the server
 at any one time, and clients do not have to be fully connected since the server is the authoritative source. The client-server architecture will be the target of our testing methodologies
-and framework. Although peer-peer has its own valid use cases, it is not appropriate for a centralized simulation and would likewise necessitate a different approach to testing.
+and framework. Although peer-peer has its own valid use cases, it is not appropriate for a centralized simulation and would likewise necessitate a different approach to testing, and thus,
+the remainder of this paper will serve a client-server architecture.
+
+With the type of architecture selected, the only remaining task is to introduce the mechanism by which one node communicates with another node. For example, we must answer
+the question of how Client 1 and send and receive information from Client 4. Clearly, given that we need to have a centralized simulation, that information must pass through 
+the server. The only remaining question is how the server is not only connected to each client, but when that information is to be relayed. There are generally two methods of transmitting
+data to and from clients: unicast or broadcast[6]. Fig. 2 demonstrates a high-level overview of the two transmission types. 
+
+The main distinction being that unicast allows one node to initate and send some data to a different node while broadcast allows a node to send information to all other nodes at the same time. 
+Intuitively, this implies that an unicast approach would have to initiate and conduct as many transactions as there are nodes. Naturally, this does not happen simultaneously and given sufficient nodes,
+the probability that the simulation comes out of sync between clients increases. Therefore, since there is only one true simulation in the system, it becomes advantageous to leverage the ability of 
+to broadcast a message simultaneously to all other nodes. The advantage of on-time dispatching of data becomes ever more noticeable when dealing with the type of software we will discuss in the case study, multiplayer
+games. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 5cm] {TransmissionArchitecture.jpg}}
+\caption{Example of Unicast and Broadcast Transmission Architecture}
+\end{figure}
 
 \subsection{3D Rendering at a High Level}
 
@@ -222,15 +239,7 @@ or malicious data by willfully introducing it to one client, and checking if the
 
 \section{Implementation}
 
-With the all of the prerequisite work complete, the implementation of the the game and protocol will be discussed. For reference,
-the project code is located at (https://github.com/spac3nerd/CSI-5390Proj). The nodejs server 
-will need to run both traditional HTTP transactons and socket transactions. The HTTP transactions are used to ask the server if 
-there are any open spots in the game, and whether access is granted to a new player. If access is granted, then the server will return 
-an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
-with the token and a tunnel is established between the client and the server. 
 
-In the following sections we will cover the specific testing implementations with the goal of addressing the problem of rigorously testing NodeTank, or any 
-other multiplayer game built on the NodeJS platform. 
 
 
 \subsection{Automated Functional Testing}
@@ -255,8 +264,89 @@ Discuss the setup for the trained model - the tools and automatic invocation
 
 \section{Case Study}
 
-Discuss the specificics of the game architecture here - show the actual code and frameworks
+With the all of the prerequisite work complete, the implementation of the testing framework for the game and protocol will be discussed. For reference,
+the project code is located at (https://github.com/spac3nerd/CSI-5390Proj). The NodeJS server 
+will need to run both traditional HTTP transactons and socket transactions. The HTTP transactions are used to ask the server if 
+there are any open spots in the game, and whether access is granted to a new player. If access is granted, then the server will return 
+an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
+with the token and a tunnel is established between the client and the server. Fig 7. shows the game being played by three players, with
+the blue tank being controlled by the current instance.  
 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 5cm] {GameScreenshot.jpg}}
+\caption{Example of Unicast and Broadcast Transmission Architecture}
+\end{figure}
+
+Note that each player has his own score count,a representation of all of the other tanks as well as any bullets which were fire, and finally, a chat area
+in which any player may type a message to send to all other players at any time. To The full list of rules to the game are as follows:
+
+\begin{itemize}
+  \item A Player may move his own tank in any direction at any time.
+  \item A Player may aim the tank and fire a bullet at any time.
+  \item If a Player's bullet intersects another tank, that tank is destroyed and a point added to Player.
+  \item If a Player's tank reaches the red area, their tank will be destroyed and a point deducted.
+  \item A Player may send a message to all other players at any time.
+\end{itemize}
+
+With all of NodeTank's rules layed out, we have the knowledge necessary to start building up the types of test cases and tests we require. 
+In the following sections we will cover the specific testing implementations with the goal of addressing the problem of rigorously testing NodeTank, however, these techniques 
+are easily applicable to other multiplayer games built on the NodeJS platform. 
+
+\subsection{Automated Client-side Testing}
+
+As mentioned in the Implementation section, each client has either the ability to affect the simulation in some fashion, or is at least capable of receiving an updated
+version of the simulation. In the case of NodeTank, each client is responsible for controlling one tank according to the aforementioned rules of the game. As previously mentioned,
+instead of simply unit testing in the traditional sense(isolating one function at a time ), but instead attempt to perform a test based upon some use case or rule of the game we will
+ benefit from being able to not only test the individual action on one client, but across all clients. Let's take the first rule of the game for example and infer the implications for the entire system 
+ of that action being actionable. If a Player A is to move in any direction, then clearly that movement must be rendered in Player A's simuluation at the very least. To allow for interactivity, 
+ the movement must be rendered in the simulation of all other players, which implies that the server must correctly receive, process and send a correct update to all players. 
+ 
+ The proposed implementation called for a testing library to be written, which caters to the peculiarities of a case such as NodeTank while providing generalized functionality for all 
+ applications of the same architecture. Recall the class diagram in Fig 8. layed out the server-side and client-side classes utilized by the game. The authors have implemented a framework
+ under a class entity called "NodeTankTesting", which is coupled into one more more instances of the client-side. The applied changes are visualized in the Fig. 9 daigram. At a high-level,
+ the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 5cm] {ClassDiagramWithTesting.jpg}}
+\caption{Modified Class Diagram with Testing Framework}
+\end{figure}
+
+This testing framework relies on the ability to access the internal state of any client instance of NodeTank. The reader may be interested to know that the author of NodeTank 
+elected to utilize the prototype pattern, which is a JavaScript design pattern which allows for great control over inheritance while exposing any closures to outside observers[7]. For example, 
+let's take the Game class from the client-side in consideration. In Fig 10. we can see that the variable "game" is defined into two sections: there is a function declaration, whose body functionally 
+behaves like a constructor, and a prototype assignment, which is a set of methods inherited by all instances of game. The keen reader will note that this is not quite the same classical inheritance
+mechanism utilized by languages such as Java, however we will continue to refer to them as classes as functionally they behave similarly enough.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 5cm] {GameCodeSnippet.jpg}}
+\caption{Snippet of the Game Class}
+\end{figure}
+
+The benefit of the prototype pattern is that we are able to inspect the internal state of any game instance running in the brwoser, and we are also able to programatically induce 
+any inputs such as movement, firing and entering new chat items. Fig 11. is an example of inspecting the entire instance of NodeTank and the position of the player tank programatically.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 2.8cm] {GameInspection.jpg}}
+\caption{Inspecting an Instance of NodeTank}
+\end{figure}
+
+Now that we have a handle to a game instance, we can begin to write some test cases which will allow us to test every client-side functionality of the game. For example, before a player can
+connect to the server, the connection must first be negotiated over a HTTP call. The testing framework has a builtin to send the negotiation request along with the player's desired name, and if the 
+server is not at the maximum player capacity, it will respond with an unique token which will be used from thereon as an identifier. In order to test this functionality, we can programatically request
+the new connection and verify that a token was issued (or denied) as expected. In Fig 12. we can see the implementation of this test - note that "t" refers to the testing framework and that the "requestToken"
+function requires that a callback be provided, which is called whenever the response for the token request is received. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 2.8cm] {TokenTestSnippet.jpg}}
+\caption{Snippet of Test Case for Requesting a Token}
+\end{figure}
+
+However, a problem remains with this approach in that the test case will work as intended if manually invoked in isolation. Consider that the call itself is asynchronous - we cannot block the 
+main (and only) thread on the client-side while we wait for a response to come back from the server, doing so would pause the client-side simulation at every network interaction and there would be no interactivity! 
+Suppose that we wish to have an entire suite of tests, and that some of those tests rely on the previous test completing before being invoked. If a string of synchronous function calls would be utilized
+in testing, then we would have no mechanism by which to ensure that test B is only called after test A completed if test A is at all asynchronous. Therefore, a more intelligent design pattern must 
+be leveraged in order to allow the framework to test all cases automatically. Fig 13. showcases the desired sequence diagram for launching two tests at the correct time without blocking the main thread. 
 
 \section{Conclusion}
 
@@ -281,4 +371,7 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=400453
  
 [6] J. Smed, “Aspects of Networking in Multiplayer Computer Games“, Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
 Available: https://www.researchgate.net/publication/269251176_Aspects_of_Networking_in_Multiplayer_Computer_Games
+
+[7] A. Osmani "JavaScript Patterns", Book, 2012, Available: https://addyosmani.com/resources/essentialjsdesignpatterns/book/
 \end{document}
+

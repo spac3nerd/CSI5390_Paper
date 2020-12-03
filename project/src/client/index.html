@@ -111,7 +111,7 @@
             function fetchPlayers() {
                 sendRequest("GET", playerCountEndPoint, {}, function(response) {
                     if (response.success) {
-                        console.log(response.data.count);
+                        // console.log(response.data.count);
                         activePlayerField.innerText = response.data.count;
                     }
                 });
