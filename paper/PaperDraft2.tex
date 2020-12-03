@@ -40,17 +40,25 @@ Testing, Nodejs, networking, multiplayer, WebSocket, software engineering
 \end{IEEEkeywords}
 
 \section{Introduction}
-In our work we aim to create a testing framework for an online multiplayer javascript application called NodeTank. This application involves two primary components,
-a server, and one or more connected clients. Each client instance renders the play environment to the players as well as a tank object and accepts control inputs from
+In our work we aim to create a testing framework for centralized simulations serving one or more clients concurrently. In order to accomplish the goal of serving
+multiple clients concurrently and in a timely manner, the server must communicate with the clients in an asynchronous manner in that there can be no reliance
+on confirming whether a data packet was received successfully, the server simply broadcasts any updates to the simulation state to all clients. With these considerations
+in mind, any rigorous and complete testing must account for these features. We will be introducing a number of different approaches with which to build a complete, end to end
+testing framework which can be used to ensure the correctness and completeness of any system utilizing a centralized simulation.
+
+Unit testing can be achieved through traditional means of subjecting applicable functions to predetermined inputs and comparing their results to expected results.
+Functional testing presents a less straight-forward solution. For example, instead of treating testing in the traditional sense of invoking one method at a time,
+we can designate a certain action within the game to be the target of functional testing. Taking it one step further, we have the end-goal of automating such a process such that
+it can be invoked with little operator input, akin to how a set of unit tests would function. In order to acomplish the task of automation, we will provide solutions to the problem
+of asynchronicity.
+
+In the latter half of the paper, we will be introducing an actual instance of such a simulation, a browser-based online multiplayer javascript application called NodeTank.
+This application involves two primary components, a server, and one or more connected clients. Each client instance renders the game environment to the players as well as a tank object which accepts control inputs from
 a player. Client instances are responsible for forwarding control inputs to the server. The server is responsible for tracking and maintaining state information relevant
 to the gameplay. Various examples of state include health status, position, and orientation. This information needs to be forwarded from the server to the client applications
 with minimal latency in order to provide a continuous stream of snapshots of the game’s state. Client applications are also responsible for recreating and displaying this
-information for the player with the end-goal of providing all players with consistent up-to-date information.
-
-Unit testing can be achieved through traditional means of subjecting applicable functions to predetermined inputs and comparing their results to expected results.
-Functional testing presents a less straight-forward solution. In the basic case, there are two clients and one server, three separate processes that are interacting
-with one another. These interactions can potentially generate a very wide range of outputs and behaviors of which only a very small subset would be
-considered correct. Not only do the specific actions and reactions between these processes determine program correctness, but the timing between them determine correctness.
+information for the player with the end-goal of providing all players with consistent up-to-date information. We will apply the framework concepts developed in the former sections to this
+case study to demonstrate its efficacy.
 
 \section{Related Works}
 
@@ -91,19 +99,24 @@ any results of a test run should also be collected and delivered to the single t
 Current design will feature the integration of the Labstreaminglayer tool and a Labstreaminglayer server. This tool will allow for the collection of any data or output
 deemed necessary for a given test. It will allow for record sub-millisecond timing of events from multiple machines over a local area network.
 
-For the goal of developing and testing the game locally on one machine, we will also be able to leverage the fact that it is built to run in the browser on
-an interpreted language to run test suites end to end. Firstly, we will investigate an approach similar to Ariyurek et al[2] in order to develop an automated
-system to test the application as well as to automatically find problems with it. Secondly, the fact that the application in its unobstructed build state will have
-its internal state visible and inspectable from the outside. That is to say, if we were to run multiple client simulations concurrently, we would be able to inspect
-the state of the simulation on each one of the said client machines independently. This would allow us to inspect the correctness of the model in real time from the
-perspective of each client. Likewise, the fact that we could control each client independently, we will be able to gauge the susceptibility of the simulation to erroneous
-or malicious data by willfully introducing it to one client, and checking if the erroneous data was propagated to the other clients.
+\subsection{Network Architecture}
 
-\section{Background}
+In attempting to understand the architecture of a centralized simulation, we must also understand under which cirmucstances such an architecture is desired. For example,
+let's assume that we have some data that we would like to share between one or more clients, with a client being a receiver which is interested in some data. At a very high level, such
+a data sharing layout can be split into two categories: peer-peer and client-server. Smed et. al[6] describes the different layouts in detail, however, generally a peer-peer architecture
+is defined as having two or more clients which have all, or part of some data which is then shared equally each peer(Fig. 1). In this scenario, each client is equal to every other client, and thus,
+would have to be fully connected to one another[6]. This type of architecture has its own advantages when it comes to certain types of systems, such as file sharing and lock-step simulations,
+however we cannot maintain the type of centralized simulation which is pertinent to our topic.
 
-As this protocol will work with 3D graphical data, we need to present some prerequisite ideas that the reader may not be
-familiar with. Since the purpose of this paper is not to discuss how 3D graphics work, the explanation will be kept brief
-as to only build up the necessary intuition.
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 5cm] {NetworkArchitecture.jpg}}
+\caption{Example of a peer to peer and client server architecture}
+\end{figure}
+
+Another type of network architecture exists which has one server serve multiple clients, client-server(Fig. 1). In this type of architecture, one node is designated as the server,
+and all authoritative communication is handled through it before being sent to the clients[6]. As noted in Fig 1, we can see that any number of clients may connect to the server
+at any one time, and clients do not have to be fully connected since the server is the authoritative source. The client-server architecture will be the target of our testing methodologies
+and framework. Although peer-peer has its own valid use cases, it is not appropriate for a centralized simulation and would likewise necessitate a different approach to testing.
 
 \subsection{3D Rendering at a High Level}
 
@@ -259,4 +272,7 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=400453
 
 [5] J.Peusaari, “Distributed Issues in Real-Time Interactive Simulations”, Department of Technology Lappeenranta University of Technology, Finland,
  Available: https://ieeexplore.ieee.org/abstract/document/5361761
+
+[6] J. Smed, “Aspects of Networking in Multiplayer Computer Games“, Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
+Available: https://www.researchgate.net/publication/269251176\_Aspects\_of\_Networking\_in\_Multiplayer\_Computer\_Games
 \end{document}
