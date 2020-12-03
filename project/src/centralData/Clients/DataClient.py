@@ -20,7 +20,7 @@ def TestResultAssist(results):
 class Data(ClientConnector):
     def __init__(self,IPAddr='127.0.0.1',port=9091):
         super().__init__(DataInterface,IPAddr,port)
-        self.Delay = .25
+        self.Delay = .5
     def GetTestResults(self):
         if(self.Transport.isOpen()):
             results = self.Client.GetTestResults()
