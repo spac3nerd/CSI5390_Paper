@@ -87,12 +87,12 @@ These are all concerns of our case study, NodeTank. While they may be to a lesse
 Before we may continue to discuss testing methodologies for centralized simulations, we should take a look at what exactly a centralized asynchronous simulation is. 
 In this section, we will take a look at the high-level overview of such a simulation before delving into the specific type of data utilized by NodeTank.
 
-\subsection{Architecture}
+\subsection{Network Architecture}
 
 In attempting to understand the architecture of a centralized simulation, we must also understand under which cirmucstances such an architecture is desired. For example,
 let's assume that we have some data that we would like to share between one or more clients, with a client being a receiver which is interested in some data. At a very high level, such
 a data sharing layout can be split into two categories: peer-peer and client-server. Smed et. al[6] describes the different layouts in detail, however, generally a peer-peer architecture 
-is defined as having two or more clients which have all, or part of some data which is then shared equally each peer. In this scenario, each client is equal to every other client, and thus,
+is defined as having two or more clients which have all, or part of some data which is then shared equally each peer(Fig. 1). In this scenario, each client is equal to every other client, and thus,
 would have to be fully connected to one another[6]. This type of architecture has its own advantages when it comes to certain types of systems, such as file sharing and lock-step simulations,
 however we cannot maintain the type of centralized simulation which is pertinent to our topic. 
 
@@ -101,6 +101,10 @@ however we cannot maintain the type of centralized simulation which is pertinent
 \caption{Example of a peer to peer and client server architecture}
 \end{figure}
 
+Another type of network architecture exists which has one server serve multiple clients, client-server(Fig. 1). In this type of architecture, one node is designated as the server,
+and all authoritative communication is handled through it before being sent to the clients[6]. As noted in Fig 1, we can see that any number of clients may connect to the server
+at any one time, and clients do not have to be fully connected since the server is the authoritative source. The client-server architecture will be the target of our testing methodologies
+and framework. Although peer-peer has its own valid use cases, it is not appropriate for a centralized simulation and would likewise necessitate a different approach to testing.
 
 \subsection{3D Rendering at a High Level}
 
@@ -267,6 +271,6 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=400453
 [5] J.Peusaari, “Distributed Issues in Real-Time Interactive Simulations”, Department of Technology Lappeenranta University of Technology, Finland,
  Available: https://ieeexplore.ieee.org/abstract/document/5361761
  
-[6] J. Smed, "Aspects of Networking in Multiplayer Computer Games", Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
+[6] J. Smed, “Aspects of Networking in Multiplayer Computer Games“, Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
 Available: https://www.researchgate.net/publication/269251176_Aspects_of_Networking_in_Multiplayer_Computer_Games
 \end{document}
