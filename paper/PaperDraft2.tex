@@ -40,17 +40,25 @@ Testing, Nodejs, networking, multiplayer, WebSocket, software engineering
 \end{IEEEkeywords}
 
 \section{Introduction}
-In our work we aim to create a testing framework for an online multiplayer javascript application called NodeTank. This application involves two primary components, 
-a server, and one or more connected clients. Each client instance renders the play environment to the players as well as a tank object and accepts control inputs from 
+In our work we aim to create a testing framework for centralized simulations serving one or more clients concurrently. In order to accomplish the goal of serving
+multiple clients concurrently and in a timely manner, the server must communicate with the clients in an asynchronous manner in that there can be no reliance 
+on confirming whether a data packet was received successfully, the server simply broadcasts any updates to the simulation state to all clients. With these considerations
+in mind, any rigorous and complete testing must account for these features. We will be introducing a number of different approaches with which to build a complete, end to end
+testing framework which can be used to ensure the correctness and completeness of any system utilizing a centralized simulation.
+
+Unit testing can be achieved through traditional means of subjecting applicable functions to predetermined inputs and comparing their results to expected results. 
+Functional testing presents a less straight-forward solution. For example, instead of treating testing in the traditional sense of invoking one method at a time,
+we can designate a certain action within the game to be the target of functional testing. Taking it one step further, we have the end-goal of automating such a process such that 
+it can be invoked with little operator input, akin to how a set of unit tests would function. In order to acomplish the task of automation, we will provide solutions to the problem
+of asynchronicity.
+
+In the latter half of the paper, we will be introducing an actual instance of such a simulation, a browser-based online multiplayer javascript application called NodeTank. 
+This application involves two primary components, a server, and one or more connected clients. Each client instance renders the game environment to the players as well as a tank object which accepts control inputs from 
 a player. Client instances are responsible for forwarding control inputs to the server. The server is responsible for tracking and maintaining state information relevant 
 to the gameplay. Various examples of state include health status, position, and orientation. This information needs to be forwarded from the server to the client applications 
 with minimal latency in order to provide a continuous stream of snapshots of the game’s state. Client applications are also responsible for recreating and displaying this 
-information for the player with the end-goal of providing all players with consistent up-to-date information.
-
-Unit testing can be achieved through traditional means of subjecting applicable functions to predetermined inputs and comparing their results to expected results. 
-Functional testing presents a less straight-forward solution. In the basic case, there are two clients and one server, three separate processes that are interacting 
-with one another. These interactions can potentially generate a very wide range of outputs and behaviors of which only a very small subset would be 
-considered correct. Not only do the specific actions and reactions between these processes determine program correctness, but the timing between them determine correctness.
+information for the player with the end-goal of providing all players with consistent up-to-date information. We will apply the framework concepts developed in the former sections to this 
+case study to demonstrate its efficacy. 
 
 \section{Related Works}
 
