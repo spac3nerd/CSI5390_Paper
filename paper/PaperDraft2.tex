@@ -58,7 +58,7 @@ a player. Client instances are responsible for forwarding control inputs to the 
 to the gameplay. Various examples of state include health status, position, and orientation. This information needs to be forwarded from the server to the client applications 
 with minimal latency in order to provide a continuous stream of snapshots of the game’s state. Client applications are also responsible for recreating and displaying this 
 information for the player with the end-goal of providing all players with consistent up-to-date information. We will apply the framework concepts developed in the former sections to this 
-case study to demonstrate its efficacy. 
+case study to demonstrate its efficacy.
 
 \section{Related Works}
 
@@ -87,7 +87,7 @@ delays. The more delay that is introduced, the more the data and validity of the
 minimizes hindrance of the simulation and its core goals. Multi-body simulations require that, at a minimum, coordinates and orientations of bodies subject to physics and dynamics 
 calculations be routinely transmitted at reliable intervals.
 
-These are all concerns of our case study, NodeTank. While they may be to a lesser degree, as NodeTank is a game rather than a tool for executing experiments for research, they will be valid concerns
+These are all concerns of NodeTank. While they may be to a lesser degree, as NodeTank is a game rather than a tool for executing experiments for research, they will be valid concerns
  to the degree of their perceptibility. As delays grow, corresponds to the players’ abilities to enjoy the experience decline.
 
 \section{Background}
@@ -148,7 +148,7 @@ along each one of the three axes (X, Y, Z). As such, a simple vector with three 
 \caption{Example of WebGL Coordinate System}
 \end{figure}
 
-However, simply listing the poistion is not sufficient in order to accurately map the object in space. An object may be rotated 
+However, simply listing the position is not sufficient in order to accurately map the object in space. An object may be rotated 
 around its position. Fig 2. shows a simple example of a car being rotates about the Z axis. The simplest method by which this information can be encoded 
 is to use another three component vector to keep track of the roation around each axis, and then apply each rotation to each axis in a cascading fashion. 
 This is commonly known as an Euler Angle, which is intuitive to use, but not sufficent enough in our use case due to the possibility of gimbal lock. 
@@ -189,7 +189,7 @@ Each one of these attributes may be encoded in a three dimensional vector(Fig 1)
 \caption{Complete Object State}
 \end{figure}
 
-Fig 6 shows our final object state. This will be our basic building blokc when we will discuss the protocol in detail, 
+Fig 6 shows our final object state. This will be our basic building block when we will discuss the protocol in detail, 
 as this will become the data packet which updates clients on the state of the simulation and the objects therein. 
 
 \subsection{Game Model}
@@ -211,7 +211,7 @@ to the size of the game field having granularity in the tens of millions and the
 With these considerations in mind, model checking has also been overlooked in favor of utilizing automated testing to test the 
 game directly for consistency in its rules. One thing of note is that the formal definition of the game rules for example, a valid x coordinate,
 is syntactically equivalent to the check the game logic would perform; therefore writting a model checking program is redundant in this specific 
-case. Fig 11 shows the formal definition along with the implementation of the rule. 
+case. Fig 11 shows the formal definition along with the implementation of the rule.  
 
 \begin{figure}[htbp]
 \[ (W_{xmin} \leq T_{x} \leq W_{xmax}) \]
@@ -257,9 +257,11 @@ has the implication that we would be able to inspect the state of each client co
 To be developed 
 
 
-\subsection{Trained Model Approach}
+\subsection{Remote Testing}
 
-Discuss the setup for the trained model - the tools and automatic invocation
+\subsubsection{Core RPC Services}Remote testing of the target application is achieved through an adaptable and extensible pair of RPC services. Two APIs, 'Data' and 'RemoteCtrl', that enable remote testing and they are capable of being updated and expanded quite easily as the application's range of behaviors grow during its lifetime. Each API service is defined in an IDL(Interface Description Language) file. Each defines the a service's name followed by generic a list call signatures of the functions that shoould be exposed by the service. The IDL offers several plain data types such booleans, floating points, a string type, and signed integers of the typical varying bit-widths. Basic C-style structures and enumerations may also be defined to add versatility to the services defined types.
+\subsubsection{RPC Adaptability}As the application grows and new types of interactions and information need to be handled, the same pair of IDL need only minor editing by the maintainer. Automatic generations scripts may be rerun at each stage of changing demand. The resulting output is a fully-formed supporting library in the target programming language of choice for, both, the client and server sides of each RPC service. The RPC-server half of each API is included and/or linked to from the simulation's server to allow both services awareness of and access to all necessary data of the simulation's clients. In the event of new or changing data types, the client simulation needs only to be rebuilt in the case of a compiled-language and no changes are required for interpreted languages. In the case of new or changing functions, the auto-generated RPC handlers need only be given function bodies by the tester. Building remote testing utilities for the simulation is easily done thanks to this process, as there are no dependencies between the programming language of the simulation's server and the RPC client. The RPC service itself manages all translation between native data types of the server and it's RPC client. This means the RPC service manages the serialization/deserialization and transport of all function arguments and return values, byte-order translation between differing host hardware, and member alignment between differing host operating environments. All these features allow for a simulation written in javascript, C++, Java, Python, C\#, etc. to agnostically cooperate with any client written in any other supported language and host operating environemnt.
+\subsubsection{Distributibility}With an underlying TCP or UDP transport layer, this remote testing strategy allows for a wide range of geographical testing configurations to be thuroughly explored. Testing and examination of the system may be performed in a close-proximity LAN configuration, or the simulation server and its clients may be much more georgraphically separated, communicating over the Internet with one another and the testing client itself.
 
 
 \section{Case Study}
@@ -297,7 +299,7 @@ are easily applicable to other multiplayer games built on the NodeJS platform.
 
 As mentioned in the Implementation section, each client has either the ability to affect the simulation in some fashion, or is at least capable of receiving an updated
 version of the simulation. In the case of NodeTank, each client is responsible for controlling one tank according to the aforementioned rules of the game. As previously mentioned,
-instead of simply unit testing in the traditional sense(isolating one function at a time ), but instead attempt to perform a test based upon some use case or rule of the game we will
+instead of simply unit testing in the traditional sense(isolating one function at a time), but instead attempt to perform a test based upon some use case or rule of the game we will
  benefit from being able to not only test the individual action on one client, but across all clients. Let's take the first rule of the game for example and infer the implications for the entire system 
  of that action being actionable. If a Player A is to move in any direction, then clearly that movement must be rendered in Player A's simuluation at the very least. To allow for interactivity, 
  the movement must be rendered in the simulation of all other players, which implies that the server must correctly receive, process and send a correct update to all players. 
@@ -348,13 +350,26 @@ Suppose that we wish to have an entire suite of tests, and that some of those te
 in testing, then we would have no mechanism by which to ensure that test B is only called after test A completed if test A is at all asynchronous. Therefore, a more intelligent design pattern must 
 be leveraged in order to allow the framework to test all cases automatically. Fig 13. showcases the desired sequence diagram for launching two tests at the correct time without blocking the main thread. 
 
+
+\subsection{Remote RPC Services}
+\subsubsection{Remote Testing Service}
+\paragraph{Hooks into the javascript testing framework}
+\subsubsection{Remote Control Service}
+\paragraph{Injecting user input}
+\paragraph{Extracting the rendered environment}
+
+
+
+
 \section{Conclusion}
 
 To be developed 
 
+\subsection{Future Work}
+
 \section{References}
 [1] A. Valadares, “Aspect-oriented architectural style for distributed interactive simulations”, 2016, 
-Available from ProQuest Dissertations & Theses Global. (1881527059). 
+Available from ProQuest Dissertations \& Theses Global. (1881527059). 
 Retrieved from https://search-proquest-com.huaryu.kl.oakland.edu/docview/1881527059?accountid=12924
 
 [2] S. Ariyurek, “Automated Video Game Testing Using
@@ -370,7 +385,7 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=400453
  Available: https://ieeexplore.ieee.org/abstract/document/5361761
  
 [6] J. Smed, “Aspects of Networking in Multiplayer Computer Games“, Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
-Available: https://www.researchgate.net/publication/269251176_Aspects_of_Networking_in_Multiplayer_Computer_Games
+Available: https://www.researchgate.net/publication/269251176\_Aspects\_of\_Networking\_in\_Multiplayer\_Computer\_Games
 
 [7] A. Osmani "JavaScript Patterns", Book, 2012, Available: https://addyosmani.com/resources/essentialjsdesignpatterns/book/
 \end{document}
