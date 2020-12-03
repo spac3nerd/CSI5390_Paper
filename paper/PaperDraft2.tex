@@ -244,12 +244,18 @@ To be developed
 
 \section{Case Study}
 \subsection{Remote RPC Services}
+Our implementation of the \textit{Data} and \textit{RemoteCtrl} APIs were built upon a tool known as Thrift, originally created by Facebook, but now managed by Apache. The RPC services contain several functions, between the two of them, for retrieving and executing testing and control operations including \textit{GetTokenByName}, \textit{GetPose}, \textit{SetMove}, \textit{Fire}, \textit{StartDataServer}, \textit{ExecuteTest}, \textit{GetTestResults}, and \textit{GetTestCases} to name a few. The RPC handlers of each RPC services are setup within \textit{gameCore}, the game's primary server. From here, they are pointed to the appropriate handling functions. These handlers allow for the computational logic of the services to access all the necessary information from \textit{gameLoop.js}, \textit{global-state.js}, and \textit{socket-manager.js}.
+
 \subsubsection{Remote Testing Service}
-\paragraph{Hooks into the javascript testing framework}
+Within \textit{gameCore} the RPC host objects are setup each to operate within their own thread, alongside the game's primary servers.
 \subsubsection{Remote Control Service}
 \paragraph{Injecting user input}
 \paragraph{Extracting the rendered environment}
 
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 5cm, height = 6cm] {images/remoteTesting.PNG}}
+\caption{Example of a testing application built using our remote testing APIs. This instance can cycle between multiple remote simulation servers. It populates a list of available unit tests available on that server, can execute them, and then presents the results to the tester by highlighting list items in green or red to indicate pass or fail respectively.}
+\end{figure}
 
 \section{Conclusion}
 \subsection{Future Work}
