@@ -98,11 +98,13 @@ class View(wx.Panel):
         self.SetEnabledButton(3)
         self.button1.Enable()
 
-    def RemoveIt(self):
+    def ClearPanel(self):
         for item in self.Disps:
             item.Destroy()
         self.Disps = []
         self.Horiz.Layout()
+        self.GetParent()._Resize()
+
     def SetEnabledButton(self,*btns):
         buttons = [self.button1,self.button2,self.button4,self.button3]
         for button in buttons:
@@ -127,7 +129,7 @@ class View(wx.Panel):
         self.current = self.current%2
         self.ip = self.servers[self.current]
         self.textDisp.SetLabel("Using: "+self.ip)
-        self.RemoveIt()
+        self.ClearPanel()
 
     def OnRun(self,event):
         self.SetEnabledButton(-1)
@@ -147,10 +149,13 @@ class View(wx.Panel):
         self.SetEnabledButton(0,3)
 
     def OnCheckTests(self,event):
+        print("size: {}".format(self.Horiz.GetSize()))
+        self.ClearPanel()
         self.SetEnabledButton(-1)
         self.LoadTestThings()
         self.browser.Load(testDescriptor)
         time.sleep(2)
+        print("size: {}".format(self.Horiz.GetSize()))
 
         with self.ctrlClient as ctrl:
             ctrl.Client.StartDataServer(9091)
@@ -172,5 +177,7 @@ class TestFrame(wx.Frame):
         wx.Frame.__init__(self,*args,**kwargs)
         self.Panel = View(self,
                           id  =wx.ID_ANY,
-                          size=(300,300),
+                          size=(550,550),
                           pos =(50,50))
+    def _Resize(self):
+        self.SetSize(self.Panel.GetSize())
