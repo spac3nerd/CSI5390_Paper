@@ -89,7 +89,13 @@ In this section, we will take a look at the high-level overview of such a simula
 
 \subsection{Architecture}
 
-In attempting to understand the 
+In attempting to understand the architecture of a centralized simulation, we must also understand under which cirmucstances such an architecture is desired. For example,
+let's assume that we have some data that we would like to share between one or more clients, with a client being a receiver which is interested in some data. At a very high level, such
+a data sharing layout can be split into two categories: peer-peer and client-server. Smed et. al[6] describes the different layouts in detail, however, generally a peer-peer architecture 
+is defined as having two or more clients which have all, or part of some data which is then shared equally each peer. In this scenario, each client is equal to every other client, and thus,
+would have to be fully connected to one another[6]. This type of architecture has its own advantages when it comes to certain types of systems, such as file sharing and lock-step simulations,
+however we cannot maintain the type of centralized simulation which is pertinent to our topic. 
+
 
 \subsection{3D Rendering at a High Level}
 
