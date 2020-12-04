@@ -289,8 +289,8 @@ case. Fig 11 shows the formal definition along with the implementation of the ru
 \end{figure}
 
 \section{Approach}
-Our approach is to develop a generalized framework for NodeJS will combine abstract testing of models, unit testing, and functional testing into a single, yet modular, 
-utility. The effort of functional testing will involve the synchronization of timing of outputs from the server as well as the clients involved. The testing utility 
+Our approach is to develop a generalized framework for NodeJS will combine client-side unit, full-stack, and remote testing into a single, yet modular, 
+utility. The effort of client-side unit testing will involve the synchronization of timing of outputs from the server as well as the clients involved. The testing utility 
 should be distributable just as the software being tested and a means of distributing and launching a test should be runnable from a single test location. Any data and 
 any results of a test run should also be collected and delivered to the single test location where it will be analyzed and classified as either a success or failure. 
 Current design will feature the integration of the Labstreaminglayer tool and a Labstreaminglayer server. This tool will allow for the collection of any data or output 
@@ -298,11 +298,14 @@ deemed necessary for a given test. It will allow for record sub-millisecond timi
 
 For the goal of developing and testing the game locally on one machine, we will also be able to leverage the fact that it is built to run in the browser on
 an interpreted language to run test suites end to end. Firstly, we will investigate an approach similar to Ariyurek et al[2] in order to develop an automated 
-system to test the application as well as to automatically find problems with it. Secondly, the fact that the application in its unobstructed build state will have
+system to test the application as well as to automatically find problems with it. Secondly, the assumption that the application will be its unobstructed build state implies
 its internal state visible and inspectable from the outside. That is to say, if we were to run multiple client simulations concurrently, we would be able to inspect 
 the state of the simulation on each one of the said client machines independently. This would allow us to inspect the correctness of the model in real time from the 
 perspective of each client. Likewise, the fact that we could control each client independently, we will be able to gauge the susceptibility of the simulation to erroneous 
-or malicious data by willfully introducing it to one client, and checking if the erroneous data was propagated to the other clients.
+or malicious data by willfully introducing it to one client, and checking if the erroneous data was propagated to the other clients. Lastly, we have the option of checking
+each client's internal state with the internal state of the server to ensure all simulations are synchronized correctly.
+
+The following sections will describe three different approaches to testing a generalized asynchronous simulation, followed by the actual implementation of the framework.
 
 
 \section{Implementation}
@@ -325,14 +328,16 @@ With these capabilities in mind, the framework would be capable of provoking a c
 
 
 \begin{figure}[htbp]
-\centerline{\includegraphics [width = 6cm, height = 6cm] {images/ClientSideFrameworkDiagram.jpg}}
+\centerline{\includegraphics [width = 6cm, height = 5.5cm] {images/ClientSideFrameworkDiagram.jpg}}
 \caption{Architecture with Client-side Testing Framework}
 \end{figure}
 
 
 \subsection{Automated Full-stack Testing}
 
-To be developed 
+The testing layout described in the previous section is a very good approach in ensuring the integrity of an individual client, it however does not take the state of the server into account.
+For clarity, let's assume that we were to run a simulation for some amount of time, and during that amount of time, each client has performed a set of actions. Over time, there exists a possibility that 
+although each client may have correctly reflected a single action from another client, there 
 
 
 \subsection{Remote Testing}
