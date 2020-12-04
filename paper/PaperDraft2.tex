@@ -317,9 +317,20 @@ machine in order to test each function of the system as its being developed or m
 visually show any changes to the simulation state to the viewer as the tests are being invoked.  
 
 Consider the architecture diagram in Fig. 1, wherein each client has a two-way connection to the server. The client may push an update to the simulation state, and likewise each
-client can receive the updated state at any time. 
+client can receive the updated state at any time. If we are to perform an automated functional test, then it would be sufficient to tap into one of the clients, and simply invoke 
+some change in that client. However, while this may be sufficient to verify that operability of the functions pertaining to a client, it does not guarantee that the entire system 
+is indeed working as intended, namely that all other clients are receiving and rendering the updates correctly. Fig 8. shows our proposed approach to this problem. Note that a "Testing Framework"
+entity is created, which is communicating to each client, and would have the ability to programatically invoke a client change, and likewise to programatically listen to any changes in each client.
+With these capabilities in mind, the framework would be capable of provoking a change in a client and then verify the change in all other clients for correctness. 
 
-\subsection{Automated Unit Testing}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 6cm, height = 6cm] {images/ClientSideFrameworkDiagram.jpg}}
+\caption{Architecture with Client-side Testing Framework}
+\end{figure}
+
+
+\subsection{Automated Full-stack Testing}
 
 To be developed 
 
