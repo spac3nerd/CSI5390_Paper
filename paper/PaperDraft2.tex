@@ -237,7 +237,7 @@ At this point, we have all of the necessary information to encode a static objec
 must be implemented: velocity. Consider that an object in our game is in motion, assume it is moving along the X axis. If we have enough snapshots of its location,
 then we may be able to render its path up until the current snapshot. However, consider what happens until the next snapshot is received; we will have no idea about the object's path. 
 In order to circumvent this, information about how fast the object is moving may be encoded such that an extrapolation between snapshots may occur. This velocity attribute 
-is split into two segments; the liear velocity, which is the change in position across the Cartesian system, and angular velocity, which is the change in orientation. 
+is split into two segments; the linear velocity, which is the change in position across the Cartesian system, and angular velocity, which is the change in orientation. 
 Each one of these attributes may be encoded in a three dimensional vector(Fig 1).
 
 \begin{figure}[htbp]
@@ -312,7 +312,7 @@ The following sections will describe three different approaches to testing a gen
 
 \subsection{Automated Client-side Testing}
 
-The first testing scenario we will consider is to allow the system to automatically play the game in order to test a set of pre-defined set of actions.
+The first testing scenario we will consider is to allow the system to automatically control the simulation in order to test a set of pre-defined actions.
 For example, let's assume that we may programatically interact with the simulation directly in at least one of the client instances. With the system having control over a client simulation, 
 we can individually test the different interactions with the simulation. This type of autmated testing could be invoked on an individual developer's 
 machine in order to test each function of the system as its being developed or modified. If the simulation has a visual representation, then perhaps it will be beneficial to 
@@ -365,7 +365,7 @@ the project code is located at (https://github.com/spac3nerd/CSI-5390Proj). The 
 will need to run both traditional HTTP transactons and socket transactions. The HTTP transactions are used to ask the server if 
 there are any open spots in the game, and whether access is granted to a new player. If access is granted, then the server will return 
 an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
-with the token and a tunnel is established between the client and the server. Fig 8. shows the game being played by three players, with
+with the token and a tunnel is established between the client and the server. Fig. 10 shows the game being played by three players, with
 the blue tank being controlled by the current instance.  
 
 
@@ -385,7 +385,18 @@ in which any player may type a message to send to all other players at any time.
   \item A Player may send a message to all other players at any time.
 \end{itemize}
 
-With all of NodeTank's rules layed out, we have the knowledge necessary to start building up the types of test cases and tests we require. 
+As alluded to earlier, NodeTank uses a client-server architecture, however with a couple of slight distinctions. The first being that although the clients and the server
+communicate state changes over a two-way socket, the server also has several RESTful HTTP endpoints which allow connection negotiations and debugging data transfers to occur. 
+Fig. 11 showcases the architectural layout - note that in addition to the socket, the client may request some data over a HTTP call, and the server is then able to respond to 
+this call individually. The usefulness of this approach will become evident when attempting to inspect the internal state of the server. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 6cm] {images/testingSchemaArch.png}}
+\caption{The Architecture of NodeTank}
+\end{figure}
+
+
+With all of NodeTank's rules and structure layed out, we have the knowledge necessary to start building up the types of test cases and tests we require. 
 In the following sections we will cover the specific testing implementations with the goal of addressing the problem of rigorously testing NodeTank, however, these techniques 
 are easily applicable to other multiplayer games built on the NodeJS platform. 
 
@@ -400,7 +411,7 @@ instead of simply unit testing in the traditional sense(isolating one function a
  
  The proposed implementation called for a testing library to be written, which caters to the peculiarities of a case such as NodeTank while providing generalized functionality for all 
  applications of the same architecture. Recall the class diagram in Fig 8. layed out the server-side and client-side classes utilized by the game. The authors have implemented a framework
- under a class entity called "NodeTankTesting", which is coupled into one more more instances of the client-side. The applied changes are visualized in the Fig. 9 daigram. At a high-level,
+ under a class entity called "NodeTankTesting", which is coupled into one more more instances of the client-side. The applied changes are visualized in the Fig. 11 diagram. At a high-level,
  the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
 
 \begin{figure}[htbp]
@@ -439,7 +450,7 @@ game.prototype = {
 
 
 The benefit of the prototype pattern is that we are able to inspect the internal state of any game instance running in the brwoser, and we are also able to programatically induce 
-any inputs such as movement, firing and entering new chat items. Fig 11. is an example of inspecting the entire instance of NodeTank and the position of the player tank programatically.
+any inputs such as movement, firing and entering new chat items. Fig 12. is an example of inspecting the entire instance of NodeTank and the position of the player tank programatically.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics [width = 9cm, height = 2.8cm] {GameInspection.jpg}}
@@ -449,7 +460,7 @@ any inputs such as movement, firing and entering new chat items. Fig 11. is an e
 Now that we have a handle to a game instance, we can begin to write some test cases which will allow us to test every client-side functionality of the game. For example, before a player can
 connect to the server, the connection must first be negotiated over a HTTP call. The testing framework has a builtin to send the negotiation request along with the player's desired name, and if the 
 server is not at the maximum player capacity, it will respond with an unique token which will be used from thereon as an identifier. In order to test this functionality, we can programatically request
-the new connection and verify that a token was issued (or denied) as expected. In Fig 12. we can see the implementation of this test - note that "t" refers to the testing framework and that the "requestToken"
+the new connection and verify that a token was issued (or denied) as expected. In Listing 1 we can see the implementation of this test - note that "t" refers to the testing framework and that the "requestToken"
 function requires that a callback be provided, which is called whenever the response for the token request is received. 
 
 \begin{lstlisting}[language=JavaScript,caption={Snippet of Test Case for Requesting a Token}]
@@ -472,8 +483,43 @@ function requires that a callback be provided, which is called whenever the resp
 However, a problem remains with this approach in that the test case will work as intended if manually invoked in isolation. Consider that the call itself is asynchronous - we cannot block the 
 main (and only) thread on the client-side while we wait for a response to come back from the server, doing so would pause the client-side simulation at every network interaction and there would be no interactivity! 
 Suppose that we wish to have an entire suite of tests, and that some of those tests rely on the previous test completing before being invoked. If a string of synchronous function calls would be utilized
-in testing, then we would have no mechanism by which to ensure that test B is only called after test A completed if test A is at all asynchronous. Therefore, a more intelligent design pattern must 
-be leveraged in order to allow the framework to test all cases automatically. Fig 13. showcases the desired sequence diagram for launching two tests at the correct time without blocking the main thread. 
+in testing, then we would have no mechanism by which to ensure that test B is only called after test A completed assuming test A is at all asynchronous. Therefore, a more intelligent design pattern must 
+be leveraged in order to allow the framework to test all cases automatically.  
+
+In order to account for the client application only having one thread, we must implement the framework using a callback pattern. S. Kyle[8] describes callback as a function which 
+"is acting as a callback, because it serves as the target for the event loop to “call back into” the program, whenever that item in the queue is processed.". For example, the simplest 
+use case for a callback would be whenever a HTTP call is made to a remote resource. The main thread asks for the remote resource, and provides a callback function which is to be called whenever
+a response comes from the server. Before this callback is called, the main thread may continue executing other items, in the example of NodeTank, the rendering and interactivity. However, a pure
+callback is not sufficient in that it becomes increasingly unwieldy as more dependent calls are stacked. Luckily, JavaScript has a special type of callback mechanism called a Promise, which allows 
+us to call asynchronous functions in the correct order so long as we can correctly control when the next function should be called.  Listing 3 shows all test cases being invoked in the correct sequence.
+
+\begin{lstlisting}[language=JavaScript,caption={Snippet of Automatically Invoking Test Cases in Order}]
+    let test1P = new Promise(test1).then(() => {
+                return new Promise(test2);
+            }).then(() => {
+                return new Promise(test3);
+            }).then(() => {
+                return new Promise(test4);
+            }).then(() => {
+                return new Promise(test5);
+			//....
+			});
+\end{lstlisting}
+
+The Promise mechanism provides yet another benefit to us, namely that we have the ability to manually kick off any individual test function in conjuction with doing so automatically. 
+Refering back to Listing 2, note that on line 6 we're checking for the existence of a function named "resolve", and if it exists we call it. This function is the mechanism which whe signal 
+to the Promise that the current function has executed and that the next function call in the sequence may be made. 
+
+Putting all of these features together, we have arrived at all of the tools necessary to build the framework to the state in which it can automatically start a game instance, control a player, 
+and ultimately verify the game across all instances. The reader is encouraged to download and inspect the Testing Framework for the exact implementation of how instances are set up,
+how assertions are defined how all of these are coupled in an asynchronous manner. Fig. 13 showcases 18 separate test cases which passed and were invoked automatically. As mentioned 
+earlier, we thought it prudent to also visually show any changes should the user chose to perform a visual inspection. Likewise, the user also has the ability to manually invoke
+any individual test case. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 6cm] {images/FullClientSideTesting.jpg}}
+\caption{Full Client-side Testing Implementation with NodeTank}
+\end{figure}
 
 
 \subsection{Remote RPC Services}
@@ -541,6 +587,8 @@ https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=400453
 [6] J. Smed, “Aspects of Networking in Multiplayer Computer Games“, Proceedings of International Conference on Application and Development of Computer Games in the 21st Century, Hong Kong, 2001,
 Available: https://www.researchgate.net/publication/269251176\_Aspects\_of\_Networking\_in\_Multiplayer\_Computer\_Games
 
-[7] A. Osmani "JavaScript Patterns", Book, 2012, Available: https://addyosmani.com/resources/essentialjsdesignpatterns/book/
+[7] A. Osmani "JavaScript Patterns", Book, 2012, pp.35, Available: https://addyosmani.com/resources/essentialjsdesignpatterns/book/
+
+[8] S. Kyle "You Don't Know JS: Async \& Performance ", Book, 2015, pp.41
 \end{document}
 
