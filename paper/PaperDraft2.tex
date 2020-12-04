@@ -378,20 +378,39 @@ instead of simply unit testing in the traditional sense(isolating one function a
  the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
 
 \begin{figure}[htbp]
-\centerline{\includegraphics [width = 6cm, height = 9cm] {Class2.0.PNG}}
+\centerline{\includegraphics [width = 6cm, height = 9cm] {classv2.PNG}}
 \caption{Modified Class Diagram with Testing Framework}
 \end{figure}
 
 This testing framework relies on the ability to access the internal state of any client instance of NodeTank. The reader may be interested to know that the author of NodeTank 
 elected to utilize the prototype pattern, which is a JavaScript design pattern which allows for great control over inheritance while exposing any closures to outside observers[7]. For example, 
-let's take the Game class from the client-side in consideration. In Fig 10. we can see that the variable "game" is defined into two sections: there is a function declaration, whose body functionally 
+let's take the Game class from the client-side in consideration. In Listing 1, we can see that the variable "game" is defined into two sections: there is a function declaration, whose body functionally 
 behaves like a constructor, and a prototype assignment, which is a set of methods inherited by all instances of game. The keen reader will note that this is not quite the same classical inheritance
 mechanism utilized by languages such as Java, however we will continue to refer to them as classes as functionally they behave similarly enough.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics [width = 9cm, height = 5cm] {GameCodeSnippet.jpg}}
-\caption{Snippet of the Game Class}
-\end{figure}
+\begin{lstlisting}[language=JavaScript,caption={Snippet of the Game Class}]
+    game = function(canvas, socket, token, name) {
+		this.canvas = canvas;
+		this.socket = socket;
+		this.token = token;
+		this.name = name;
+		this.initCallback = undefined;
+		//...
+	};
+
+game.prototype = {
+    //set up an instance of the game
+    init: function(callback) {
+        this.initCallback = callback;
+        this.configSocket();
+        console.log(this.name);
+        this.socket.emit('joinGame', {
+            token: this.token,
+            name: this.name
+        });
+    },
+\end{lstlisting}
+
 
 The benefit of the prototype pattern is that we are able to inspect the internal state of any game instance running in the brwoser, and we are also able to programatically induce 
 any inputs such as movement, firing and entering new chat items. Fig 11. is an example of inspecting the entire instance of NodeTank and the position of the player tank programatically.
@@ -407,12 +426,7 @@ server is not at the maximum player capacity, it will respond with an unique tok
 the new connection and verify that a token was issued (or denied) as expected. In Fig 12. we can see the implementation of this test - note that "t" refers to the testing framework and that the "requestToken"
 function requires that a callback be provided, which is called whenever the response for the token request is received. 
 
-\begin{figure}[htbp]
-\centerline{\includegraphics [width = 9cm, height = 2.8cm] {TokenTestSnippet.jpg}}
-\caption{Snippet of Test Case for Requesting a Token}
-\end{figure}
-
-\begin{lstlisting}[language=JavaScript]
+\begin{lstlisting}[language=JavaScript,caption={Snippet of Test Case for Requesting a Token}]
     let id2 = t.registerTest("testCase2");
     let test2 = (resolve, reject) => {
         t.requestToken(player1Name, (token) => {
@@ -426,7 +440,6 @@ function requires that a callback be provided, which is called whenever the resp
             }
         });
     };
-
 \end{lstlisting}
 
 
