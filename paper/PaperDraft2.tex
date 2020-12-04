@@ -98,8 +98,7 @@ sfbadila@oakland.edu, ccampbell5@oakland.edu, rmwilk@oakland.edu}
  their interactions be distributed to connected client applications. With all these simulations, it is paramount that the individual units in the simulations 
  as well as all the moving parts in the server are rigorously tested. The research gathered for this paper will outline the testing methodologies that we find 
  to be the most significant. Combining strong unit and integration testing inside the server, each simulation needs to be tested for usability, compatibility, and 
- reliability. Likewise, since the integrity of the simulation is paramount, susceptibility to malicious or incorrect information fed into the system  must be mitigated, 
- and as such, we will explore mechanisms by which test the system.
+ reliability. Likewise, since the corectness and robustness of the simulation is paramount, we will also explore mechanisms by which to perform end to end testing of such simulations.
 
 \end{abstract}
 
@@ -328,7 +327,7 @@ With these capabilities in mind, the framework would be capable of provoking a c
 
 
 \begin{figure}[htbp]
-\centerline{\includegraphics [width = 6cm, height = 5.5cm] {images/ClientSideFrameworkDiagram.jpg}}
+\centerline{\includegraphics [width = 6cm, height = 5cm] {images/ClientSideFrameworkDiagram.jpg}}
 \caption{Architecture with Client-side Testing Framework}
 \end{figure}
 
@@ -337,8 +336,20 @@ With these capabilities in mind, the framework would be capable of provoking a c
 
 The testing layout described in the previous section is a very good approach in ensuring the integrity of an individual client, it however does not take the state of the server into account.
 For clarity, let's assume that we were to run a simulation for some amount of time, and during that amount of time, each client has performed a set of actions. Over time, there exists a possibility that 
-although each client may have correctly reflected a single action from another client, there 
+although each client may have correctly reflected a single action from another client, the simulation of each client may have become out of sync. The reason for such a possibility is that in most 
+asynchronous simulations a certain level of interpolation is introduced for each client. For example in a typical game application, when Player 1 performs an action, the local
+rendering will start to show the movement before a confirmation from the server is received in order to mask any underlying latency. Since every client will perform its own interpolation, 
+there exists the possibility that all clients will become out of sync over time. 
 
+In order to account for this possible discrepancy, we may modify the diagram in Fig. 8 to allow the testing framework an entrypoint into the server. The reasoning being that we may programatically
+control multiple clients for some amount of time and then verify the internal state of the server to the internal state of each client. Fig. 9 shows the modified diagram, note that the connection
+from the framework to the server is meant to pull the internal state of the server for comparison with all connected clients. For easy integration, it may be assumed that the Testing Framework
+is the same entity for both test scenarios.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 6cm, height = 5cm] {images/FullStackTestingDiagram.jpg}}
+\caption{Architecture with Full-stack Testing Framework}
+\end{figure}
 
 \subsection{Remote Testing}
 
