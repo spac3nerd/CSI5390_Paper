@@ -72,7 +72,9 @@ numbersep=9pt,
 tabsize=2,
 breaklines=true,
 showtabs=false,
-captionpos=b
+captionpos=b,
+linewidth=.46\textwidth,
+xleftmargin=.2cm
 }
 	
 \begin{document}
@@ -376,7 +378,7 @@ instead of simply unit testing in the traditional sense(isolating one function a
  the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
 
 \begin{figure}[htbp]
-\centerline{\includegraphics [width = 9cm, height = 5cm] {ClassDiagramWithTesting.jpg}}
+\centerline{\includegraphics [width = 6cm, height = 9cm] {Class2.0.PNG}}
 \caption{Modified Class Diagram with Testing Framework}
 \end{figure}
 
@@ -427,6 +429,7 @@ function requires that a callback be provided, which is called whenever the resp
 
 \end{lstlisting}
 
+
 However, a problem remains with this approach in that the test case will work as intended if manually invoked in isolation. Consider that the call itself is asynchronous - we cannot block the 
 main (and only) thread on the client-side while we wait for a response to come back from the server, doing so would pause the client-side simulation at every network interaction and there would be no interactivity! 
 Suppose that we wish to have an entire suite of tests, and that some of those tests rely on the previous test completing before being invoked. If a string of synchronous function calls would be utilized
@@ -439,7 +442,27 @@ Our implementation of the \textit{Data} and \textit{RemoteCtrl} APIs were built 
 
 \subsubsection{Remote Testing Service}
 Within \textit{gameCore} the RPC host objects are setup each to operate within their own thread, alongside the game's primary servers.
+
+\begin{lstlisting}[language=JavaScript,caption={In this example, the thrift is used to create a server for the  'dataInterface' service. It then lists two skeleton functions to handle 'GetGameData' and 'ExecuteTests' functions.}]
+dataServer = thrift.createServer(dataInterface,{
+  GetGameData:     function(){
+      let game_data = { /*meaningful code*/ };
+      return game_data;
+    },
+  ExecuteTests:    function(arg1,arg2){
+      // Custom handler code goes here
+    },
+    .
+    .
+});
+dataServer.listen(9091);
+\end{lstlisting}
+This RPC server instantiation serves as the primary hook into the innards of the game, and is how the queries into the internal game objects' states are achieved.
+
 \subsubsection{Remote Control Service}
+The control service is implemented in the same manner. Instead of focusing on extracting information from the server, the remote control service operates on the server's internals by calling its internal functions, even supplying arguments to them from the outside. Functions exported from the module in \textit{socket-manager.js} are at the disposal as well, including those for making websocket calls to client instances. This extends the reach of the control service even further, allowing it to pass commands along to client code, for example, initiating the client to perform functional tests upon itself and to alert the server after it has finished. The final type of control interaction provided by the service is launch the remote testing service's server, which is not running by default. This makes the the control service client a dependency of any remote testing client.
+
+\subsection{Remote Control Service's Missing Components}
 \paragraph{Injecting user input}
 \paragraph{Extracting the rendered environment}
 
