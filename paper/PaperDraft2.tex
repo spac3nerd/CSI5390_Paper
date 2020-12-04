@@ -521,6 +521,65 @@ any individual test case.
 \caption{Full Client-side Testing Implementation with NodeTank}
 \end{figure}
 
+\subsection{AutomatedFull-stack Testing}
+
+Refering back to the implementation, we have an incentive to also test the entire stack. In order to provide access to the server, we proposed another interface from the Testing Framework
+to the server in order to pull the internal state of the simulation. However, for this type of testing to be meaningful, we cannot simply start seperate instances of NodeTank and then immediately 
+verify the state. To fully leverage this type of testing, we must have a mechanism by which to perform changes to the game from each instance for some amount of time before the actual comparison 
+between clients and server may take place. 
+
+Firstly, we may build off of the framework we've developed for client-side testing as it has already solved the problem of programatically controlling a client in isolation and verifying the internal
+state of a client. With the goal of applying a change of state to all clients, we have the solution of applying a random movement, shooting a random target, and a random shooting interval
+for each client. These random events are generated again after a random amount of time, until the total amount of elapsed time reaches an upper bound in seconds, with all of these actions encompasing a "tick".
+A random number of ticks are performed up to a certain upper bound, and after all ticks are executed, we may then fetch the internal state of the server and verify it against all instances. 
+
+\begin{lstlisting}[language=JavaScript,caption={Snippet of Invoking a Random Number of Automatic Tests}]
+        let startTests = () => {
+        currentTick = 0;
+        currentMaxTicks = randomInRange(ticksBetweenChecks) + 1;
+        runTest = true;
+        resetAllCells();
+        clearMessages();
+        setInterval(() => {
+            runIteration()
+        }, tickLength * 1000);
+
+        runIteration();
+    };
+\end{lstlisting}
+
+Listing 4 showcases how each tick is invoked. Firstly, the initial values of our tracking variables are set, however lines 11 and 15 are of interest. Line 11 again uses a subset of the callback pattern
+to asyncronously call the "runIteration" function after each tick length expires, and line 15 invokes the function immediatetly so that we do not have to wait for the tickLength to pass before the first
+test case is kicked off. 
+
+\begin{lstlisting}[language=JavaScript,caption={Snippet of runIteration}]
+    let runIteration = () => {
+        if (runTest) {
+            console.log("Tick " + currentTick);
+            currentTick++;
+            stopAllMovement();
+            stopAllActions();
+            t.setRandomMovement(gameInstance1);
+            gameInstance1.messageObj.queuedText = messageSet[randomInRange(messageSet.length - 1)];
+
+
+            //set each instance to shoot at another random instance
+            interval1 = setInterval(() => {
+                //aim at something other than itself
+                let target = 0;
+                while (target === 0) {
+                    target = randomInRange(3);
+                }
+                gameInstance1.playerTank.setLookAt(instanceArray[target].playerTank.group.position);
+                gameInstance1.clicked = true;
+
+                stopAllMovement();
+                t.setRandomMovement(gameInstance1);
+            }, randomInRange(tickLength) * 1000);
+\end{lstlisting}
+
+Finally, 
+
 
 \subsection{Remote RPC Services}
 Our implementation of the \textit{Data} and \textit{RemoteCtrl} APIs were built upon a tool known as Thrift, originally created by Facebook, but now managed by Apache. The RPC services contain several functions, between the two of them, for retrieving and executing testing and control operations including \textit{GetTokenByName}, \textit{GetPose}, \textit{SetMove}, \textit{Fire}, \textit{StartDataServer}, \textit{ExecuteTest}, \textit{GetTestResults}, and \textit{GetTestCases} to name a few. The RPC handlers of each RPC services are setup within \textit{gameCore}, the game's primary server. From here, they are pointed to the appropriate handling functions. These handlers allow for the computational logic of the services to access all the necessary information from \textit{gameLoop.js}, \textit{global-state.js}, and \textit{socket-manager.js}.
