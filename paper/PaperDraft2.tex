@@ -72,7 +72,9 @@ numbersep=9pt,
 tabsize=2,
 breaklines=true,
 showtabs=false,
-captionpos=b
+captionpos=b,
+linewidth=.46\textwidth,
+xleftmargin=.2cm
 }
 	
 \begin{document}
@@ -376,7 +378,7 @@ instead of simply unit testing in the traditional sense(isolating one function a
  the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
 
 \begin{figure}[htbp]
-\centerline{\includegraphics [width = 9cm, height = 5cm] {ClassDiagramWithTesting.jpg}}
+\centerline{\includegraphics [width = 6cm, height = 9cm] {Class2.0.PNG}}
 \caption{Modified Class Diagram with Testing Framework}
 \end{figure}
 
@@ -427,6 +429,7 @@ function requires that a callback be provided, which is called whenever the resp
 
 \end{lstlisting}
 
+
 However, a problem remains with this approach in that the test case will work as intended if manually invoked in isolation. Consider that the call itself is asynchronous - we cannot block the 
 main (and only) thread on the client-side while we wait for a response to come back from the server, doing so would pause the client-side simulation at every network interaction and there would be no interactivity! 
 Suppose that we wish to have an entire suite of tests, and that some of those tests rely on the previous test completing before being invoked. If a string of synchronous function calls would be utilized
@@ -439,9 +442,32 @@ Our implementation of the \textit{Data} and \textit{RemoteCtrl} APIs were built 
 
 \subsubsection{Remote Testing Service}
 Within \textit{gameCore} the RPC host objects are setup each to operate within their own thread, alongside the game's primary servers.
+
+\begin{lstlisting}[language=JavaScript,caption={In this example, the thrift is used to create a server for the  'dataInterface' service. It then lists two skeleton functions to handle 'GetGameData' and 'ExecuteTests' functions.}]
+dataServer = thrift.createServer(dataInterface,{
+  GetGameData:     function(){
+      let game_data = { /*meaningful code*/ };
+      return game_data;
+    },
+  ExecuteTests:    function(arg1,arg2){
+      // Custom handler code goes here
+    },
+    .
+    .
+});
+dataServer.listen(9091);
+\end{lstlisting}
+This RPC server instantiation serves as the primary hook into the innards of the game, and is how the queries into the internal game objects' states are achieved.
+
 \subsubsection{Remote Control Service}
+The control service is implemented in the same manner. Instead of focusing on extracting information from the server, the remote control service operates on the server's internals by calling its internal functions, even supplying arguments to them from the outside. Functions exported from the module in \textit{socket-manager.js} are at the disposal as well, including those for making websocket calls to client instances. This extends the reach of the control service even further, allowing it to pass commands along to client code, for example, initiating the client to perform functional tests upon itself and to alert the server after it has finished. The final type of control interaction provided by the service is launch the remote testing service's server, which is not running by default. This makes the the control service client a dependency of any remote testing client.
+
+\subsection{Remote Control Service's Supporting Role}
+The additional goal of the testing framework alongside the remote testing utilities to to support extended periods of software testing. The motivation for this being to allow testers to discover unintended and most likely unwanted effects of long-term execution times of their software. Through manual testing of NodeTank, we discovered that spent bullet objects were not being destroyed after leaving the rendered region of the game. This build up, over time, led to considerable sluggishness. It is these emergent properties and behaviors that are often hard to test for with a human in the loop, and can go undiscovered for quite some time. To solve this problem we had proposed the idea of implementing an Agent play the NodeTank game for extended periods of time that would otherwise be unrealistic to expect of a human player. Allowing the game to run for extended periods of time with external interaction would allow for fuller and more expansive sweep of the ranging states of gameplay. Traditionally in reinforcement learning, an abstract set of game states would be established, and for those states, corresponding actions that would be appropriate for a player to take reinforced by a reward. This mapping of states and actions would be stored in what's known as a Q-table. As the agent explores various actions in the environment, it updates the values in the Q-table to reflect those actions that yielded the maximum cummulative reward. In the case of gaming, especially those rendered in 3-dimensions, there is substantial state explosion that occurs when taking into account all of the possible positions, orientations, objects, and object interactions. Storing these states and actions becomes very impractical very quickly. To overcome this problem, the Q-table will be replaced with a deep-query neural network, or DQN. The additional training time required for a DQN is a trade-off made for the constant memory that would otherwise grow exponentially with a Q-table. Additionally, the DQN would, after being trained, be able to select actions in response to environmental observations it has never seen before, which is another major advantage over the traditional Q-table. Pushing environmental information to and receiving player input from the DQN is a major intended role of the remote control service.
 \paragraph{Injecting user input}
+The remote control service has several functions that allow for injecting input that would otherwise come from a player, directly into the \textit{gameLoop.js} singleton. This includes RPC calls for positional movement, rotating, and firing the NodeTank tanks. It is the inputs to these functions that would be the direct outputs of the DQN's fully-connected layer. This output would be fed to the remote control service's functions following each of the DQN's action predictions.
 \paragraph{Extracting the rendered environment}
+To further facilitate the training of this agent, the remote control service is meant to forward environmental observations to the agent. These observations are in the form of a snapshot of the most recently rendered frame of the game. This image is encoded in a base-64 string and sent to the server where it waits to be requested by the remote control service. After receiving and decoding the base-64 string, the image would be scaled down to more ideal dimensions for input into the DQN. As this observation data propgates forward through the convolutional layers, more and more features are extracted before finally being flattened and fed into the full-connected layers of the network to decide upong the most ideal actions to output. The results of those actions amount to a reward in the game's environment, in our case, the players score which will drop if the player is hit by an enemy, and rise if the players hits an enemy. In actual implementation, the environmental observations, chosen actions, and environmental reward are stored in what's known as a \textit{replay memory}. This \textit{replay memory} is vital to the stable learning of the DQN, as memories have to chosen in random batches for processing by the DQN to alleviate the high temporal correlation of processing back-to-back frames of gameplay.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics [width = 5cm, height = 6cm] {images/remoteTesting.PNG}}
