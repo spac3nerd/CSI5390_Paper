@@ -289,7 +289,7 @@ case. Fig 11 shows the formal definition along with the implementation of the ru
 \end{figure}
 
 \section{Approach}
-Our approach is to develop a testing framework for NodeTank will combine abstract testing of models, unit testing, and functional testing into a single, yet modular, 
+Our approach is to develop a generalized framework for NodeJS will combine abstract testing of models, unit testing, and functional testing into a single, yet modular, 
 utility. The effort of functional testing will involve the synchronization of timing of outputs from the server as well as the clients involved. The testing utility 
 should be distributable just as the software being tested and a means of distributing and launching a test should be runnable from a single test location. Any data and 
 any results of a test run should also be collected and delivered to the single test location where it will be analyzed and classified as either a success or failure. 
@@ -308,17 +308,16 @@ or malicious data by willfully introducing it to one client, and checking if the
 \section{Implementation}
 
 
-
-
-\subsection{Automated Functional Testing}
+\subsection{Automated Client-side Testing}
 
 The first testing scenario we will consider is to allow the system to automatically play the game in order to test a set of pre-defined set of actions.
-For example, we can programatically interact with the game directly in order to control one of the player tanks. With the system having control over a player character, 
-we can individually test the different aspects of the game: movement, shooting, respawning etc... This type of autmated testing could be invoked on an individual developer's 
-machine in order to test each function of the game as its being developed. 
+For example, let's assume that we may programatically interact with the simulation directly in at least one of the client instances. With the system having control over a client simulation, 
+we can individually test the different interactions with the simulation. This type of autmated testing could be invoked on an individual developer's 
+machine in order to test each function of the system as its being developed or modified. If the simulation has a visual representation, then perhaps it will be beneficial to 
+visually show any changes to the simulation state to the viewer as the tests are being invoked.  
 
-However, we may take this testing even further and consider that since the game runs within the browser, we would be able to tap into any concurrent client simulation. This 
-has the implication that we would be able to inspect the state of each client concurrently. 
+Consider the architecture diagram in Fig. 1, wherein each client has a two-way connection to the server. The client may push an update to the simulation state, and likewise each
+client can receive the updated state at any time. 
 
 \subsection{Automated Unit Testing}
 
@@ -339,13 +338,13 @@ the project code is located at (https://github.com/spac3nerd/CSI-5390Proj). The 
 will need to run both traditional HTTP transactons and socket transactions. The HTTP transactions are used to ask the server if 
 there are any open spots in the game, and whether access is granted to a new player. If access is granted, then the server will return 
 an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
-with the token and a tunnel is established between the client and the server. Fig 7. shows the game being played by three players, with
+with the token and a tunnel is established between the client and the server. Fig 8. shows the game being played by three players, with
 the blue tank being controlled by the current instance.  
 
 
 \begin{figure}[htbp]
 \centerline{\includegraphics [width = 9cm, height = 5cm] {GameScreenshot.jpg}}
-\caption{Example of Unicast and Broadcast Transmission Architecture}
+\caption{Screenshot of the Game with Three Players}
 \end{figure}
 
 Note that each player has his own score count,a representation of all of the other tanks as well as any bullets which were fire, and finally, a chat area
