@@ -387,16 +387,16 @@ instead of simply unit testing in the traditional sense(isolating one function a
  under a class entity called "NodeTankTesting", which is coupled into one more more instances of the client-side. The applied changes are visualized in the Fig. 11 diagram. At a high-level,
  the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
 
-\begin{figure}[htbp]
-\centerline{\includegraphics [width = 6cm, height = 9cm] {classv2.PNG}}
-\caption{Modified Class Diagram with Testing Framework}
-\end{figure}
-
 This testing framework relies on the ability to access the internal state of any client instance of NodeTank. The reader may be interested to know that the author of NodeTank 
 elected to utilize the prototype pattern, which is a JavaScript design pattern which allows for great control over inheritance while exposing any closures to outside observers[7]. For example, 
 let's take the Game class from the client-side in consideration. In Listing 1, we can see that the variable "game" is defined into two sections: there is a function declaration, whose body functionally 
 behaves like a constructor, and a prototype assignment, which is a set of methods inherited by all instances of game. The keen reader will note that this is not quite the same classical inheritance
 mechanism utilized by languages such as Java, however we will continue to refer to them as classes as functionally they behave similarly enough.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 6cm, height = 9cm] {classv2.PNG}}
+\caption{Modified Class Diagram with Testing Framework}
+\end{figure}
 
 \begin{lstlisting}[language=JavaScript,caption={Snippet of the Game Class}]
     game = function(canvas, socket, token, name) {
