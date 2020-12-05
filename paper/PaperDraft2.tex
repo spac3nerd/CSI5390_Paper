@@ -201,9 +201,9 @@ games.
 \subsection{3D Rendering at a High Level}
 
 In the real world, we have object which we can look at and interact with. When such objects are created in a 3D renderer,
-some data must be modeled about the object. For simplicity, we will only consider a Cartesian coordinate system(Fig 2), in which points are mapped 
+some data must be modeled about the object. For simplicity, we will only consider a Cartesian coordinate system(Fig. 4), in which points are mapped 
 by numerical coordinates along three perpendicular lines(axes). Intuitively, the positional information may be expressed in terms of a displacement 
-along each one of the three axes (X, Y, Z). As such, a simple vector with three components can encode this information(Fig 1.): 
+along each one of the three axes (X, Y, Z). As such, a simple vector with three components can encode this information(Fig. 3): 
 
 \begin{figure}[htbp]
 \[ (V_{x}, V_{y}, V_{z}) \]
@@ -216,7 +216,7 @@ along each one of the three axes (X, Y, Z). As such, a simple vector with three 
 \end{figure}
 
 However, simply listing the position is not sufficient in order to accurately map the object in space. An object may be rotated 
-around its position. Fig 2. shows a simple example of a car being rotates about the Z axis. The simplest method by which this information can be encoded 
+around its position. Fig. 5 shows a simple example of a car being rotates about the Z axis. The simplest method by which this information can be encoded 
 is to use another three component vector to keep track of the roation around each axis, and then apply each rotation to each axis in a cascading fashion. 
 This is commonly known as an Euler Angle, which is intuitive to use, but not sufficent enough in our use case due to the possibility of gimbal lock. 
 In short terms, gimbal lock can occur when two axes are in a parallel configuration to each other, which would force an otherwise single axis rotation to instead 
@@ -231,14 +231,14 @@ become a composite rotation.
 The conventional solution to this problem is to discard the Euler Angle representation of rotation in favor of using quaternions. 
 For the purpose of this paper, we must only know that an equivalent description of orientation can be encoded in a quaternion,
 but without the gimbal lock limitation which would cause rotation behavior should it occur. In short, this quaternion may be expressed as a four dimensional
-vector, similar to the one expressed in Fig 1., but with an extra component, \textit{w}. 
+vector, similar to the one expressed in Fig. 3, but with an extra component, \textit{w}. 
 
 At this point, we have all of the necessary information to encode a static object in our game world, yet there is one more attribute which
 must be implemented: velocity. Consider that an object in our game is in motion, assume it is moving along the X axis. If we have enough snapshots of its location,
 then we may be able to render its path up until the current snapshot. However, consider what happens until the next snapshot is received; we will have no idea about the object's path. 
 In order to circumvent this, information about how fast the object is moving may be encoded such that an extrapolation between snapshots may occur. This velocity attribute 
 is split into two segments; the linear velocity, which is the change in position across the Cartesian system, and angular velocity, which is the change in orientation. 
-Each one of these attributes may be encoded in a three dimensional vector(Fig 1).
+Each one of these attributes may be encoded in a three dimensional vector(Fig 3).
 
 \begin{figure}[htbp]
 \begin{equation}
@@ -256,36 +256,9 @@ Each one of these attributes may be encoded in a three dimensional vector(Fig 1)
 \caption{Complete Object State}
 \end{figure}
 
-Fig 6 shows our final object state. This will be our basic building block when we will discuss the protocol in detail, 
-as this will become the data packet which updates clients on the state of the simulation and the objects therein. 
-
-\subsection{Game Model}
-
-The protocol workflow has been described at a very high level, but it is agnostic to the specific game and the rules associated with it. The 
-player is modeled by a tank object. This tank object has a few properties associated with it: alive, outOfBounds, score. The alive state 
-dictates whether the tank is on the playing field - given that in our rules we have established that being shot simply leads to a respawn, 
-this state is only used to indicate that a respawn must occur and that the other player's score is incremented. The outOfBounds attribute is true 
-when the player steps outside of the game field, which leads to alive being set to false and score being decremented. The score attribute 
-keeps track of the player's current score. 
-
-A keen observer would note that a player's tank has many more attributes that those listed above. Rezin et al [3] utilized model checking 
-on a multiplayer game, and they came up with an attribute list which contained all variables that would change over the course of the game.
-The attributes are tied into parameters, which are constants set at the beginning of the game. For example, a player's tank can be modeled
-as a parameter with attrbutes X position, Y position, Z position, lookAt, score, alive, outOfBounds. The limitation of using this approach is that 
-if an object's position is utilized in checking the model, the list of all possible state combinations would be too large to ever compute due 
-to the size of the game field having granularity in the tens of millions and the total number of possible lookAt locations also being in the millions.
-
-With these considerations in mind, model checking has also been overlooked in favor of utilizing automated testing to test the 
-game directly for consistency in its rules. One thing of note is that the formal definition of the game rules for example, a valid x coordinate,
-is syntactically equivalent to the check the game logic would perform; therefore writting a model checking program is redundant in this specific 
-case. Fig 11 shows the formal definition along with the implementation of the rule.  
-
-\begin{figure}[htbp]
-\[ (W_{xmin} \leq T_{x} \leq W_{xmax}) \]
-\[ !(playerTanks[k].obj.position.x < xMin ||\]
-\[ playerTanks[k].obj.position.x > xMax) \]
-\caption{Formal Rule and Implementation of Valid X coordinate}
-\end{figure}
+Fig. 6 shows our final object state. This will be our basic building block for all objects in not only a generic multiplayer game simulation, 
+but also our case study, NodeTank. When considering testing, the primary attribues which are sent via server updates to the clients are position,
+orientation and a game specific attribute, score. 
 
 \section{Approach}
 Our approach is to develop a generalized framework for NodeJS will combine client-side unit, full-stack, and remote testing into a single, yet modular, 
@@ -321,7 +294,7 @@ visually show any changes to the simulation state to the viewer as the tests are
 Consider the architecture diagram in Fig. 1, wherein each client has a two-way connection to the server. The client may push an update to the simulation state, and likewise each
 client can receive the updated state at any time. If we are to perform an automated functional test, then it would be sufficient to tap into one of the clients, and simply invoke 
 some change in that client. However, while this may be sufficient to verify that operability of the functions pertaining to a client, it does not guarantee that the entire system 
-is indeed working as intended, namely that all other clients are receiving and rendering the updates correctly. Fig 8. shows our proposed approach to this problem. Note that a "Testing Framework"
+is indeed working as intended, namely that all other clients are receiving and rendering the updates correctly. Fig 7. shows our proposed approach to this problem. Note that a "Testing Framework"
 entity is created, which is communicating to each client, and would have the ability to programatically invoke a client change, and likewise to programatically listen to any changes in each client.
 With these capabilities in mind, the framework would be capable of provoking a change in a client and then verify the change in all other clients for correctness. 
 
@@ -341,8 +314,8 @@ asynchronous simulations a certain level of interpolation is introduced for each
 rendering will start to show the movement before a confirmation from the server is received in order to mask any underlying latency. Since every client will perform its own interpolation, 
 there exists the possibility that all clients will become out of sync over time. 
 
-In order to account for this possible discrepancy, we may modify the diagram in Fig. 8 to allow the testing framework an entrypoint into the server. The reasoning being that we may programatically
-control multiple clients for some amount of time and then verify the internal state of the server to the internal state of each client. Fig. 9 shows the modified diagram, note that the connection
+In order to account for this possible discrepancy, we may modify the diagram in Fig. 7 to allow the testing framework an entrypoint into the server. The reasoning being that we may programatically
+control multiple clients for some amount of time and then verify the internal state of the server to the internal state of each client. Fig. 8 shows the modified diagram, note that the connection
 from the framework to the server is meant to pull the internal state of the server for comparison with all connected clients. For easy integration, it may be assumed that the Testing Framework
 is the same entity for both test scenarios.
 
@@ -365,7 +338,7 @@ the project code is located at (https://github.com/spac3nerd/CSI-5390Proj). The 
 will need to run both traditional HTTP transactons and socket transactions. The HTTP transactions are used to ask the server if 
 there are any open spots in the game, and whether access is granted to a new player. If access is granted, then the server will return 
 an unique token to the client with which a socket connection can be requested. The client then requests entry into the game 
-with the token and a tunnel is established between the client and the server. Fig. 10 shows the game being played by three players, with
+with the token and a tunnel is established between the client and the server. Fig. 9 shows the game being played by three players, with
 the blue tank being controlled by the current instance.  
 
 
@@ -387,7 +360,7 @@ in which any player may type a message to send to all other players at any time.
 
 As alluded to earlier, NodeTank uses a client-server architecture, however with a couple of slight distinctions. The first being that although the clients and the server
 communicate state changes over a two-way socket, the server also has several RESTful HTTP endpoints which allow connection negotiations and debugging data transfers to occur. 
-Fig. 11 showcases the architectural layout - note that in addition to the socket, the client may request some data over a HTTP call, and the server is then able to respond to 
+Fig. 10 showcases the architectural layout - note that in addition to the socket, the client may request some data over a HTTP call, and the server is then able to respond to 
 this call individually. The usefulness of this approach will become evident when attempting to inspect the internal state of the server. 
 
 \begin{figure}[htbp]
@@ -410,7 +383,7 @@ instead of simply unit testing in the traditional sense(isolating one function a
  the movement must be rendered in the simulation of all other players, which implies that the server must correctly receive, process and send a correct update to all players. 
  
  The proposed implementation called for a testing library to be written, which caters to the peculiarities of a case such as NodeTank while providing generalized functionality for all 
- applications of the same architecture. Recall the class diagram in Fig 8. layed out the server-side and client-side classes utilized by the game. The authors have implemented a framework
+ applications of the same architecture. Recall the class diagram in Fig 7. layed out the server-side and client-side classes utilized by the game. The authors have implemented a framework
  under a class entity called "NodeTankTesting", which is coupled into one more more instances of the client-side. The applied changes are visualized in the Fig. 11 diagram. At a high-level,
  the framework provides mechanisms to start up an instance of NodeTank client in the browser, register tests, programatically control a player and assertions to verify the state of each client. 
 
@@ -603,7 +576,7 @@ we can invoke the verify function (Listing 6).
 \end{lstlisting}
 
 After all of the ticks have been ran, we may leverage a debugging interface opened in the server(Listing 6, line 6), which returns the internal snapshot of the simulation from the server. 
-Using this snapshot, we will verify that the server copy of each tank's score, location and chat messages matches the authoritative snapshot. Putting it all together, we arrive at Fig. 15, which 
+Using this snapshot, we will verify that the server copy of each tank's score, location and chat messages matches the authoritative snapshot. Putting it all together, we arrive at Fig. 14, which 
 has all of the client instances performing the random actions and a representation of the test results. In this case, the framework has detected a discrepancy of Player 2's position on his own
 instance. 
 
