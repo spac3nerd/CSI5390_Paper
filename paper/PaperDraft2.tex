@@ -576,9 +576,41 @@ test case is kicked off.
                 stopAllMovement();
                 t.setRandomMovement(gameInstance1);
             }, randomInRange(tickLength) * 1000);
+			
+			//......
+			if (currentTick >= currentMaxTicks) {
+                verify();
+            }
 \end{lstlisting}
 
-Finally, 
+Finally, Listing 5 showcases the "runIteration" function, which is called once for each tick. Lines 5 and 6 clear all movement which was set in the previous tick - this is part of the Testing Framework
+and is implementation specific. Line 7 sets a random movment for the first game instance and line 12 set a sub interval in which a random other tank is selected to be targeted and to be fired upon at a 
+random interval. The reader may note that multiple sub intervals are set for each tank in each tick in order to maximize randomization. Finally, on line 26, once all ticks have been ran,
+we can invoke the verify function (Listing 6).
+
+\begin{lstlisting}[language=JavaScript,caption={Snippet of Verification Code}]
+    let verify = () => {
+        runTest = false;
+        fetchServerSnapshot();
+    };
+	fetchServerSnapshot = () => {
+        t.HTTPRequest("POST", "/debug/getGameState", {}, (response) => {
+            if (response.success) {
+                checkAgainstInstances(response.data);
+            }
+        });
+    };
+\end{lstlisting}
+
+After all of the ticks have been ran, we may leverage a debugging interface opened in the server(Listing 6, line 6), which returns the internal snapshot of the simulation from the server. 
+Using this snapshot, we will verify that the server copy of each tank's score, location and chat messages matches the authoritative snapshot. Putting it all together, we arrive at Fig. 15, which 
+has all of the client instances performing the random actions and a representation of the test results. In this case, the framework has detected a discrepancy of Player 2's position on his own
+instance. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics [width = 9cm, height = 6cm] {images/FullFullStackTesting.jpg}}
+\caption{Full-stack Testing Implementation with NodeTank}
+\end{figure}
 
 
 \subsection{Remote RPC Services}
